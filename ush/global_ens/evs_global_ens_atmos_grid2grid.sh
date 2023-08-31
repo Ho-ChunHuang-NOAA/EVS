@@ -148,13 +148,13 @@ for  verify in $verifys ; do
         echo  "export valid_increment=21600" >>  run_${modnam}_valid_at_t${cyc}z_${fhr}_g2g.sh
 
         if [ $modnam = gefs ] ; then
-          echo  "export lead='6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72,78, 84,90, 96,102, 108,114, 120,126, 132,138, 144,150, 156,162, 168,174, 180,186, 192,198,204,210, 216,222, 228,234, 240,246, 252,258, 264,270, 276,282, 288,294, 300,306, 312,318, 324,330, 336,342, 348,354, 360,366, 372,378, 384'  " >> run_${modnam}_valid_at_t${cyc}z_${fhr}_g2g.sh
+          echo  "export lead='0, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72,78, 84,90, 96,102, 108,114, 120,126, 132,138, 144,150, 156,162, 168,174, 180,186, 192,198,204,210, 216,222, 228,234, 240,246, 252,258, 264,270, 276,282, 288,294, 300,306, 312,318, 324,330, 336,342, 348,354, 360,366, 372,378, 384'  " >> run_${modnam}_valid_at_t${cyc}z_${fhr}_g2g.sh
 
          elif [ $modnam = cmce ] || [ $modnam = naefs ] ; then
-	  echo  "export lead='12, 24, 36, 48, 60, 72, 84, 96,108, 120, 132, 144, 156, 168, 180, 192,204, 216, 228, 240, 252, 264, 276, 288, 300, 312, 324, 336, 348, 360, 372, 384' "  >> run_${modnam}_valid_at_t${cyc}z_${fhr}_g2g.sh
+	  echo  "export lead='0, 12, 24, 36, 48, 60, 72, 84, 96,108, 120, 132, 144, 156, 168, 180, 192,204, 216, 228, 240, 252, 264, 276, 288, 300, 312, 324, 336, 348, 360, 372, 384' "  >> run_${modnam}_valid_at_t${cyc}z_${fhr}_g2g.sh
  
          elif [  $modnam = ecme ] ; then
-          echo  "export lead='12, 24, 36, 48, 60, 72, 84, 96,108, 120, 132, 144, 156, 168, 180, 192,204, 216, 228, 240, 252, 264, 276, 288, 300, 312, 324, 336, 348, 360' "  >> run_${modnam}_valid_at_t${cyc}z_${fhr}_g2g.sh
+          echo  "export lead='0, 12, 24, 36, 48, 60, 72, 84, 96,108, 120, 132, 144, 156, 168, 180, 192,204, 216, 228, 240, 252, 264, 276, 288, 300, 312, 324, 336, 348, 360' "  >> run_${modnam}_valid_at_t${cyc}z_${fhr}_g2g.sh
         fi
 
         if [ $modnam = ecme ] ; then
@@ -209,7 +209,7 @@ for  verify in $verifys ; do
 
         chmod +x run_${modnam}_valid_at_t${cyc}z_${fhr}_g2g.sh
 
-        echo "run_${modnam}_valid_at_t${cyc}z_${fhr}_g2g.sh" >> run_all_gens_g2g_poe.sh
+        echo "${DATA}/run_${modnam}_valid_at_t${cyc}z_${fhr}_g2g.sh" >> run_all_gens_g2g_poe.sh
 
 
       done #end of fhr 
@@ -357,7 +357,7 @@ for  verify in $verifys ; do
 
        chmod +x run_${modnam}_ccpa${apcp}_valid_at_t${cyc}z.sh
 
-       echo "run_${modnam}_ccpa${apcp}_valid_at_t${cyc}z.sh" >> run_all_gens_g2g_poe.sh
+       echo "${DATA}/run_${modnam}_ccpa${apcp}_valid_at_t${cyc}z.sh" >> run_all_gens_g2g_poe.sh
 
       done #end of cyc
 
@@ -381,24 +381,24 @@ if [ -s run_all_gens_g2g_poe.sh ] ; then
     if [ ${models} = gefs ] ; then
       if [ $verify_list = all ] ; then
        ####mpiexec  -n 9 -ppn 9 --cpu-bind core --depth=2 cfp run_all_gens_g2g_poe.sh
-         mpiexec -np 9 -ppn 9 --cpu-bind verbose,depth cfp run_all_gens_g2g_poe.sh 
+         mpiexec -np 9 -ppn 9 --cpu-bind verbose,depth cfp ${DATA}/run_all_gens_g2g_poe.sh 
       elif [ $verify_list = upper ] ; then
-        mpiexec  -n 4 -ppn 4 --cpu-bind core --depth=2 cfp run_all_gens_g2g_poe.sh
+        mpiexec  -n 4 -ppn 4 --cpu-bind core --depth=2 cfp ${DATA}/run_all_gens_g2g_poe.sh
       elif [ $verify_list = precip ] ; then
-        mpiexec  -n 5 -ppn 5 --cpu-bind core --depth=2 cfp run_all_gens_g2g_poe.sh
+        mpiexec  -n 5 -ppn 5 --cpu-bind core --depth=2 cfp ${DATA}/run_all_gens_g2g_poe.sh
       fi
     else
       if [ $verify_list = all ] ; then
-	 mpiexec  -n 3 -ppn 3 --cpu-bind core --depth=2 cfp run_all_gens_g2g_poe.sh
+	 mpiexec  -n 3 -ppn 3 --cpu-bind core --depth=2 cfp ${DATA}/run_all_gens_g2g_poe.sh
       elif [ $verify_list = upper ] ; then
-	 mpiexec  -n 2 -ppn 2 --cpu-bind core --depth=2 cfp run_all_gens_g2g_poe.sh
+	 mpiexec  -n 2 -ppn 2 --cpu-bind core --depth=2 cfp ${DATA}/run_all_gens_g2g_poe.sh
       elif [ $verify_list = precip ] ; then
-	 mpiexec  -n 1 -ppn 1 --cpu-bind core --depth=2 cfp run_all_gens_g2g_poe.sh
+	 mpiexec  -n 1 -ppn 1 --cpu-bind core --depth=2 cfp ${DATA}/run_all_gens_g2g_poe.sh
       fi
     fi
 
  else
-   run_all_gens_g2g_poe.sh	 
+   ${DATA}/run_all_gens_g2g_poe.sh	 
  fi
 
 fi

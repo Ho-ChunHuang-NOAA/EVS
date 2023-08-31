@@ -4,7 +4,7 @@
 #PBS -q dev
 #PBS -A VERF-DEV
 #PBS -l walltime=00:30:00
-#PBS -l select=1:ncpus=1:mem=40GB
+#PBS -l select=1:ncpus=1:mem=50GB
 #PBS -l debug=true
 #PBS -V
 
@@ -23,8 +23,9 @@ export jobid=$job.${PBS_JOBID:-$$}
 export SITE=$(cat /etc/cluster_name)
 export cyc=00
 
-module reset
 source $HOMEevs/versions/run.ver
+module reset
+module load prod_envir/${prod_envir_ver}
 source $HOMEevs/modulefiles/global_det/global_det_prep.sh
 
 export maillist='geoffrey.manikin@noaa.gov,mallory.row@noaa.gov'

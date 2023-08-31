@@ -54,6 +54,7 @@ init_time='init00z_12z'
 
 
 export plot_dir=$DATA/out/sfc_upper/${valid_beg}-${valid_end}
+mkdir -p $plot_dir
 
 verif_case=grid2obs
 verif_type=upper_air
@@ -173,7 +174,7 @@ chmod +x run_all_poe.sh
 
 if [ $run_mpi = yes ] ; then
   export LD_LIBRARY_PATH=/apps/dev/pmi-fix:$LD_LIBRARY_PATH
-   mpiexec -np 220 -ppn 220 --cpu-bind verbose,depth cfp ${DATA}/run_all_poe.sh
+   mpiexec -np 220 -ppn 88 --cpu-bind verbose,depth cfp ${DATA}/run_all_poe.sh
 else
   ${DATA}/run_all_poe.sh
 fi
@@ -206,6 +207,8 @@ for stats in mae ; do
 
      if [ $domain = g003 ] ; then
 	 domain_new=glb
+     elif [ $domain = conus ]; then
+         domain_new="buk_conus"
      else
          domain_new=$domain
      fi
@@ -225,7 +228,7 @@ for stats in mae ; do
 
          plevel=p${level}
 
-         mv ${score_type}_regional_${domain}_valid_00z_12z_${level}mb_${var}_${stats}${lead}  evs.global_ens.${stats}.${var}_${plevel}.last${past_days}days.${scoretype}.${valid_time}${lead_time}.g003_${domain_new}.png
+         mv ${score_type}_regional_${domain}_valid_00z_12z_${level}mb_${var}_${stats}${lead}  evs.global_ens.${stats}.${var}_${plevel}.last${past_days}days.${scoretype}_${valid_time}${lead_time}.g003_${domain_new}.png
 
       done #level
 
