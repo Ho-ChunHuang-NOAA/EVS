@@ -218,6 +218,7 @@ echo "obs_daily_found = ${obs_daily_found}"
 if [ $cyc = 11 ]
 then
 
+  fcstmax=48
   for biastyp in raw bc
   do
 
@@ -296,6 +297,7 @@ fi
 if [ $cyc = 04 ]
 then
 
+  fcstmax=48
   for biastyp in raw bc
   do
 
