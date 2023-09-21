@@ -28,6 +28,7 @@ import matplotlib.colors as colors
 import matplotlib.image as mpimg
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from datetime import datetime, timedelta as td
+import shutil
 
 SETTINGS_DIR = os.environ['USH_DIR']
 sys.path.insert(0, os.path.abspath(SETTINGS_DIR))
@@ -40,7 +41,10 @@ from check_variables import *
 
 # ================ GLOBALS AND CONSTANTS ================
 
-plotter = Plotter(fig_size=(18., 14.))
+plotter = Plotter(
+    fig_size=(16., 16.), axis_title_size=17., legend_font_size=15., 
+    fig_subplot_top=.93, fig_subplot_bottom=.14
+)
 plotter.set_up_plots()
 toggle = Toggle()
 templates = Templates()
@@ -64,7 +68,8 @@ def plot_stat_by_level(df: pd.DataFrame, logger: logging.Logger,
                        ylabel: str = 'Pressure Level (hPa)', 
                        date_type: str = 'VALID', line_type: str = 'SL1L2',
                        date_hours: list = [0,6,12,18], save_dir: str = '.', 
-                       dpi: int = 300, confidence_intervals: bool = False,
+                       restart_dir: str = '.',
+                       dpi: int = 100, confidence_intervals: bool = False,
                        interp_pts: list = [],
                        bs_nrep: int = 5000, bs_method: str = 'MATCHED_PAIRS',
                        bs_min_samp: int = 300, ci_lev: float = .95, 
@@ -136,6 +141,11 @@ def plot_stat_by_level(df: pd.DataFrame, logger: logging.Logger,
         for x in date_hours
     ]]
 
+    if df.empty:
+        logger.warning(f"Empty Dataframe. Continuing onto next plot...")
+        plt.close(num)
+        logger.info("========================================")
+        return None
     if interp_pts and '' not in interp_pts:
         interp_shape = list(df['INTERP_MTHD'])[0]
         if 'SQUARE' in interp_shape:
@@ -266,6 +276,8 @@ def plot_stat_by_level(df: pd.DataFrame, logger: logging.Logger,
         elif any(field in str(var_long_name_key).upper() for field in ['WEASD', 'SNOD', 'ASNOW']):
             if units in ['m']:
                 units = 'm_snow'
+        elif str(var_long_name_key).upper() == 'TMP':
+            unit_convert = False
         if unit_convert:
             if metric2_name is not None:
                 if (str(metric1_name).upper() in metrics_using_var_units
@@ -877,11 +889,10 @@ def plot_stat_by_level(df: pd.DataFrame, logger: logging.Logger,
     )
 
     ax.legend(
-        handles, labels, loc='upper center', fontsize=15, framealpha=1, 
-        bbox_to_anchor=(0.5, -0.08), ncol=4, frameon=True, numpoints=2, 
-        borderpad=.8, labelspacing=2., columnspacing=3., handlelength=3., 
-        handletextpad=.4, borderaxespad=.5) 
-    fig.subplots_adjust(bottom=.2, wspace=0., hspace=0)
+        handles, labels, framealpha=1, 
+        bbox_to_anchor=(0.5, -0.06), ncol=4, frameon=True, numpoints=2, 
+        borderpad=.8, labelspacing=1.) 
+    fig.subplots_adjust(wspace=0., hspace=0)
     ax.grid(
         visible=True, which='major', axis='both', alpha=.5, linestyle='--', 
         linewidth=.5, zorder=0
@@ -894,8 +905,8 @@ def plot_stat_by_level(df: pd.DataFrame, logger: logging.Logger,
                 count = str(int(count))
             ax.annotate(
                 f'{count}', xy=(1.,yval),
-                xycoords=('axes fraction','data'), xytext=(9,0),
-                textcoords='offset points', va='center', fontsize=16,
+                xycoords=('axes fraction','data'), xytext=(6,0),
+                textcoords='offset points', va='center', fontsize=11,
                 color='dimgrey', ha='left'
             )
         ax.annotate(
@@ -903,7 +914,6 @@ def plot_stat_by_level(df: pd.DataFrame, logger: logging.Logger,
             xytext=(9,5), textcoords='offset points', va='bottom',
             fontsize=11, color='dimgrey', ha='right'
         )
-        fig.subplots_adjust(right=.95)
 
     # Title
     domain = df['VX_MASK'].tolist()[0]
@@ -926,11 +936,6 @@ def plot_stat_by_level(df: pd.DataFrame, logger: logging.Logger,
         [f'{date_hour:02d}' for date_hour in date_hours],
         ', ', '', 'Z', 'and ', ''
     )
-    '''
-    date_hours_string = ' '.join([
-        f'{date_hour:02d}Z,' for date_hour in date_hours
-    ])
-    '''
     date_start_string = date_range[0].strftime('%d %b %Y')
     date_end_string = date_range[1].strftime('%d %b %Y')
     if metric2_name is not None:
@@ -946,7 +951,7 @@ def plot_stat_by_level(df: pd.DataFrame, logger: logging.Logger,
     title3 = (f'{str(date_type).capitalize()} {date_hours_string}'
               + f' {date_start_string} to {date_end_string}, {frange_string}')
     title_center = '\n'.join([title1, title2, title3])
-    ax.set_title(title_center, loc=plotter.title_loc) 
+    ax.set_title(title_center) 
     logger.info("... Plotting complete.")
 
     # Logos
@@ -1036,6 +1041,16 @@ def plot_stat_by_level(df: pd.DataFrame, logger: logging.Logger,
         os.makedirs(save_subdir)
     save_path = os.path.join(save_subdir, save_name+'.png')
     fig.savefig(save_path, dpi=dpi)
+    if restart_dir:
+        shutil.copy2(
+            save_path, 
+            os.path.join(
+                restart_dir, 
+                f'{str(plot_group).lower()}', 
+                f'{str(time_period_savename).lower()}', 
+                save_name+'.png'
+            )
+        )
     logger.info(u"\u2713"+f" plot saved successfully as {save_path}")
     plt.close(num)
     logger.info('========================================')
@@ -1100,6 +1115,7 @@ def main():
     logger.debug(f"STATS_DIR: {STATS_DIR}")
     logger.debug(f"PRUNE_DIR: {PRUNE_DIR}")
     logger.debug(f"SAVE_DIR: {SAVE_DIR}")
+    logger.debug(f"RESTART_DIR: {RESTART_DIR}")
     logger.debug(f"VERIF_CASETYPE: {VERIF_CASETYPE}")
     logger.debug(f"MODELS: {MODELS}")
     logger.debug(f"VARIABLES: {VARIABLES}")
@@ -1320,7 +1336,8 @@ def main():
                 y_min_limit=Y_MIN_LIMIT, y_max_limit=Y_MAX_LIMIT, 
                 y_lim_lock=Y_LIM_LOCK, ylabel='Pressure Level (hPa)', 
                 line_type=LINE_TYPE, date_hours=date_hours, 
-                save_dir=SAVE_DIR, eval_period=EVAL_PERIOD,
+                save_dir=SAVE_DIR, restart_dir=RESTART_DIR,
+                eval_period=EVAL_PERIOD,
                 display_averages=display_averages, save_header=IMG_HEADER,
                 plot_group=plot_group, 
                 confidence_intervals=CONFIDENCE_INTERVALS, interp_pts=INTERP_PNTS,
@@ -1347,6 +1364,10 @@ if __name__ == "__main__":
     STATS_DIR = STAT_OUTPUT_BASE_DIR
     PRUNE_DIR = check_PRUNE_DIR(os.environ['PRUNE_DIR'])
     SAVE_DIR = check_SAVE_DIR(os.environ['SAVE_DIR'])
+    if 'RESTART_DIR' in os.environ:
+        RESTART_DIR = check_RESTART_DIR(os.environ['RESTART_DIR'])
+    else:
+        RESTART_DIR = ''
     DATE_TYPE = check_DATE_TYPE(os.environ['DATE_TYPE'])
     LINE_TYPE = check_LINE_TYPE(os.environ['LINE_TYPE'])
     INTERP = check_INTERP(os.environ['INTERP'])

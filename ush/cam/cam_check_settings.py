@@ -54,38 +54,37 @@ else:
 evs_cam_settings_dict['shared'] = []
 evs_cam_settings_dict['modules'] = ['MET_PLUS_PATH', 'MET_PATH', 'MET_CONFIG']
 evs_cam_settings_dict['RUN_GRID2OBS_PREP'] = [
-        'MET_PLUS_CONF','MET_PLUS_OUT','METPLUS_VERBOSITY','MET_VERBOSITY',
-        'LOG_MET_OUTPUT_TO_METPLUS','NEST','URL_HEAD',
+        'MET_PLUS_CONF','MET_PLUS_OUT',
+        'NEST','URL_HEAD',
         ]
-evs_cam_settings_dict['RUN_GRID2OBS_STATS'] = []
+evs_cam_settings_dict['RUN_GRID2OBS_STATS'] = ['RESTART_DIR']
 evs_cam_settings_dict['RUN_GRID2OBS_PLOTS'] = [
         'MET_VERSION','IMG_HEADER','PRUNE_DIR','SAVE_DIR','LOG_TEMPLATE',
         'LOG_LEVEL','STAT_OUTPUT_BASE_DIR','STAT_OUTPUT_BASE_TEMPLATE',
-        'COMOUTplots'
+        'COMOUTplots','RESTART_DIR'
         ]
 evs_cam_settings_dict['RUN_PRECIP_PREP'] = [
         'VERIF_TYPE', 'VHOUR_LIST', 'COMINobs', 'OBSNAME', 'OBS_ACC', 'ACC'
         ]
 evs_cam_settings_dict['RUN_PRECIP_STATS'] = [
         'MET_PLUS_CONF','MET_PLUS_OUT','MET_CONFIG_OVERRIDES', 
-        'METPLUS_VERBOSITY','MET_VERBOSITY','LOG_MET_OUTPUT_TO_METPLUS',
         'VHOUR','FHR_END_SHORT','FHR_INCR_SHORT','FHR_END_FULL',
         'FHR_INCR_FULL','COMINfcst','COMINobs','NEST',
         'OBSNAME','MIN_IHOUR','MODEL_ACC','OBS_ACC','ACC','BOOL_NBRHD','FCST_LEV',
         'FCST_THRESH','OBS_LEV','OBS_THRESH','OUTPUT_FLAG_NBRHD',
         'OUTPUT_FLAG_CATEG','NBRHD_WIDTHS','GRID','MODEL_INPUT_TEMPLATE',
-        'MASK_POLY_LIST'
+        'MASK_POLY_LIST','RESTART_DIR'
         ]
-evs_cam_settings_dict['RUN_PRECIP_PLOTS'] = ['COMOUTplots']
+evs_cam_settings_dict['RUN_PRECIP_PLOTS'] = ['COMOUTplots','RESTART_DIR']
 evs_cam_settings_dict['RUN_SNOWFALL_PREP'] = []
-evs_cam_settings_dict['RUN_SNOWFALL_STATS'] = []
-evs_cam_settings_dict['RUN_SNOWFALL_PLOTS'] = ['COMOUTplots']
+evs_cam_settings_dict['RUN_SNOWFALL_STATS'] = ['RESTART_DIR']
+evs_cam_settings_dict['RUN_SNOWFALL_PLOTS'] = ['COMOUTplots','RESTART_DIR']
 evs_cam_settings_dict['RUN_HEADLINE_PREP'] = []
 evs_cam_settings_dict['RUN_HEADLINE_STATS'] = []
 evs_cam_settings_dict['RUN_HEADLINE_PLOTS'] = [
         'MET_VERSION','IMG_HEADER','PRUNE_DIR','SAVE_DIR','LOG_TEMPLATE',
         'LOG_LEVEL','STAT_OUTPUT_BASE_DIR','STAT_OUTPUT_BASE_TEMPLATE',
-        'COMOUTplots']
+        'COMOUTplots','RESTART_DIR']
 
 # Check for existence of required env vars, by group in the dictionary
 env_group_list = [
@@ -136,22 +135,8 @@ valid_config_var_values_dict = {
 }
 if STEP.upper() == 'PREP':
     if VERIF_CASE.upper() == 'GRID2OBS':
-        valid_config_var_values_dict['METPLUS_VERBOSITY'] = [
-            'DEBUG', 'INFO', 'WARN', 'ERROR'
-        ]
-        valid_config_var_values_dict['MET_VERBOSITY'] = [
-            '0', '1', '2', '3', '4', '5'
-        ]
-        valid_config_var_values_dict['LOG_MET_OUTPUT_TO_METPLUS'] = ['yes', 'no']
         valid_config_var_values_dict['NEST'] = ['spc_otlk', 'conus']
 if STEP.upper() == 'STATS':
-    valid_config_var_values_dict['METPLUS_VERBOSITY'] = [
-        'DEBUG', 'INFO', 'WARN', 'ERROR'
-    ]
-    valid_config_var_values_dict['MET_VERBOSITY'] = [
-        '0', '1', '2', '3', '4', '5'
-    ]
-    valid_config_var_values_dict['LOG_MET_OUTPUT_TO_METPLUS'] = ['yes', 'no']
     valid_config_var_values_dict['NEST'] = ['ak', 'conus', 'subreg', 'spc_otlk', 'firewx', 'hi', 'pr', 'gu']
     valid_config_var_values_dict['BOOL_NBRHD'] = ['True', 'False']
     valid_config_var_values_dict['OUTPUT_FLAG_NBRHD'] = ['NONE', 'STAT', 'BOTH']

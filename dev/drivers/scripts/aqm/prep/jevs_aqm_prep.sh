@@ -3,7 +3,7 @@
 #PBS -S /bin/bash
 #PBS -q "dev"
 #PBS -A VERF-DEV
-#PBS -l walltime=02:30:00
+#PBS -l walltime=00:30:00
 #PBS -l select=1:ncpus=1:mem=2GB
 #PBS -l debug=true
 
@@ -38,8 +38,7 @@ export VERIF_CASE=grid2obs
 export MODELNAME=aqm
 export modsys=aqm
 export mod_ver=${aqm_ver}
-
-export MET_bin_exec=bin
+export envir=prod
 
 export config=$HOMEevs/parm/evs_config/aqm/config.evs.aqm.prod
 source $config
@@ -47,32 +46,17 @@ source $config
 ########################################################################
 ## The following setting is for parallel test and need to be removed for operational code
 ########################################################################
-export DATA=/lfs/h2/emc/ptmp/$USER/EVS/${cyc}_${MODELNAME}
-
-rm -rf $DATA
-mkdir -p $DATA
-cd $DATA
+export DATAROOT=/lfs/h2/emc/stmp/${USER}/evs_test/$envir/tmp
+export job=${PBS_JOBNAME:-jevs_${MODELNAME}_${VERIF_CASE}_${STEP}}
+export jobid=$job.${PBS_JOBID:-$$}
 
 export cycle=t${cyc}z
 
-##
-## Instruction for Pull-Request testing
-## point COMIN to personal directory
-## output can be found at $COMOUT
-##
 export COMIN=/lfs/h2/emc/vpppg/noscrub/$USER/${NET}/${evs_ver}
-##
-## For aqmv7 NRT runs
-## export fcst_input_ver=v7
-## export COMINaqm=/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/v7.0
-##
-## For AQMv6 restrospective output
-## export COMINaqm=/lfs/h2/emc/physics/noscrub/ho-chun.huang/verification/${MODELNAME}/${envir}
-##
-export COMOUT=$COMIN/${STEP}/${COMPONENT}
+export COMOUT=/lfs/h2/emc/vpppg/noscrub/${USER}/${NET}/${evs_ver}/${STEP}/${COMPONENT}/${RUN}
 
 #
-## export KEEPDATA=NO
+export KEEPDATA=NO
 #
 ########################################################################
 ## VDATE = ${PDYm2} is okay after 01Z today for the default
@@ -88,8 +72,7 @@ export COMOUT=$COMIN/${STEP}/${COMPONENT}
 #
 ########################################################################
 
-export maillist=${maillist:-'ho-chun.huang@noaa.gov,geoffrey.manikin@noaa.gov'}
-## export maillist=${maillist:-'perry.shafran@noaa.gov,geoffrey.manikin@noaa.gov'}
+export maillist=${maillist:-'ho-chun.huang@noaa.gov,alicia.bentley@noaa.gov'}
 
 if [ -z "$maillist" ]; then
 

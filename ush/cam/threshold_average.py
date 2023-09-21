@@ -29,6 +29,7 @@ import matplotlib.image as mpimg
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from datetime import datetime, timedelta as td
 from decimal import Decimal
+import shutil
 
 SETTINGS_DIR = os.environ['USH_DIR']
 sys.path.insert(0, os.path.abspath(SETTINGS_DIR))
@@ -41,7 +42,7 @@ from check_variables import *
 
 # ================ GLOBALS AND CONSTANTS ================
 
-plotter = Plotter(fig_size=(28.,14.))
+plotter = Plotter()
 plotter.set_up_plots()
 toggle = Toggle()
 templates = Templates()
@@ -62,8 +63,9 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
                       y_lim_lock: bool = False, ylabel: str = '',  
                       date_type: str = 'VALID', date_hours: list = [0,6,12,18], 
                       verif_type: str = 'pres', save_dir: str = '.',
+                      restart_dir: str = '.', 
                       requested_var: str = 'HGT', line_type: str = 'SL1L2',
-                      dpi: int = 300, confidence_intervals: bool = False,
+                      dpi: int = 100, confidence_intervals: bool = False,
                       interp_pts: list = [],
                       bs_nrep: int = 5000, bs_method: str = 'MATCHED_PAIRS', 
                       ci_lev: float = .95, bs_min_samp: int = 30,
@@ -147,6 +149,11 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
         for x in date_hours
     ]]
 
+    if df.empty:
+        logger.warning(f"Empty Dataframe. Continuing onto next plot...")
+        plt.close(num)
+        logger.info("========================================")
+        return None
     if interp_pts and '' not in interp_pts:
         interp_shape = list(df['INTERP_MTHD'])[0]
         if 'SQUARE' in interp_shape:
@@ -579,7 +586,8 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
         plt.plot(
             x_vals, y_vals_metric, 
             marker='o', c=mod_setting_dicts[m]['color'], mew=2., mec='white', 
-            figure=fig, ms=12, ls=mod_setting_dicts[m]['linestyle'], 
+            figure=fig, ms=mod_setting_dicts[m]['markersize'], 
+            ls=mod_setting_dicts[m]['linestyle'], 
             lw=mod_setting_dicts[m]['linewidth'],
             label=f'{metric_mean_fmt_string}'
         )
@@ -628,8 +636,6 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
         np.digitize(len(xtick_labels), number_of_ticks_dig) + 2
     )/2.)*2
     xtick_labels_with_blanks = ['' for item in xtick_labels]
-    #for i, item in enumerate(xtick_labels[::int(show_xtick_every)]):
-    #     xtick_labels_with_blanks[int(show_xtick_every)*i] = item
      
     replace_xticks = [
         xtick for xtick in xticks 
@@ -653,9 +659,6 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
     xtick_labels_with_blanks = np.concatenate((
         res_xlabels, add_labels
     ))[xticks_argsort]
-    #xticks_argsort = np.argsort(x_vals.tolist())
-    #xticks = np.array(x_vals.tolist())[xticks_argsort]
-    #xtick_labels_with_blanks = np.array(add_labels)[xticks_argsort]
     res_diff = np.diff(
         [xtick for x, xtick in enumerate(xticks) if xtick_labels_with_blanks[x]]
     )
@@ -689,7 +692,24 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
         ylim_min = float(
             np.format_float_scientific(ylim_min, unique=False, precision=3)
         )
-    yticks = np.arange(ylim_min, ylim_max+round_to_nearest, round_to_nearest)
+    if round_to_nearest < 1.:
+        y_precision_scale = 100/round_to_nearest
+    else:
+        y_precision_scale = 1.
+    yticks = [
+        y_val for y_val 
+        in np.arange(
+            ylim_min*y_precision_scale, 
+            ylim_max*y_precision_scale+round_to_nearest*y_precision_scale, 
+            round_to_nearest*y_precision_scale
+        )
+    ]
+    yticks=np.divide(yticks,y_precision_scale)
+    ytick_labels = [f'{ytick}' for ytick in yticks]
+    show_ytick_every = len(yticks)//10+1
+    ytick_labels_with_blanks = ['' for item in ytick_labels]
+    for i, item in enumerate(ytick_labels[::int(show_ytick_every)]):
+        ytick_labels_with_blanks[int(show_ytick_every)*i] = item
     var_long_name_key = df['FCST_VAR'].tolist()[0]
     if str(var_long_name_key).upper() == 'HGT':
         if str(df['OBS_VAR'].tolist()[0]).upper() in ['CEILING']:
@@ -711,6 +731,7 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
     else:
         ax.set_xlabel(f'Forecast Threshold (unitless)')
     ax.set_xticklabels(xtick_labels_with_blanks)
+    ax.set_yticklabels(ytick_labels_with_blanks)
     ax.set_yticks(yticks)
     ax.set_xticks(xticks)
     ax.tick_params(
@@ -720,15 +741,17 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
         left=False, labelleft=False, labelright=False, labelbottom=False, 
         labeltop=False, which='minor', axis='y', pad=15
     )
-    majticks = [i for i, item in enumerate(xtick_labels_with_blanks) if item]
-    for mt in majticks:
+    majxticks = [i for i, item in enumerate(xtick_labels_with_blanks) if item]
+    for mt in majxticks:
         ax.xaxis.get_major_ticks()[mt].tick1line.set_markersize(8)
+    majyticks = [i for i, item in enumerate(ytick_labels_with_blanks) if item]
+    for mt in majyticks:
+        ax.yaxis.get_major_ticks()[mt].tick1line.set_markersize(8)
     ax.legend(
-        loc='upper center', fontsize=15, framealpha=1, 
-        bbox_to_anchor=(0.5, -0.08), ncol=4, frameon=True, numpoints=2, 
-        borderpad=.8, labelspacing=2., columnspacing=3., handlelength=3., 
-        handletextpad=.4, borderaxespad=.5) 
-    fig.subplots_adjust(bottom=.2, wspace=0, hspace=0)
+        framealpha=1, 
+        bbox_to_anchor=(0.5, -0.15), ncol=4, frameon=True, numpoints=2, 
+        borderpad=.8, labelspacing=1.) 
+    fig.subplots_adjust(wspace=0, hspace=0)
     ax.grid(
         visible=True, which='major', axis='both', alpha=.5, linestyle='--', 
         linewidth=.5, zorder=0
@@ -741,8 +764,8 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
                 count = str(int(count))
             ax.annotate(
                 f'{count}', xy=(xval,1.),
-                xycoords=('data','axes fraction'), xytext=(0,18),
-                textcoords='offset points', va='top', fontsize=16,
+                xycoords=('data','axes fraction'), xytext=(0,12),
+                textcoords='offset points', va='top', fontsize=11,
                 color='dimgrey', ha='center'
             )
         ax.annotate(
@@ -750,7 +773,6 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
             xytext=(-50, 21), textcoords='offset points', va='top',
             fontsize=11, color='dimgrey', ha='center'
         )
-        fig.subplots_adjust(top=.9)
 
     # Title
     domain = df['VX_MASK'].tolist()[0]
@@ -775,11 +797,6 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
         [f'{date_hour:02d}' for date_hour in date_hours],
         ', ', '', 'Z', 'and ', ''
     )
-    '''
-    date_hours_string = ' '.join([
-        f'{date_hour:02d}Z,' for date_hour in date_hours
-    ])
-    '''
     date_start_string = date_range[0].strftime('%d %b %Y')
     date_end_string = date_range[1].strftime('%d %b %Y')
     metric_string = metric_long_name
@@ -864,10 +881,10 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
               + f'{date_start_string} to {date_end_string}, {frange_string}')
     title_center = '\n'.join([title1, title2, title3])
     if sample_equalization:
-        title_pad=40
+        title_pad=23
     else:
         title_pad=None
-    ax.set_title(title_center, loc=plotter.title_loc, pad=title_pad) 
+    ax.set_title(title_center, pad=title_pad) 
     logger.info("... Plotting complete.")
 
     # Logos
@@ -947,6 +964,16 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
         os.makedirs(save_subdir)
     save_path = os.path.join(save_subdir, save_name+'.png')
     fig.savefig(save_path, dpi=dpi)
+    if restart_dir:
+        shutil.copy2(
+            save_path, 
+            os.path.join(
+                restart_dir, 
+                f'{str(plot_group).lower()}', 
+                f'{str(time_period_savename).lower()}', 
+                save_name+'.png'
+            )
+        )
     logger.info(u"\u2713"+f" plot saved successfully as {save_path}")
     plt.close(num)
     logger.info('========================================')
@@ -1009,6 +1036,7 @@ def main():
     logger.debug(f"STATS_DIR: {STATS_DIR}")
     logger.debug(f"PRUNE_DIR: {PRUNE_DIR}")
     logger.debug(f"SAVE_DIR: {SAVE_DIR}")
+    logger.debug(f"RESTART_DIR: {RESTART_DIR}")
     logger.debug(f"VERIF_CASETYPE: {VERIF_CASETYPE}")
     logger.debug(f"MODELS: {MODELS}")
     logger.debug(f"VARIABLES: {VARIABLES}")
@@ -1223,7 +1251,7 @@ def main():
                         y_lim_lock=Y_LIM_LOCK, ylabel='Metric (unitless)', 
                         line_type=LINE_TYPE, verif_type=VERIF_TYPE, 
                         date_hours=date_hours, save_dir=SAVE_DIR, 
-                        eval_period=EVAL_PERIOD,
+                        restart_dir=RESTART_DIR, eval_period=EVAL_PERIOD,
                         display_averages=display_averages, 
                         include_all_requested_thresholds=include_all_requested_thresholds,
                         save_header=IMG_HEADER, plot_group=plot_group,
@@ -1256,6 +1284,10 @@ if __name__ == "__main__":
     STATS_DIR = STAT_OUTPUT_BASE_DIR
     PRUNE_DIR = check_PRUNE_DIR(os.environ['PRUNE_DIR'])
     SAVE_DIR = check_SAVE_DIR(os.environ['SAVE_DIR'])
+    if 'RESTART_DIR' in os.environ:
+        RESTART_DIR = check_RESTART_DIR(os.environ['RESTART_DIR'])
+    else:
+        RESTART_DIR = ''
     DATE_TYPE = check_DATE_TYPE(os.environ['DATE_TYPE'])
     LINE_TYPE = check_LINE_TYPE(os.environ['LINE_TYPE'])
     INTERP = check_INTERP(os.environ['INTERP'])

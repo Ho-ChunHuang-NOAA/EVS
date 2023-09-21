@@ -22,20 +22,21 @@ print(f"BEGIN: {os.path.basename(__file__)}")
 cyc = os.environ['cyc']
 job_type = os.environ['job_type']
 PYTHONPATH = os.environ['PYTHONPATH']
+COMPONENT = os.environ['COMPONENT']
+NET = os.environ['NET']
 STEP = os.environ['STEP']
+RUN = os.environ['RUN']
 VERIF_CASE = os.environ['VERIF_CASE']
 MODELNAME = os.environ['MODELNAME']
 MET_PLUS_PATH = os.environ['MET_PLUS_PATH']
 MET_PATH = os.environ['MET_PATH']
 MET_CONFIG = os.environ['MET_CONFIG']
 DATA = os.environ['DATA']
+RESTART_DIR = os.environ['RESTART_DIR']
 VDATE = os.environ['VDATE']
 MET_PLUS_CONF = os.environ['MET_PLUS_CONF']
 MET_PLUS_OUT = os.environ['MET_PLUS_OUT']
 MET_CONFIG_OVERRIDES = os.environ['MET_CONFIG_OVERRIDES']
-METPLUS_VERBOSITY = os.environ['METPLUS_VERBOSITY']
-MET_VERBOSITY = os.environ['MET_VERBOSITY']
-LOG_MET_OUTPUT_TO_METPLUS = os.environ['LOG_MET_OUTPUT_TO_METPLUS']
 machine_conf = os.path.join(
     os.environ['PARMevs'], 'metplus_config', 'machine.conf'
 )
@@ -108,6 +109,9 @@ if VERIF_CASE == 'precip':
 # Make a dictionary of environment variables needed to run this particular job
 job_env_vars_dict = {
     'cyc': cyc,
+    'NET': NET,
+    'STEP': STEP,
+    'RUN': RUN,
     'PYTHONPATH': PYTHONPATH,
     'VERIF_CASE': VERIF_CASE,
     'MODELNAME': MODELNAME,
@@ -115,13 +119,11 @@ job_env_vars_dict = {
     'MET_PATH': MET_PATH,
     'MET_CONFIG': MET_CONFIG,
     'DATA': DATA,
+    'RESTART_DIR': RESTART_DIR,
     'VDATE': VDATE,
     'MET_PLUS_CONF': MET_PLUS_CONF,
     'MET_PLUS_OUT': MET_PLUS_OUT,
     'MET_CONFIG_OVERRIDES': MET_CONFIG_OVERRIDES,
-    'METPLUS_VERBOSITY': METPLUS_VERBOSITY,
-    'MET_VERBOSITY': MET_VERBOSITY,
-    'LOG_MET_OUTPUT_TO_METPLUS': LOG_MET_OUTPUT_TO_METPLUS,
 }
 job_iterate_over_env_lists_dict = {}
 job_dependent_vars = {}
@@ -244,11 +246,45 @@ if VERIF_CASE == 'precip':
                 + f'-c {MET_PLUS_CONF}/'
                 + f'PCPCombine_fcst{COMPONENT.upper()}_obs{OBSNAME.upper()}.conf'
             )
+            job_cmd_list_iterative.append(
+                f'python -c '
+                + '\"import cam_util as cutil; cutil.copy_data_to_restart('
+                + '\\\"${DATA}\\\", \\\"${RESTART_DIR}\\\", '
+                + 'verif_case=\\\"${VERIF_CASE}\\\", '
+                + 'verif_type=\\\"${VERIF_TYPE}\\\", '
+                + 'vx_mask=\\\"${NEST}\\\", '
+                + 'met_tool=\\\"pcp_combine\\\", '
+                + 'vdate=\\\"${VDATE}\\\", '
+                + 'vhour=\\\"${VHOUR}\\\", '
+                + 'fhr_start=\\\"${FHR_START}\\\", '
+                + 'fhr_end=\\\"${FHR_END}\\\", '
+                + 'fhr_incr=\\\"${FHR_INCR}\\\", '
+                + 'model=\\\"${MODELNAME}\\\", '
+                + 'acc=\\\"${ACC}\\\"'
+                + ')\"'
+            )
         if job_type == 'generate':
             job_cmd_list_iterative.append(
                 f'{metplus_launcher} -c {machine_conf} '
                 + f'-c {MET_PLUS_CONF}/'
                 + f'GridStat_fcst{COMPONENT.upper()}_obs{OBSNAME.upper()}.conf'
+            )
+            job_cmd_list_iterative.append(
+                f'python -c '
+                + '\"import cam_util as cutil; cutil.copy_data_to_restart('
+                + '\\\"${DATA}\\\", \\\"${RESTART_DIR}\\\", '
+                + 'verif_case=\\\"${VERIF_CASE}\\\", '
+                + 'verif_type=\\\"${VERIF_TYPE}\\\", '
+                + 'met_tool=\\\"grid_stat\\\", '
+                + 'vdate=\\\"${VDATE}\\\", '
+                + 'vhour=\\\"${VHOUR}\\\", '
+                + 'fhr_start=\\\"${FHR_START}\\\", '
+                + 'fhr_end=\\\"${FHR_END}\\\", '
+                + 'fhr_incr=\\\"${FHR_INCR}\\\", '
+                + 'model=\\\"${MODELNAME}\\\", '
+                + 'acc=\\\"${ACC}\\\", '
+                + 'nbrhd=\\\"${BOOL_NBRHD}\\\"'
+                + ')\"'
             )
         elif job_type == 'gather':
             job_cmd_list.append(
@@ -257,12 +293,42 @@ if VERIF_CASE == 'precip':
                 + f'StatAnalysis_fcst{COMPONENT.upper()}_obs{OBSNAME.upper()}'
                 + f'_GatherByDay.conf'
             )
+            job_cmd_list.append(
+                f'python -c '
+                + '\"import cam_util as cutil; cutil.copy_data_to_restart('
+                + '\\\"${DATA}\\\", \\\"${RESTART_DIR}\\\", '
+                + 'verif_case=\\\"${VERIF_CASE}\\\", '
+                + 'verif_type=\\\"${VERIF_TYPE}\\\", '
+                + 'met_tool=\\\"stat_analysis\\\", '
+                + 'vdate=\\\"${VDATE}\\\", '
+                + 'net=\\\"${NET}\\\", '
+                + 'step=\\\"${STEP}\\\", '
+                + 'model=\\\"${MODELNAME}\\\", '
+                + 'run=\\\"${RUN}\\\", '
+                + f'job_type=\\\"{job_type}\\\"'
+                + ')\"'
+            )
         elif job_type == 'gather2':
             job_cmd_list.append(
                 f'{metplus_launcher} -c {machine_conf} '
                 + f'-c {MET_PLUS_CONF}/'
                 + f'StatAnalysis_fcst{COMPONENT.upper()}'
                 + f'_GatherByCycle.conf'
+            )
+            job_cmd_list.append(
+                f'python -c '
+                + '\"import cam_util as cutil; cutil.copy_data_to_restart('
+                + '\\\"${DATA}\\\", \\\"${RESTART_DIR}\\\", '
+                + 'verif_case=\\\"${VERIF_CASE}\\\", '
+                + 'met_tool=\\\"stat_analysis\\\", '
+                + 'vdate=\\\"${VDATE}\\\", '
+                + 'net=\\\"${NET}\\\", '
+                + 'step=\\\"${STEP}\\\", '
+                + 'model=\\\"${MODELNAME}\\\", '
+                + 'run=\\\"${RUN}\\\", '
+                + 'cyc=\\\"${cyc}\\\", '
+                + f'job_type=\\\"{job_type}\\\"'
+                + ')\"'
             )
         elif job_type == 'gather3':
             job_cmd_list.append(
