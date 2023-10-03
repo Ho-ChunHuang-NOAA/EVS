@@ -262,7 +262,7 @@ then
 #  search for model file and 2nd obs file for the daily 8-hr ozone max
 
       ozmax8=0
-      ozmax8_preprocessed_file=${COMINaqm}proc/atmos.${VDAYm1}/aqm/aqm.t${hour}z.max_8hr_o3${bctag}.${gridspec}.grib2
+      ozmax8_preprocessed_file=${COMINaqmproc}/atmos.${VDAYm1}/aqm/aqm.t${hour}z.max_8hr_o3${bctag}.${gridspec}.grib2
       if [ -s ${ozmax8_preprocessed_file} ]
       then
         ozmax8=1
@@ -271,7 +271,7 @@ then
         echo "Warning: No AQM max_8hr_o3${bctag} forecast was available for ${VDAYm1} t${hour}z"
         echo "Missing file is ${ozmax8_preprocessed_file}"
       fi
-      ozmax8_preprocessed_file=${COMINaqm}proc/atmos.${VDAYm2}/aqm/aqm.t${hour}z.max_8hr_o3${bctag}.${gridspec}.grib2
+      ozmax8_preprocessed_file=${COMINaqmproc}/atmos.${VDAYm2}/aqm/aqm.t${hour}z.max_8hr_o3${bctag}.${gridspec}.grib2
       if [ -s ${ozmax8_preprocessed_file} ]
       then
        let "ozmax8=ozmax8+1"
@@ -280,7 +280,7 @@ then
         echo "Warning: No AQM max_8hr_o3${bctag} forecast was available for ${VDAYm2} t${hour}z"
         echo "Missing file is ${ozmax8_preprocessed_file}"
       fi
-      ozmax8_preprocessed_file=${COMINaqm}proc/atmos.${VDAYm3}/aqm/aqm.t${hour}z.max_8hr_o3${bctag}.${gridspec}.grib2
+      ozmax8_preprocessed_file=${COMINaqmproc}/atmos.${VDAYm3}/aqm/aqm.t${hour}z.max_8hr_o3${bctag}.${gridspec}.grib2
       if [ -s ${ozmax8_preprocessed_file} ]
       then
         let "ozmax8=ozmax8+1"
