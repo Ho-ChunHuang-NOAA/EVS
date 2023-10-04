@@ -36,8 +36,7 @@ export dirname=cs
 export gridspec=148
 
 export PREP_SAVE_DIR=${DATA}/prepsave
-export PREP_COM_DIR=${COMOUT}/${STEP}/${COMPONENT}/${RUN}.${VDATE}/${MODELNAME}
-mkdir -p ${PREP_SAVE_DIR} ${PREP_COM_DIR}
+mkdir -p ${PREP_SAVE_DIR}
 
 export model1=`echo $MODELNAME | tr a-z A-Z`
 echo $model1
@@ -57,7 +56,7 @@ while [ ${ic} -le ${endvhr} ]; do
 	if [ -s ${conf_dir}/Ascii2Nc_hourly_obsAIRNOW.conf ]; then
             run_metplus.py ${conf_dir}/Ascii2Nc_hourly_obsAIRNOW.conf $PARMevs/metplus_config/machine.conf
 	    if [ ${SENDCOM} = "YES" ]; then
-	        cp ${PREP_SAVE_DIR}/airnow_hourly_aqobs_${VDATE}${VHOUR}.nc ${PREP_COM_DIR}
+	        cp ${PREP_SAVE_DIR}/airnow_hourly_aqobs_${VDATE}${VHOUR}.nc ${COMOUTproc}
 	    fi
         else
             echo "can not find ${conf_dir}/Ascii2Nc_hourly_obsAIRNOW.conf"
@@ -84,7 +83,7 @@ if [ -s ${checkfile} ]; then
     if [ -s ${conf_dir}/Ascii2Nc_daily_obsAIRNOW.conf ]; then
         run_metplus.py ${conf_dir}/Ascii2Nc_daily_obsAIRNOW.conf $PARMevs/metplus_config/machine.conf
 	if [ ${SENDCOM} = "YES" ]; then
-	    cp ${PREP_SAVE_DIR}/airnow_daily_${VDATE}.nc ${PREP_COM_DIR}
+	    cp ${PREP_SAVE_DIR}/airnow_daily_${VDATE}.nc ${COMOUTproc}
 	fi
     else
         echo "can not find ${conf_dir}/Ascii2Nc_daily_obsAIRNOW.conf"
@@ -136,7 +135,7 @@ then
         wgrib2 -d 1 ${ozmax8_file} -set_ftime "6-29 hour ave fcst"  -grib out1.grb2
         wgrib2 -d 2 ${ozmax8_file} -set_ftime "30-53 hour ave fcst" -grib out2.grb2
         wgrib2 -d 3 ${ozmax8_file} -set_ftime "54-77 hour ave fcst" -grib out3.grb2
-        cat out1.grb2 out2.grb2 out3.grb2 > ${PREP_COM_DIR}/aqm.t${hour}z.max_8hr_o3${bctag}.${gridspec}.grib2
+        cat out1.grb2 out2.grb2 out3.grb2 > ${COMOUTproc}/aqm.t${hour}z.max_8hr_o3${bctag}.${gridspec}.grib2
     else
         if [ $SENDMAIL = "YES" ]; then
             export subject="t${hour}z OZMAX8${bctag} AQM Forecast Data Missing for EVS ${COMPONENT}"
@@ -159,7 +158,7 @@ then
         wgrib2 -d 1 ${ozmax8_file} -set_ftime "0-23 hour ave fcst" -grib out1.grb2
         wgrib2 -d 2 ${ozmax8_file} -set_ftime "24-47 hour ave fcst" -grib out2.grb2
         wgrib2 -d 3 ${ozmax8_file} -set_ftime "48-71 hour ave fcst" -grib out3.grb2
-        cat out1.grb2 out2.grb2 out3.grb2 > ${PREP_COM_DIR}/aqm.t${hour}z.max_8hr_o3${bctag}.${gridspec}.grib2
+        cat out1.grb2 out2.grb2 out3.grb2 > ${COMOUTproc}/aqm.t${hour}z.max_8hr_o3${bctag}.${gridspec}.grib2
     else
         if [ $SENDMAIL = "YES" ]; then
             export subject="t${hour}z OZMAX8${bctag} AQM Forecast Data Missing for EVS ${COMPONENT}"

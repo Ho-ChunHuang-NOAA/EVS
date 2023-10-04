@@ -71,6 +71,8 @@ export COMIN=${COMIN:-$(compath.py ${envir}/com/${NET}/${evs_ver})}
 export COMINobs=${COMINobs:-${DCOMROOT}}
 export COMINaqm=${COMINaqm:-$(compath.py ${envir}/com/${modsys}/${mod_ver})}
 export COMOUT=${COMOUT:-$(compath.py ${envir}/com/${NET}/${evs_ver})}
+export COMOUTproc=${COMOUTproc:-${COMOUT}/${STEP}/${COMPONENT}/${RUN}.${VDATE}/${MODELNAME}}
+mkdir -p ${COMOUT} ${COMOUTproc}
 
 vfcst_ver=$(echo ${mod_ver} | cut -c1-2 )
 export fcst_input_ver=${fcst_input_ver:-${vfcst_ver}}
