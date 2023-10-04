@@ -35,8 +35,9 @@ fi
 export dirname=cs
 export gridspec=148
 
-export PREP_SAVE_DIR=${COMOUT}/${RUN}.${VDATE}/${MODELNAME}
-mkdir -p ${PREP_SAVE_DIR}
+export PREP_SAVE_DIR=${DATA}/prepsave
+export PREP_COM_DIR=${COMOUT}/${STEP}/${COMPONENT}/${RUN}.${VDATE}/${MODELNAME}
+mkdir -p ${PREP_SAVE_DIR} ${PREP_COM_DIR}
 
 export model1=`echo $MODELNAME | tr a-z A-Z`
 echo $model1
@@ -55,15 +56,20 @@ while [ ${ic} -le ${endvhr} ]; do
         export VHOUR=${vldhr}
 	if [ -s ${conf_dir}/Ascii2Nc_hourly_obsAIRNOW.conf ]; then
             run_metplus.py ${conf_dir}/Ascii2Nc_hourly_obsAIRNOW.conf $PARMevs/metplus_config/machine.conf
+	    if [ ${SENDCOM} = "YES" ]; then
+	        cp ${PREP_SAVE_DIR}/airnow_hourly_aqobs_${VDATE}${VHOUR}.nc ${PREP_COM_DIR}
+	    fi
         else
             echo "can not find ${conf_dir}/Ascii2Nc_hourly_obsAIRNOW.conf"
 	fi
     else
-        export subject="AIRNOW ASCII Hourly Data Missing for EVS ${COMPONENT}"
-        echo "Warning: No AIRNOW ASCII data was available for valid date ${VDATE}${vldhr}" > mailmsg
-        echo "Missing file is ${checkfile}" >> mailmsg
-        echo "Job ID: $jobid" >> mailmsg
-        cat mailmsg | mail -s "$subject" $maillist 
+        if [ $SENDMAIL = "YES" ]; then
+            export subject="AIRNOW ASCII Hourly Data Missing for EVS ${COMPONENT}"
+            echo "Warning: No AIRNOW ASCII data was available for valid date ${VDATE}${vldhr}" > mailmsg
+            echo "Missing file is ${checkfile}" >> mailmsg
+            echo "Job ID: $jobid" >> mailmsg
+            cat mailmsg | mail -s "$subject" $maillist 
+        fi
 
         echo "Warning: No AIRNOW ASCII data was available for valid date ${VDATE}${vldhr}"
         echo "Warning: Missing file is ${checkfile}"
@@ -77,15 +83,20 @@ checkfile=${COMINobs}/${VDATE}/airnow/daily_data_v2.dat
 if [ -s ${checkfile} ]; then
     if [ -s ${conf_dir}/Ascii2Nc_daily_obsAIRNOW.conf ]; then
         run_metplus.py ${conf_dir}/Ascii2Nc_daily_obsAIRNOW.conf $PARMevs/metplus_config/machine.conf
+	if [ ${SENDCOM} = "YES" ]; then
+	    cp ${PREP_SAVE_DIR}/airnow_daily_${VDATE}.nc ${PREP_COM_DIR}
+	fi
     else
         echo "can not find ${conf_dir}/Ascii2Nc_daily_obsAIRNOW.conf"
     fi
 else
-    export subject="AIRNOW ASCII Daily Data Missing for EVS ${COMPONENT}"
-    echo "Warning: No AIRNOW ASCII data was available for valid date ${VDATE}" > mailmsg
-    echo "Missing file is ${checkfile}" >> mailmsg
-    echo "Job ID: $jobid" >> mailmsg
-    cat mailmsg | mail -s "$subject" $maillist 
+    if [ $SENDMAIL = "YES" ]; then
+        export subject="AIRNOW ASCII Daily Data Missing for EVS ${COMPONENT}"
+        echo "Warning: No AIRNOW ASCII data was available for valid date ${VDATE}" > mailmsg
+        echo "Missing file is ${checkfile}" >> mailmsg
+        echo "Job ID: $jobid" >> mailmsg
+        cat mailmsg | mail -s "$subject" $maillist 
+    fi
 
     echo "Warning: No AIRNOW ASCII data was available for valid date ${VDATE}"
     echo "Warning: Missing file is ${checkfile}"
@@ -125,13 +136,15 @@ then
         wgrib2 -d 1 ${ozmax8_file} -set_ftime "6-29 hour ave fcst"  -grib out1.grb2
         wgrib2 -d 2 ${ozmax8_file} -set_ftime "30-53 hour ave fcst" -grib out2.grb2
         wgrib2 -d 3 ${ozmax8_file} -set_ftime "54-77 hour ave fcst" -grib out3.grb2
-        cat out1.grb2 out2.grb2 out3.grb2 > ${PREP_SAVE_DIR}/aqm.t${hour}z.max_8hr_o3${bctag}.${gridspec}.grib2
+        cat out1.grb2 out2.grb2 out3.grb2 > ${PREP_COM_DIR}/aqm.t${hour}z.max_8hr_o3${bctag}.${gridspec}.grib2
     else
-        export subject="t${hour}z OZMAX8${bctag} AQM Forecast Data Missing for EVS ${COMPONENT}"
-        echo "Warning: No AQM OZMAX8${bctag} forecast was available for ${VDATE} t${hour}z" > mailmsg
-        echo "Missing file is ${ozmax8_file}" >> mailmsg
-        echo "Job ID: $jobid" >> mailmsg
-        cat mailmsg | mail -s "$subject" $maillist
+        if [ $SENDMAIL = "YES" ]; then
+            export subject="t${hour}z OZMAX8${bctag} AQM Forecast Data Missing for EVS ${COMPONENT}"
+            echo "Warning: No AQM OZMAX8${bctag} forecast was available for ${VDATE} t${hour}z" > mailmsg
+            echo "Missing file is ${ozmax8_file}" >> mailmsg
+            echo "Job ID: $jobid" >> mailmsg
+            cat mailmsg | mail -s "$subject" $maillist
+        fi
 
         echo "Warning: No AQM OZMAX8${bctag} forecast was available for ${VDATE} t${hour}z"
         echo "Missing file is ${ozmax8_file}"
@@ -146,13 +159,15 @@ then
         wgrib2 -d 1 ${ozmax8_file} -set_ftime "0-23 hour ave fcst" -grib out1.grb2
         wgrib2 -d 2 ${ozmax8_file} -set_ftime "24-47 hour ave fcst" -grib out2.grb2
         wgrib2 -d 3 ${ozmax8_file} -set_ftime "48-71 hour ave fcst" -grib out3.grb2
-        cat out1.grb2 out2.grb2 out3.grb2 > ${PREP_SAVE_DIR}/aqm.t${hour}z.max_8hr_o3${bctag}.${gridspec}.grib2
+        cat out1.grb2 out2.grb2 out3.grb2 > ${PREP_COM_DIR}/aqm.t${hour}z.max_8hr_o3${bctag}.${gridspec}.grib2
     else
-        export subject="t${hour}z OZMAX8${bctag} AQM Forecast Data Missing for EVS ${COMPONENT}"
-        echo "Warning: No AQM OZMAX8${bctag} forecast was available for ${VDATE} t${hour}z" > mailmsg
-        echo "Missing file is ${ozmax8_file}" >> mailmsg
-        echo "Job ID: $jobid" >> mailmsg
-        cat mailmsg | mail -s "$subject" $maillist
+        if [ $SENDMAIL = "YES" ]; then
+            export subject="t${hour}z OZMAX8${bctag} AQM Forecast Data Missing for EVS ${COMPONENT}"
+            echo "Warning: No AQM OZMAX8${bctag} forecast was available for ${VDATE} t${hour}z" > mailmsg
+            echo "Missing file is ${ozmax8_file}" >> mailmsg
+            echo "Job ID: $jobid" >> mailmsg
+            cat mailmsg | mail -s "$subject" $maillist
+        fi
 
         echo "Warning: No AQM OZMAX8${bctag} forecast was available for ${VDATE} t${hour}z"
         echo "Missing file is ${ozmax8_file}"
