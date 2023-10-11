@@ -22,7 +22,8 @@ for biasc in raw bc
 do
 
 STARTDATE=${VDATE}00
-ENDDATE=${PDYm31}00
+## ENDDATE=${PDYm31}00
+ENDDATE=${VDAYm31}00
 DATE=$STARTDATE
 
 while [ $DATE -ge $ENDDATE ]; do

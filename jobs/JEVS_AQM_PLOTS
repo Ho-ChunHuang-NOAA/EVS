@@ -58,6 +58,7 @@ export modsys=${modsys:-aqm}
 export mod_ver=${mod_ver:-${aqm_ver}}
 
 export VDATE=${VDATE:-${PDYm3}}
+export VDAYm31=$(${NDATE} -744 ${VDATE}${cyc} | cut -c1-8)  # 31 days back
 
 export COMIN=${COMIN:-$(compath.py ${envir}/com/${NET}/${evs_ver}/)}
 export COMINaqm=${COMINaqm:-$(compath.py ${envir}/com/${NET}/${evs_ver}/stats/${COMPONENT}/${MODELNAME})}
