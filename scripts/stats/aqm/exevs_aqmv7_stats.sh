@@ -58,7 +58,7 @@ VDAYm1=$(${NDATE} -24 ${cdate} | cut -c1-8)
 VDAYm2=$(${NDATE} -48 ${cdate} | cut -c1-8)
 VDAYm3=$(${NDATE} -72 ${cdate} | cut -c1-8)
 
-check_file=${COMINaqmproc}/${RUN}.${vld_date}/${MODELNAME}/airnow_${HOURLY_INPUT_TYPE}_${vld_time}.nc
+check_file=${EVSINaqm}/${RUN}.${vld_date}/${MODELNAME}/airnow_${HOURLY_INPUT_TYPE}_${vld_time}.nc
 obs_hourly_found=0
 if [ -s ${check_file} ]; then
     obs_hourly_found=1
@@ -217,7 +217,7 @@ done
 # Daily verification of the daily maximum of 8-hr ozone
 # Verification being done on both raw and bias-corrected output data
 
-check_file=${COMINaqmproc}/${RUN}.${VDATE}/${MODELNAME}/airnow_daily_${VDATE}.nc
+check_file=${EVSINaqm}/${RUN}.${VDATE}/${MODELNAME}/airnow_daily_${VDATE}.nc
 obs_daily_found=0
 if [ -s ${check_file} ]; then
     obs_daily_found=1
@@ -260,7 +260,7 @@ if [ ${cyc} = 11 ]; then
 #  search for model file and 2nd obs file for the daily 8-hr ozone max
 
       ozmax8=0
-      ozmax8_preprocessed_file=${COMINaqmproc}/atmos.${VDAYm1}/aqm/aqm.t${hour}z.max_8hr_o3${bctag}.${gridspec}.grib2
+      ozmax8_preprocessed_file=${EVSINaqm}/atmos.${VDAYm1}/aqm/aqm.t${hour}z.max_8hr_o3${bctag}.${gridspec}.grib2
       if [ -s ${ozmax8_preprocessed_file} ]; then
           ozmax8=1
       else
@@ -274,7 +274,7 @@ if [ ${cyc} = 11 ]; then
          echo "Warning: No AQM max_8hr_o3${bctag} forecast was available for ${VDAYm1} t${hour}z"
          echo "Missing file is ${ozmax8_preprocessed_file}"
       fi
-      ozmax8_preprocessed_file=${COMINaqmproc}/atmos.${VDAYm2}/aqm/aqm.t${hour}z.max_8hr_o3${bctag}.${gridspec}.grib2
+      ozmax8_preprocessed_file=${EVSINaqm}/atmos.${VDAYm2}/aqm/aqm.t${hour}z.max_8hr_o3${bctag}.${gridspec}.grib2
       if [ -s ${ozmax8_preprocessed_file} ]; then
           let "ozmax8=ozmax8+1"
       else
@@ -288,7 +288,7 @@ if [ ${cyc} = 11 ]; then
           echo "Warning: No AQM max_8hr_o3${bctag} forecast was available for ${VDAYm2} t${hour}z"
           echo "Missing file is ${ozmax8_preprocessed_file}"
       fi
-      ozmax8_preprocessed_file=${COMINaqmproc}/atmos.${VDAYm3}/aqm/aqm.t${hour}z.max_8hr_o3${bctag}.${gridspec}.grib2
+      ozmax8_preprocessed_file=${EVSINaqm}/atmos.${VDAYm3}/aqm/aqm.t${hour}z.max_8hr_o3${bctag}.${gridspec}.grib2
       if [ -s ${ozmax8_preprocessed_file} ]; then
           let "ozmax8=ozmax8+1"
       else
