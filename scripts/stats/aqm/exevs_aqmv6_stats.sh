@@ -37,7 +37,7 @@ fi
     export gridspec=148
 export fcstmax=72
 #
-## export MASK_DIR is declared in the ~/EVS/jobs/aqm/stats/JEVS_AQM_STATS 
+## export MASK_DIR is declared in the ~/EVS/jobs/JEVS_AQM_STATS 
 #
 export model1=`echo $MODELNAME | tr a-z A-Z`
 echo $model1
@@ -172,7 +172,7 @@ do
         awpozcon) if [ $numo3fcst -gt 0 -a $obs_hourly_found -eq 1 ]
                   then
                   export fcsthours=$fcsthours_o3
-                  run_metplus.py $PARMevs/metplus_config/${COMPONENT}/${VERIF_CASE}/stats/PointStat_fcstOZONE_obsAIRNOW_${fcst_input_ver}.conf $PARMevs/metplus_config/machine.conf
+                  run_metplus.py $PARMevs/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/PointStat_fcstOZONE_obsAIRNOW_${fcst_input_ver}.conf $PARMevs/metplus_config/machine.conf
                   export err=$?; err_chk
                   mkdir -p $COMOUTsmall
 		  if [ $SENDCOM = "YES" ]; then
@@ -183,10 +183,10 @@ do
                     mkdir -p $COMOUTfinal
 		    cp $COMOUTsmall/*${outtyp}${bcout}* $finalstat
 		    cd $finalstat
-                    run_metplus.py $PARMevs/metplus_config/${COMPONENT}/${VERIF_CASE}/stats/StatAnalysis_fcstOZONE_obsAIRNOW_GatherByDay.conf $PARMevs/metplus_config/machine.conf
+                    run_metplus.py $PARMevs/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/StatAnalysis_fcstOZONE_obsAIRNOW_GatherByDay.conf $PARMevs/metplus_config/machine.conf
                     export err=$?; err_chk
 		    if [ $SENDCOM = "YES" ]; then
-		      cp $finalstat/evs.stats.${COMPONENT}${bcout}.${RUN}.${VERIF_CASE}_ozone.v${VDATE}.stat $COMOUTfinal
+		      cp $finalstat/evs.${STEP}.${COMPONENT}${bcout}.${RUN}.${VERIF_CASE}_ozone.v${VDATE}.stat $COMOUTfinal
 		    fi
                   fi
                   else
@@ -197,7 +197,7 @@ do
       pm25) if [ $numpmfcst -gt 0 -a $obs_hourly_found -eq 1 ]
             then
             export fcsthours=$fcsthours_pm
-            run_metplus.py $PARMevs/metplus_config/${COMPONENT}/${VERIF_CASE}/stats/PointStat_fcstPM2p5_obsAIRNOW_${fcst_input_ver}.conf $PARMevs/metplus_config/machine.conf
+            run_metplus.py $PARMevs/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/PointStat_fcstPM2p5_obsAIRNOW_${fcst_input_ver}.conf $PARMevs/metplus_config/machine.conf
             export err=$?; err_chk
             mkdir -p $COMOUTsmall
             if [ $SENDCOM = "YES" ]; then
@@ -207,10 +207,10 @@ do
             then
                mkdir -p $COMOUTfinal
                cp $COMOUTsmall/*${outtyp}${bcout}* $finalstat
-               run_metplus.py $PARMevs/metplus_config/${COMPONENT}/${VERIF_CASE}/stats/StatAnalysis_fcstPM_obsANOWPM_GatherByDay.conf $PARMevs/metplus_config/machine.conf
+               run_metplus.py $PARMevs/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/StatAnalysis_fcstPM_obsANOWPM_GatherByDay.conf $PARMevs/metplus_config/machine.conf
                export err=$?; err_chk
                if [ $SENDCOM = "YES" ]; then
-		 cp $finalstat/evs.stats.${COMPONENT}${bcout}.${RUN}.${VERIF_CASE}_pm25.v${VDATE}.stat $COMOUTfinal
+		 cp $finalstat/evs.${STEP}.${COMPONENT}${bcout}.${RUN}.${VERIF_CASE}_pm25.v${VDATE}.stat $COMOUTfinal
                fi
             fi
             else
@@ -323,17 +323,17 @@ then
       echo "ozmax8, obs_daily_found=",$ozmax8,$obs_daily_found
       if [ $ozmax8 -gt 0 -a $obs_daily_found -gt 0 ]
       then 
-        run_metplus.py $PARMevs/metplus_config/${COMPONENT}/${VERIF_CASE}/stats/PointStat_fcstOZONEMAX_obsAIRNOW_${fcst_input_ver}.conf $PARMevs/metplus_config/machine.conf
+        run_metplus.py $PARMevs/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/PointStat_fcstOZONEMAX_obsAIRNOW_${fcst_input_ver}.conf $PARMevs/metplus_config/machine.conf
 	export err=$?; err_chk
         if [ $SENDCOM = "YES" ]; then
           cp $DATA/point_stat/$MODELNAME/* $COMOUTsmall
         fi
         export outtyp=OZMAX8
         cp $COMOUTsmall/*${outtyp}${bcout}* $finalstat
-        run_metplus.py $PARMevs/metplus_config/${COMPONENT}/${VERIF_CASE}/stats/StatAnalysis_fcstOZONEMAX_obsAIRNOW_GatherByDay.conf $PARMevs/metplus_config/machine.conf
+        run_metplus.py $PARMevs/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/StatAnalysis_fcstOZONEMAX_obsAIRNOW_GatherByDay.conf $PARMevs/metplus_config/machine.conf
 	export err=$?; err_chk
 	if [ $SENDCOM = "YES" ]; then
-          cp $finalstat/evs.stats.${COMPONENT}${bcout}.${RUN}.${VERIF_CASE}_ozmax8.v${VDATE}.stat $COMOUTfinal
+          cp $finalstat/evs.${STEP}.${COMPONENT}${bcout}.${RUN}.${VERIF_CASE}_ozmax8.v${VDATE}.stat $COMOUTfinal
         fi	 
        else
          echo "NO OZMAX8 OBS OR MODEL DATA"
@@ -430,17 +430,17 @@ then
       echo "pmave1, obs_daily_found=",$pmave1,$obs_daily_found
       if [ $pmave1 -gt 0 -a $obs_daily_found -gt 0 ]
       then
-        run_metplus.py $PARMevs/metplus_config/${COMPONENT}/${VERIF_CASE}/stats/PointStat_fcstPMAVE_obsANOWPM_${fcst_input_ver}.conf $PARMevs/metplus_config/machine.conf
+        run_metplus.py $PARMevs/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/PointStat_fcstPMAVE_obsANOWPM_${fcst_input_ver}.conf $PARMevs/metplus_config/machine.conf
 	export err=$?; err_chk
         if [ $SENDCOM = "YES" ]; then
           cp $DATA/point_stat/$MODELNAME/* $COMOUTsmall
         fi
         export outtyp=PMAVE
         cp $COMOUTsmall/*${outtyp}${bcout}* $finalstat
-        run_metplus.py $PARMevs/metplus_config/${COMPONENT}/${VERIF_CASE}/stats/StatAnalysis_fcstPMAVE_obsANOWPM_GatherByDay.conf $PARMevs/metplus_config/machine.conf
+        run_metplus.py $PARMevs/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/StatAnalysis_fcstPMAVE_obsANOWPM_GatherByDay.conf $PARMevs/metplus_config/machine.conf
 	export err=$?; err_chk
 	if [ $SENDCOM = "YES" ]; then
-          cp $finalstat/evs.stats.${COMPONENT}${bcout}.${RUN}.${VERIF_CASE}_pmave.v${VDATE}.stat $COMOUTfinal
+          cp $finalstat/evs.${STEP}.${COMPONENT}${bcout}.${RUN}.${VERIF_CASE}_pmave.v${VDATE}.stat $COMOUTfinal
 	fi
        else
          echo "NO PMAVE OBS OR MODEL DATA"
