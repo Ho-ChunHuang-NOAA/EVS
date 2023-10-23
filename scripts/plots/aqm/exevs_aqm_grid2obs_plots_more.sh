@@ -48,6 +48,7 @@ done
 for region in CONUS CONUS_East CONUS_West CONUS_South CONUS_Central Appalachia CPlains DeepSouth GreatBasin GreatLakes Mezquital MidAtlantic NorthAtlantic NPlains NRockies PacificNW PacificSW Prairie Southeast Southwest SPlains SRockies; do
     export region
     case ${region} in
+        CONUS) smregion=conus;;
         CONUS_East) smregion=conus_e;;
         CONUS_West) smregion=conus_w;;
         CONUS_South) smregion=conus_s;;
@@ -69,7 +70,6 @@ for region in CONUS CONUS_East CONUS_West CONUS_South CONUS_Central Appalachia C
         Southwest) smregion=sw;;
         SPlains) smregion=spl;;
         SRockies) smregion=srk;;
-        SRockies) smregion=conus;;
         *) smregion="nodefinition";;
     esac
 
@@ -117,7 +117,7 @@ for region in CONUS CONUS_East CONUS_West CONUS_South CONUS_Central Appalachia C
             export linetype=SL1L2
             smlev=`echo $lev | tr A-Z a-z`
             smvar=pm25
-            check_file=evs.${COMPONENT}.fbar_obar.${smvar}_${smlev}.last31days.vhrmean_f${fcstday}_init${inithr}z.buk_${smregion}.png ]
+            check_file=evs.${COMPONENT}.fbar_obar.${smvar}_${smlev}.last31days.vhrmean_f${fcstday}_init${inithr}z.buk_${smregion}.png
             if [ ! -e ${COMOUTplots}/${var}/${check_file} ]; then
                 sh ${PARMevs}/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/py_plotting_pm25_fbar_obar_time_series.config
                 cat ${LOGDIR}/*out
