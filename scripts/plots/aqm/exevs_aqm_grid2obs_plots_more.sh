@@ -26,21 +26,21 @@ ENDDATE=${VDAYm31}00
 for aqmtyp in ozone pm25 ozmax8 pmave; do
     for biasc in raw bc; do
         DATE=$STARTDATE
-        while [ $DATE -ge $ENDDATE ]; do
-            echo $DATE > curdate
+        while [ ${DATE} -ge ${ENDDATE} ]; do
+            echo ${DATE} > curdate
             DAY=`cut -c 1-8 curdate`
             YEAR=`cut -c 1-4 curdate`
             MONTH=`cut -c 1-6 curdate`
             HOUR=`cut -c 9-10 curdate`
 
             cpfile=evs.stats.${COMPONENT}_${biasc}.${RUN}.${VERIF_CASE}_${aqmtyp}.v${DAY}.stat
-            if [ -e ${EVSINaqm}.$DAY/${cpfile} ]; then
-                cp ${EVSINaqm}.$DAY/${cpfile} $STATDIR
+            if [ -e ${EVSINaqm}.${DAY}/${cpfile} ]; then
+                cp ${EVSINaqm}.${DAY}/${cpfile} $STATDIR
                 sed "s/$model1/${aqmtyp}_${biasc}/g" $STATDIR/${cpfile} > $STATDIR/evs.stats.${aqmtyp}_${biasc}.${RUN}.${VERIF_CASE}.v${DAY}.stat
             else
-                echo "WARNING ${COMPONENT} ${STEP} :: Can not find ${EVSINaqm}.$DAY/${cpfile}"
+                echo "WARNING ${COMPONENT} ${STEP} :: Can not find ${EVSINaqm}.${DAY}/${cpfile}"
             fi
-            DATE=`$NDATE -24 $DATE`
+            DATE=`$NDATE -24 ${DATE}`
         done
     done
 done
@@ -75,7 +75,7 @@ for region in CONUS CONUS_East CONUS_West CONUS_South CONUS_Central Appalachia C
 
     for inithr in 06 12; do
         for fcstday in day1 day2 day3; do
-            case ${fcstday } in
+            case ${fcstday} in
 	         day1)
                       export flead="01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24";;
 	         day2)
