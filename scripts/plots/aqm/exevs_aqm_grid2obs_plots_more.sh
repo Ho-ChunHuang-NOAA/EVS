@@ -49,7 +49,7 @@ for region in CONUS CONUS_East CONUS_West CONUS_South CONUS_Central Appalachia C
     export region
     case ${region} in
         CONUS_East) smregion=conus_e;;
-        CONUS_West) smregion=conus_w;
+        CONUS_West) smregion=conus_w;;
         CONUS_South) smregion=conus_s;;
         CONUS_Central) smregion=conus_c;;
         Appalachia) smregion=apl;;
