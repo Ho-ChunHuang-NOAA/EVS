@@ -74,54 +74,66 @@ for region in CONUS CONUS_East CONUS_West CONUS_South CONUS_Central Appalachia C
     esac
 
     for inithr in 06 12; do
-        export inithr
-        export var=OZCON1
-        mkdir -p ${COMOUTplots}/${var}
-        export lev=A1
-        export linetype=SL1L2
-        smlev=`echo $lev | tr A-Z a-z`
-        smvar=ozone
-        
-	check_file=evs.${COMPONENT}.fbar_obar.${smvar}_${smlev}.last31days.vhrmean_fday1_init${inithr}z.buk_${smregion}.png
-        if [ ! -e ${COMOUTplots}/${var}/${check_file} ]; then
-            sh ${PARMevs}/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/py_plotting_awpozcon_fbar_obar_time_series_day1.config
-            cat ${LOGDIR}/*out
-            mv ${LOGDIR}/*out ${LOGFIN}
-        else
-            echo "RESTART - plot exists; copying over to plot directory"
-            cp ${check_file} ${PLOTDIR}
-        fi
-        
-        if [ -e ${PLOTDIR}/aq/*/evs*png ]; then
-            mv ${PLOTDIR}/aq/*/evs*png ${PLOTDIR}/${check_file}
-            cp ${PLOTDIR}/${check_file} ${COMOUTplots}/${var}
-        elif [ ! -e ${PLOTDIR}/${check_file} ]; then
-            echo "NO PLOT FOR",${var},${region}
-        fi
-
-        export var=PMTF
-        mkdir -p ${COMOUTplots}/${var}
-        export lev=L1
-        export lev_obs=A1
-        export linetype=SL1L2
-        smlev=`echo $lev | tr A-Z a-z`
-        smvar=pm25
-        check_file=evs.${COMPONENT}.fbar_obar.${smvar}_${smlev}.last31days.vhrmean_fday1_init${inithr}z.buk_${smregion}.png ]
-        if [ ! -e ${COMOUTplots}/${var}/${check_file} ]; then
-            sh ${PARMevs}/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/py_plotting_pm25_fbar_obar_time_series_day1.config
-            cat ${LOGDIR}/*out
-            mv ${LOGDIR}/*out ${LOGFIN}
-        else
-            echo "RESTART - plot exists; copying over to plot directory"
-            cp ${COMOUTplots}/${var}/${check_file} ${PLOTDIR}
-        fi
-
-        if [ -e ${PLOTDIR}/aq/*/evs*png ]; then
-            mv ${PLOTDIR}/aq/*/evs*png ${PLOTDIR}/${check_file}
-            cp ${PLOTDIR}/${check_file} ${COMOUTplots}/${var}
-        elif [ ! -e ${PLOTDIR}/${check_file} ]; then
-            echo "NO PLOT FOR",${var},${region}
-        fi
+        for fcstday in day1 day2 day3; do
+            case ${fcstday } in
+	         day1)
+                      export flead="01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24";;
+	         day2)
+                      export flead="25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48";;
+	         day3)
+                      export flead="49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72";;
+	         *)
+                      export flead="01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72";;
+	    esac
+            export inithr
+            export var=OZCON1
+            mkdir -p ${COMOUTplots}/${var}
+            export lev=A1
+            export linetype=SL1L2
+            smlev=`echo $lev | tr A-Z a-z`
+            smvar=ozone
+            
+            check_file=evs.${COMPONENT}.fbar_obar.${smvar}_${smlev}.last31days.vhrmean_f${fcstday}_init${inithr}z.buk_${smregion}.png
+            if [ ! -e ${COMOUTplots}/${var}/${check_file} ]; then
+                sh ${PARMevs}/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/py_plotting_awpozcon_fbar_obar_time_series.config
+                cat ${LOGDIR}/*out
+                mv ${LOGDIR}/*out ${LOGFIN}
+            else
+                echo "RESTART - plot exists; copying over to plot directory"
+                cp ${check_file} ${PLOTDIR}
+            fi
+            
+            if [ -e ${PLOTDIR}/aq/*/evs*png ]; then
+                mv ${PLOTDIR}/aq/*/evs*png ${PLOTDIR}/${check_file}
+                cp ${PLOTDIR}/${check_file} ${COMOUTplots}/${var}
+            elif [ ! -e ${PLOTDIR}/${check_file} ]; then
+                echo "NO PLOT FOR",${var},${region}
+            fi
+    
+            export var=PMTF
+            mkdir -p ${COMOUTplots}/${var}
+            export lev=L1
+            export lev_obs=A1
+            export linetype=SL1L2
+            smlev=`echo $lev | tr A-Z a-z`
+            smvar=pm25
+            check_file=evs.${COMPONENT}.fbar_obar.${smvar}_${smlev}.last31days.vhrmean_f${fcstday}_init${inithr}z.buk_${smregion}.png ]
+            if [ ! -e ${COMOUTplots}/${var}/${check_file} ]; then
+                sh ${PARMevs}/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/py_plotting_pm25_fbar_obar_time_series.config
+                cat ${LOGDIR}/*out
+                mv ${LOGDIR}/*out ${LOGFIN}
+            else
+                echo "RESTART - plot exists; copying over to plot directory"
+                cp ${COMOUTplots}/${var}/${check_file} ${PLOTDIR}
+            fi
+    
+            if [ -e ${PLOTDIR}/aq/*/evs*png ]; then
+                mv ${PLOTDIR}/aq/*/evs*png ${PLOTDIR}/${check_file}
+                cp ${PLOTDIR}/${check_file} ${COMOUTplots}/${var}
+            elif [ ! -e ${PLOTDIR}/${check_file} ]; then
+                echo "NO PLOT FOR",${var},${region}
+            fi
+        done
     done
 done
 
