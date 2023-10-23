@@ -3,13 +3,13 @@
 ########################################
 # Preliminary data setup step
 ########################################
-set -x
 
-##################################################
-## SAVEGES  - Copy Files From TMPDIR to $GESdir
-## SENDECF  - Flag Events on ecFLOW
-## SENDCOM  - Copy Files From TMPDIR to $COMOUT
-## SENDDBN  - Issue DBNet Client Calls
+#################################################
+### SAVEGES  - Copy Files From TMPDIR to $GESdir
+### SENDECF  - Flag Events on ecFLOW
+### SENDCOM  - Copy Files From TMPDIR to $COMOUT
+### SENDDBN  - Issue DBNet Client Calls
+### SENDMAIL - Send email if file is missing
 ###################################################
 export SENDCOM=${SENDCOM:-YES}
 export SENDDBN=${SENDDBN:-NO}
@@ -19,8 +19,9 @@ export SENDMAIL=${SENDMAIL:-NO}
 # ###################################
 # SET SHELL PROCESSING VARIABLES
 # ###################################
-export PS4='$SECONDS + '
 date
+export PS4='$SECONDS + '
+set -x
 
 ###########################################################
 # obtain unique LSF id (jobid) and make temp directories
@@ -29,6 +30,13 @@ export DATA=${DATA:-${DATAROOT:?}/${jobid:?}}
 mkdir -p $DATA
 cd $DATA
 
+export vhr=${vhr:-00}
+export cycle=${cycle:-t${vhr}z}
+setpdy.sh 31
+. ./PDY 
+
+export envir=${envir:-prod}
+
 export HOMEevs=${HOMEevs:-${PACKAGEROOT}/evs.${evs_ver}}
 export EXECevs=${EXECevs:-$HOMEevs/exec}
 export FIXevs=${FIXevs:-$HOMEevs/fix}
@@ -36,44 +44,45 @@ export PARMevs=${PARMevs:-$HOMEevs/parm}
 export SCRIPTSevs=${SCRIPTSevs:-$HOMEevs/scripts}
 export USHevs=${USHevs:-$HOMEevs/ush}
 
-# Run setpdy and initialize PDY variables
- export vhr=${vhr:-00}
- export cycle=t${vhr}z
- setpdy.sh 31
- . ./PDY
-
-export VDATE=${VDATE:-$PDYm1}
-
-####################################
-### Define NET/RUN variables
-######################################
-export NET=${NET:-evs}
-export STEP=${STEP:-plots}
-export COMPONENT=${COMPONENT:-analyses}
-export RUN=${RUN:-atmos}
-
 # Define COMIN/COMOUT variables:
 
 echo $COMPATH
 
-export COMIN=${COMIN:-$(compath.py ${envir}/com/${NET}/${evs_ver})}
-export EVSINanl=${EVSINanl:-${COMIN}/stats/${COMPONENT}}
-export COMOUT=${COMOUT:-$(compath.py -o ${NET}/${evs_ver})}
+export NET=${NET:-evs}
+export STEP=${STEP:-plots}
+export COMPONENT=${COMPONENT:-aqm}
+export RUN=${RUN:-atmos}
+export VERIF_CASE=${VERIF_CASE:-grid2obs}
+export MODELNAME=${MODELNAME:-aqm}
+export modsys=${modsys:-aqm}
+export mod_ver=${mod_ver:-${aqm_ver}}
+
+export VDATE=${VDATE:-${PDYm3}}
+if [ "${VDATE}" == "${PDYm3}" ]; then
+    export VDAYm31=${PDYm31}
+else
+    export VDAYm31=$(${NDATE} -744 ${VDATE}${cyc} | cut -c1-8)  # 31 days back
+fi
+
+export COMIN=${COMIN:-$(compath.py ${envir}/com/${NET}/${evs_ver}/)}
+export EVSINaqm=${EVSINaqm:-${COMIN}/stats/${COMPONENT}/${MODELNAME}}
+export COMOUT=${COMOUT:-$(compath.py -o ${NET}/${evs_ver}/)}
 export COMOUTplots=${COMOUTplots:-${COMOUT}/${STEP}/${COMPONENT}/${RUN}.${VDATE}}
-mkdir -m 775 -p $COMOUTplots
+export COMOUTheadline=${COMOUTheadline:-${COMOUT}/${STEP}/${COMPONENT}/headline.${VDATE}}
+mkdir -m 775 -p $COMOUT $COMOUTplots $COMOUTheadline
 
 #######################################################################
 # Execute the script.
 #######################################################################
 
-$HOMEevs/scripts/${STEP}/${COMPONENT}/exevs_${COMPONENT}_${VERIF_CASE}_${STEP}_more.sh
+$HOMEevs/scripts/${STEP}/${COMPONENT}/exevs_${MODELNAME}_${VERIF_CASE}_${STEP}_more.sh
 
 msg="JOB $job HAS COMPLETED NORMALLY."
 postmsg "$msg"
 
 if [ "$KEEPDATA" != "YES" ] ; then
-  cd $DATAROOT
-  rm -rf $DATA
+    cd $DATAROOT
+    rm -rf $DATA
 fi
 
-date
+
