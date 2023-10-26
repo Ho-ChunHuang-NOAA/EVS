@@ -13,7 +13,7 @@ export PLOTDIR_headline=$DATA/plots_headline
 export OUTDIR=$DATA/out
 export PRUNEDIR=$DATA/prune
 mkdir -p $STATDIR
-mkdir -p ${PLOTDIR} ${PLOTDIR_headline}
+mkdir -p ${PLOTDIR}
 mkdir -p $PRUNEDIR
 mkdir -p $OUTDIR
 
@@ -22,7 +22,8 @@ export model1
 
 STARTDATE=${VDATE}00
 ## ENDDATE=${PDYm31}00
-ENDDATE=${VDAYm31}00
+ENDDATE=2023100500
+##ENDDATE=${VDAYm31}00
 for aqmtyp in ozone pm25 ozmax8 pmave; do
     for biasc in raw bc; do
         DATE=$STARTDATE
@@ -45,7 +46,8 @@ for aqmtyp in ozone pm25 ozmax8 pmave; do
     done
 done
 
-for region in CONUS CONUS_East CONUS_West CONUS_South CONUS_Central Appalachia CPlains DeepSouth GreatBasin GreatLakes Mezquital MidAtlantic NorthAtlantic NPlains NRockies PacificNW PacificSW Prairie Southeast Southwest SPlains SRockies; do
+## for region in CONUS CONUS_East CONUS_West CONUS_South CONUS_Central Appalachia CPlains DeepSouth GreatBasin GreatLakes Mezquital MidAtlantic NorthAtlantic NPlains NRockies PacificNW PacificSW Prairie Southeast Southwest SPlains SRockies; do
+for region in CONUS_East; do
     export region
     case ${region} in
         CONUS) smregion=conus;;
@@ -73,8 +75,10 @@ for region in CONUS CONUS_East CONUS_West CONUS_South CONUS_Central Appalachia C
         *) smregion="nodefinition";;
     esac
 
-    for inithr in 06 12; do
-        for fcstday in day1 day2 day3; do
+    ## for inithr in 06 12; do
+    ##     for fcstday in day1 day2 day3; do
+    for inithr in 12; do
+        for fcstday in day2; do
             case ${fcstday} in
 	         day1)
                       export flead="01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24";;
