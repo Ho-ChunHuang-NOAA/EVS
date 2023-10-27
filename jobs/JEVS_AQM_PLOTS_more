@@ -58,11 +58,18 @@ export modsys=${modsys:-aqm}
 export mod_ver=${mod_ver:-${aqm_ver}}
 
 export VDATE=${VDATE:-${PDYm3}}
+#
+## for consistency between ~//scripts/plots/aqm/exevs_aqm_grid2obs_plots_more.sh
+## and ~/parm/metplus_config/plots/aqm/grid2obs/*.config
+#
+export NUM_DAY_BACK=${NUM_DAY_BACK:-31}
+let hour_back=${NUM_DAY_BACK}*24
 if [ "${VDATE}" == "${PDYm3}" ]; then
-    export VDAYm31=${PDYm31}
+    export PLOT_START=$(${NDATE} -${hour_back} ${PDY}${cyc} | cut -c1-8)
 else
-    export VDAYm31=$(${NDATE} -744 ${VDATE}${cyc} | cut -c1-8)  # 31 days back
+    export PLOT_START=$(${NDATE} -${hour_back} ${VDATE}${cyc} | cut -c1-8)
 fi
+export PLOT_END=${VDATE}
 
 export COMIN=${COMIN:-$(compath.py ${envir}/com/${NET}/${evs_ver}/)}
 export EVSINaqm=${EVSINaqm:-${COMIN}/stats/${COMPONENT}/${MODELNAME}}

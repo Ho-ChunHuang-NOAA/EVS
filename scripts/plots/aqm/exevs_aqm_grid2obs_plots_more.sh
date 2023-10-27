@@ -20,10 +20,9 @@ mkdir -p $OUTDIR
 model1=`echo $MODELNAME | tr a-z A-Z`
 export model1
 
-STARTDATE=${VDATE}00
-## ENDDATE=${PDYm31}00
-ENDDATE=2023100500
-##ENDDATE=${VDAYm31}00
+STARTDATE=${PLOT_START}"00"
+ENDDATE=${PLOT_END}"00"
+
 for aqmtyp in ozone pm25 ozmax8 pmave; do
     for biasc in raw bc; do
         DATE=$STARTDATE
