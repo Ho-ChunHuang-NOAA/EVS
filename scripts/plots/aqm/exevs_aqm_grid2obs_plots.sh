@@ -1,6 +1,16 @@
 #!/bin/ksh
 
+#################################################################################
+# Name of Script: exevs_analyses__grid2obs_plots.sh
+# Contact(s):     Perry C. Shafran (perry.shafran@noaa.gov)
+# Purpose of Script: This script runs plotting codes to generate plots
+#                   of aqm vs airnow observations
+##################################################################################
+
+
 set -x
+
+# Set up initial directories and initialize variables
 
 mkdir -p $DATA/logs
 export LOGDIR=$DATA/plots/logs
@@ -19,6 +29,8 @@ mkdir -p $OUTDIR
 
 model1=`echo $MODELNAME | tr a-z A-Z`
 export model1
+
+# Bring in 31 days of stats files
 
 for aqmtyp in ozone pm25 ozmax8 pmave
 do
@@ -51,6 +63,8 @@ while [ $DATE -ge $ENDDATE ]; do
 done
 done
 done
+
+# Create plot for each region
 
 for region in CONUS CONUS_East CONUS_West CONUS_South CONUS_Central Appalachia CPlains DeepSouth GreatBasin GreatLakes Mezquital MidAtlantic NorthAtlantic NPlains NRockies PacificNW PacificSW Prairie Southeast Southwest SPlains SRockies
 do
@@ -123,6 +137,8 @@ do
 	 smregion=conus
 	fi
 
+# Plots for hourly ozone
+
         for inithr in 06 12
 	do
 	
@@ -135,7 +151,8 @@ do
 	smvar=ozone
 	if [ ! -e $COMOUTplots/$var/evs.$COMPONENT.bcrmse_me.${smvar}_${smlev}.last31days.fhrmean_init${inithr}z.buk_${smregion}.png ]
 	then
-	sh $PARMevs/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/py_plotting_awpozcon.config
+	$PARMevs/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/py_plotting_awpozcon.config
+	export err=$?; err_chk
 	cat $LOGDIR/*out
         mv $LOGDIR/*out $LOGFIN
         else
@@ -149,12 +166,13 @@ do
 	cp ${PLOTDIR}/evs.$COMPONENT.bcrmse_me.${smvar}_${smlev}.last31days.fhrmean_init${inithr}z.buk_${smregion}.png $COMOUTplots/$var
         elif [ ! -e ${PLOTDIR}/evs.$COMPONENT.bcrmse_me.${smvar}_${smlev}.last31days.fhrmean_init${inithr}z.buk_${smregion}.png ]
 	then
-	echo "NO PLOT FOR",$var,$region
+	echo "WARNING: NO PLOT FOR",$var,$region
         fi
 
 	if [ ! -e $COMOUTplots/$var/evs.$COMPONENT.fbar_obar.${smvar}_${smlev}.last31days.fhrmean_init${inithr}z.buk_${smregion}.png ]
 	then
-	sh $PARMevs/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/py_plotting_awpozcon_fbar.config
+	$PARMevs/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/py_plotting_awpozcon_fbar.config
+	export err=$?; err_chk
 	cat $LOGDIR/*out
         mv $LOGDIR/*out $LOGFIN
         else
@@ -168,8 +186,10 @@ do
 	cp ${PLOTDIR}/evs.$COMPONENT.fbar_obar.${smvar}_${smlev}.last31days.fhrmean_init${inithr}z.buk_${smregion}.png $COMOUTplots/$var
         elif [ ! -e ${PLOTDIR}/evs.$COMPONENT.fbar_obar.${smvar}_${smlev}.last31days.fhrmean_init${inithr}z.buk_${smregion}.png ]
         then
-	echo "NO PLOT FOR",$var,$region
+	echo "WARNING: NO PLOT FOR",$var,$region
         fi
+
+# Plots for hourly PM2.5
 
 	export var=PMTF
 	mkdir -p $COMOUTplots/$var
@@ -180,7 +200,8 @@ do
         smvar=pm25
 	if [ ! -e $COMOUTplots/$var/evs.$COMPONENT.bcrmse_me.${smvar}_${smlev}.last31days.fhrmean_init${inithr}z.buk_${smregion}.png ]
 	then
-        sh $PARMevs/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/py_plotting_pm25.config
+        $PARMevs/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/py_plotting_pm25.config
+	export err=$?; err_chk
 	cat $LOGDIR/*out
 	mv $LOGDIR/*out $LOGFIN
         else
@@ -194,12 +215,13 @@ do
 	cp ${PLOTDIR}/evs.$COMPONENT.bcrmse_me.${smvar}_${smlev}.last31days.fhrmean_init${inithr}z.buk_${smregion}.png $COMOUTplots/$var
         elif [ ! -e ${PLOTDIR}/evs.$COMPONENT.bcrmse_me.${smvar}_${smlev}.last31days.fhrmean_init${inithr}z.buk_${smregion}.png ]
 	then
-	echo "NO PLOT FOR",$var,$region
+	echo "WARNING: NO PLOT FOR",$var,$region
         fi
 
 	if [ ! -e $COMOUTplots/$var/evs.$COMPONENT.fbar_obar.${smvar}_${smlev}.last31days.fhrmean_init${inithr}z.buk_${smregion}.png ]
 	then
-        sh $PARMevs/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/py_plotting_pm25_fbar.config
+        $PARMevs/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/py_plotting_pm25_fbar.config
+	export err=$?; err_chk
 	cat $LOGDIR/*out
         mv $LOGDIR/*out $LOGFIN
         else
@@ -213,10 +235,12 @@ do
 	cp ${PLOTDIR}/evs.$COMPONENT.fbar_obar.${smvar}_${smlev}.last31days.fhrmean_init${inithr}z.buk_${smregion}.png $COMOUTplots/$var
         elif [ ! -e ${PLOTDIR}/evs.$COMPONENT.fbar_obar.${smvar}_${smlev}.last31days.fhrmean_init${inithr}z.buk_${smregion}.png ]
 	then
-	echo "NO PLOT FOR",$var,$region
+	echo "WARNING: NO PLOT FOR",$var,$region
         fi
 
         done
+
+# Plots for daily 8-hr ozone maximum
 
 	for flead in 29 53 77
 	do
@@ -232,7 +256,8 @@ do
 
         if [ ! -e $COMOUTplots/$var/evs.$COMPONENT.ctc.${smvar}.${smlev}.last31days.perfdiag_init${inithr}z_f${flead}.buk_${smregion}.png ]
 	then
-	sh $PARMevs/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/py_plotting_ozmax8.config
+	$PARMevs/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/py_plotting_ozmax8.config
+	export err=$?; err_chk
 	cat $LOGDIR/*out
         mv $LOGDIR/*out $LOGFIN
         else
@@ -246,7 +271,7 @@ do
 	cp ${PLOTDIR}/evs.$COMPONENT.ctc.${smvar}.${smlev}.last31days.perfdiag_init${inithr}z_f${flead}.buk_${smregion}.png $COMOUTplots/$var
         elif [ ! -e ${PLOTDIR}/evs.$COMPONENT.ctc.${smvar}.${smlev}.last31days.perfdiag_init${inithr}z_f${flead}.buk_${smregion}.png ]
 	then
-	echo "NO PLOT FOR",$var,$region
+	echo "WARNING: NO PLOT FOR",$var,$region
         fi
 
         done
@@ -255,7 +280,7 @@ do
 	do
 	export flead
 	export var=OZMAX8
-	mkdir $COMOUTplots/$var
+	mkdir -p $COMOUTplots/$var
 	export lev=L1
 	export lev_obs=A8
 	export linetype=CTC
@@ -265,7 +290,8 @@ do
 
 	if [ ! -e $COMOUTplots/$var/evs.$COMPONENT.ctc.${smvar}.${smlev}.last31days.perfdiag_init${inithr}z_f${flead}.buk_${smregion}.png ]
 	then
-	sh $PARMevs/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/py_plotting_ozmax8.config
+	$PARMevs/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/py_plotting_ozmax8.config
+	export err=$?; err_chk
 	cat $LOGDIR/*out
 	mv $LOGDIR/*out $LOGFIN
 	else
@@ -279,16 +305,18 @@ do
 	cp ${PLOTDIR}/evs.$COMPONENT.ctc.${smvar}.${smlev}.last31days.perfdiag_init${inithr}z_f${flead}.buk_${smregion}.png $COMOUTplots/$var
         elif [ ! -e ${PLOTDIR}/evs.$COMPONENT.ctc.${smvar}.${smlev}.last31days.perfdiag_init${inithr}z_f${flead}.buk_${smregion}.png ]
 	then
-	echo "NO PLOT FOR",$var,$region
+	echo "WARNING: NO PLOT FOR",$var,$region
         fi
 
         done
+
+# Plots for daily 24-hr average PM2.5
 
 	for flead in 22 46 70
 	do
 	export flead
 	export var=PMAVE
-	mkdir $COMOUTplots/$var
+	mkdir -p $COMOUTplots/$var
 	export lev=A23
 	export lev_obs=A1
 	export linetype=CTC
@@ -298,7 +326,8 @@ do
 
 	if [ ! -e $COMOUTplots/$var/evs.$COMPONENT.ctc.${smvar}.${smlev}.last31days.perfdiag_init${inithr}z_f${flead}.buk_${smregion}.png ]
 	then
-	sh $PARMevs/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/py_plotting_pmave.config
+	$PARMevs/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/py_plotting_pmave.config
+	export err=$?; err_chk
 	cat $LOGDIR/*out
         mv $LOGDIR/*out $LOGFIN
         else
@@ -312,7 +341,7 @@ do
 	cp ${PLOTDIR}/evs.$COMPONENT.ctc.${smvar}.${smlev}.last31days.perfdiag_init${inithr}z_f${flead}.buk_${smregion}.png $COMOUTplots/$var
         elif [ ! -e ${PLOTDIR}/evs.$COMPONENT.ctc.${smvar}.${smlev}.last31days.perfdiag_init${inithr}z_f${flead}.buk_${smregion}.png ]
 	then
-	echo "NO PLOT FOR",$var,$region
+	echo "WARNING: NO PLOT FOR",$var,$region
         fi
 
         done
@@ -321,7 +350,7 @@ do
 	do
 	export flead
 	export var=PMAVE
-	mkdir $COMOUTplots/$var
+	mkdir -p $COMOUTplots/$var
 	export lev=A23
 	export lev_obs=A1
 	export linetype=CTC
@@ -331,7 +360,8 @@ do
 
 	if [ ! -e $COMOUTplots/$var/evs.$COMPONENT.ctc.${smvar}.${smlev}.last31days.perfdiag_init${inithr}z_f${flead}.buk_${smregion}.png ]
 	then
-	sh $PARMevs/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/py_plotting_pmave.config
+	$PARMevs/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/py_plotting_pmave.config
+	export err=$?; err_chk
 	cat $LOGDIR/*out
         mv $LOGDIR/*out $LOGFIN
         else
@@ -345,18 +375,20 @@ do
 	cp ${PLOTDIR}/evs.$COMPONENT.ctc.${smvar}.${smlev}.last31days.perfdiag_init${inithr}z_f${flead}.buk_${smregion}.png $COMOUTplots/$var
         elif [ ! -e ${PLOTDIR}/evs.$COMPONENT.ctc.${smvar}.${smlev}.last31days.perfdiag_init${inithr}z_f${flead}.buk_${smregion}.png ]
 	then
-	echo "NO PLOT FOR",$var,$region
+	echo "WARNING: NO PLOT FOR",$var,$region
         fi
 
         done
 done
+
+# Tar up plot directory and cp to the plot output directory
 
 cd ${PLOTDIR}
 tar -cvf evs.plots.${COMPONENT}.${RUN}.${VERIF_CASE}.last31days.v${VDATE}.tar *png
 
 if [ $SENDCOM = "YES" ]; then
  mkdir -m 775 -p $COMOUTplots
- cp evs.plots.${COMPONENT}.${RUN}.${VERIF_CASE}.last31days.v${VDATE}.tar $COMOUTplots
+ cpreq -v evs.plots.${COMPONENT}.${RUN}.${VERIF_CASE}.last31days.v${VDATE}.tar $COMOUTplots
 fi
 
 if [ $SENDDBN = YES ] ; then     
@@ -407,7 +439,8 @@ do
 
 	if [ ! -e $COMOUTplots/headline/headline_${COMPONENT}.csi_gt${select_headline_csi}.${smvar}.${smlev}.last31days.timeseries_init${inithr}z_f${flead}.buk_${smregion}.png ]
 	then
-	sh $PARMevs/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/py_plotting_ozmax8_headline.config
+	$PARMevs/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/py_plotting_ozmax8_headline.config
+	export err=$?; err_chk
 	cat ${LOGDIR_headline}/*out
         mv ${LOGDIR_headline}/*out $LOGFIN
         else
@@ -421,7 +454,7 @@ do
 	cp ${PLOTDIR_headline}/headline_${COMPONENT}.csi_gt${select_headline_csi}.${smvar}.${smlev}.last31days.timeseries_init${inithr}z_f${flead}.buk_${smregion}.png $COMOUTplots/headline
         elif [ ! -e ${PLOTDIR_headline}/headline_${COMPONENT}.csi_gt${select_headline_csi}.${smvar}.${smlev}.last31days.timeseries_init${inithr}z_f${flead}.buk_${smregion}.png ]
 	then
-	echo "NO PLOT FOR",$var,$region
+	echo "WARNING: NO PLOT FOR",$var,$region
         fi
 
         done
@@ -445,7 +478,8 @@ do
 
 	if [ ! -e $COMOUTplots/headline/headline_${COMPONENT}.csi_gt${select_headline_csi}.${smvar}.${smlev}.last31days.timeseries_init${inithr}z_f${flead}.buk_${smregion}.png ]
 	then
-	sh $PARMevs/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/py_plotting_pmave_headline.config
+	$PARMevs/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/py_plotting_pmave_headline.config
+	export err=$?; err_chk
 	cat ${LOGDIR_headline}/*out
         mv ${LOGDIR_headline}/*out $LOGFIN
         else
@@ -459,11 +493,13 @@ do
 	cp ${PLOTDIR_headline}/headline_${COMPONENT}.csi_gt${select_headline_csi}.${smvar}.${smlev}.last31days.timeseries_init${inithr}z_f${flead}.buk_${smregion}.png $COMOUTplots/headline
         elif [ ! -e ${PLOTDIR_headline}/headline_${COMPONENT}.csi_gt${select_headline_csi}.${smvar}.${smlev}.last31days.timeseries_init${inithr}z_f${flead}.buk_${smregion}.png ]
 	then
-	echo "NO PLOT FOR",$var,$region
+	echo "WARNING: NO PLOT FOR",$var,$region
         fi
 
         done
 done
+
+# Tar up headline plot tarball and cp to the headline plot directory
 
 cd ${PLOTDIR_headline}
 tarfile=evs.plots.${COMPONENT}.${RUN}.headline.last31days.v${VDATE}.tar
@@ -471,7 +507,7 @@ tar -cvf ${tarfile} *png
 
 if [ $SENDCOM = "YES" ]; then
  mkdir -m 775 -p ${COMOUTheadline}
- cp ${tarfile} ${COMOUTheadline}
+ cpreq -v ${tarfile} ${COMOUTheadline}
 fi
 
 if [ $SENDDBN = YES ] ; then     
