@@ -89,7 +89,6 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
     variable_translator = reference.variable_translator
     domain_translator = reference.domain_translator
     model_settings = model_colors.model_settings
-
     # filter by level
     df = df[df['FCST_LEV'].astype(str).eq(str(level))]
 
@@ -274,6 +273,7 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
             logger.info("========================================")
             return None
     df_groups = df.groupby(group_by)
+    print("length of df_groups ="+str(len(df_groups)))
     # Aggregate unit statistics before calculating metrics
     if str(line_type).upper() == 'CTC':
         df_aggregated = df_groups.sum()
@@ -281,6 +281,7 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
         df_aggregated = df_groups.mean()
     if sample_equalization:
         df_aggregated['COUNTS']=df_groups.size()
+    ## print('df_aggregated['COUNTS']'+str(df_aggregated['COUNTS']))
     # Remove data if they exist for some but not all models at some value of 
     # the indep. variable. Otherwise plot_util.calculate_stat will throw an 
     # error
@@ -330,6 +331,20 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
                     )
                 )
     # Calculate desired metric
+    print('metric_name='+metric_name)
+    print(df_aggregated.columns.values)
+
+    fy_oy_test = df_aggregated.loc[:]['FY_OY']
+    fy_on_test = df_aggregated.loc[:]['FY_ON']
+    fn_oy_test = df_aggregated.loc[:]['FN_OY']
+    fn_on_test= df_aggregated.loc[:]['FN_ON']
+    csi_test = fy_oy_test/(fy_oy_test + fy_on_test + fn_oy_test)
+    csi_num_test= fy_oy_test + fy_on_test + fn_oy_test
+    csi_test_mean = (
+            np.sum(fy_oy_test)
+            /(np.sum(fy_oy_test )+np.sum(fy_on_test)+np.sum(fn_oy_test))
+         )
+    print("csi_test_mean="+str(csi_test_mean))
     stat_output = plot_util.calculate_stat(
         logger, df_aggregated, str(metric_name).lower(), [coef, const]
     )
@@ -512,6 +527,7 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
         y_vals_metric = pivot_metric[str(model_list[m])].values
         y_vals_metric = np.array([y_vals_metric[i] for i in x_vals_argsort])
         y_vals_metric_mean = np.nanmean(y_vals_metric)
+        print("if display_averages: y_vals_metric_mean="+str(y_vals_metric_mean))
         if confidence_intervals:
             if (str(model_list[m]) not in pivot_ci_lower 
                     or str(model_list[m]) not in pivot_ci_upper):
@@ -553,6 +569,7 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
                     and y_vals_metric_max >= y_mod_max):
                 y_max = y_vals_metric_max
         if display_averages:
+            print("if display_averages: y_vals_metric_mean="+str(y_vals_metric_mean))
             if np.abs(y_vals_metric_mean) < 1E4:
                 metric_mean_fmt_string = (f'{model_plot_name}'
                                           + f' ({y_vals_metric_mean:.2f})')
