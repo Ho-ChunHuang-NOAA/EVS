@@ -25,8 +25,8 @@ ENDDATE=${PLOT_END}"00"
 
 for aqmtyp in ozone pm25 ozmax8 pmave; do
     for biasc in raw bc; do
-        DATE=$STARTDATE
-        while [ ${DATE} -ge ${ENDDATE} ]; do
+        DATE=${STARTDATE}
+        while [ ${DATE} -le ${ENDDATE} ]; do
             echo ${DATE} > curdate
             DAY=`cut -c 1-8 curdate`
             YEAR=`cut -c 1-4 curdate`
@@ -40,7 +40,7 @@ for aqmtyp in ozone pm25 ozmax8 pmave; do
             else
                 echo "WARNING ${COMPONENT} ${STEP} :: Can not find ${EVSINaqm}.${DAY}/${cpfile}"
             fi
-            DATE=`$NDATE -24 ${DATE}`
+            DATE=$(${NDATE} +24 ${DATE})
         done
     done
 done
@@ -74,67 +74,52 @@ for region in CONUS_East; do
         *) smregion="nodefinition";;
     esac
 
+    #
     ## for inithr in 06 12; do
     ##     for fcstday in day1 day2 day3; do
     for inithr in 12; do
         for fcstday in day2; do
             case ${fcstday} in
-	         day1)
-                      export flead="01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24";;
-	         day2)
-                      export flead="25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48";;
-	         day3)
-                      export flead="49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72";;
-	         *)
-                      export flead="01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72";;
-	    esac
+                day1)
+                     if [ "${inithr}" == "06" ]; then export flead="22"; fi
+                     if [ "${inithr}" == "12" ]; then export flead="16"; fi;;
+                day2)
+                     if [ "${inithr}" == "06" ]; then export flead="46"; fi
+                     if [ "${inithr}" == "12" ]; then export flead="40"; fi;;
+                day3)
+                     if [ "${inithr}" == "06" ]; then export flead="70"; fi
+                     if [ "${inithr}" == "12" ]; then export flead="64"; fi;;
+                *)   export flead="40";;
+            esac
+# Plots for daily 24-hr average PM2.5
+
+            export flead
             export inithr
-            export var=OZCON1
+            export var=PMAVE
             mkdir -p ${COMOUTplots}/${var}
-            export lev=A1
-            export linetype=SL1L2
-            smlev=`echo $lev | tr A-Z a-z`
-            smvar=ozone
-            
-            check_file=evs.${COMPONENT}.fbar_obar.${smvar}_${smlev}.last31days.vhrmean_f${fcstday}_init${inithr}z.buk_${smregion}.png
-            if [ ! -e ${COMOUTplots}/${var}/${check_file} ]; then
-                sh ${PARMevs}/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/py_plotting_awpozcon_fbar_obar_time_series.config
-                cat ${LOGDIR}/*out
-                mv ${LOGDIR}/*out ${LOGFIN}
-            else
-                echo "RESTART - plot exists; copying over to plot directory"
-                cp ${check_file} ${PLOTDIR}
-            fi
-            
-            if [ -e ${PLOTDIR}/aq/*/evs*png ]; then
-                mv ${PLOTDIR}/aq/*/evs*png ${PLOTDIR}/${check_file}
-                cp ${PLOTDIR}/${check_file} ${COMOUTplots}/${var}
-            elif [ ! -e ${PLOTDIR}/${check_file} ]; then
-                echo "NO PLOT FOR",${var},${region}
-            fi
-    
-            export var=PMTF
-            mkdir -p ${COMOUTplots}/${var}
-            export lev=L1
+            export lev=A23
             export lev_obs=A1
-            export linetype=SL1L2
+            export linetype=CTC
             smlev=`echo $lev | tr A-Z a-z`
-            smvar=pm25
-            check_file=evs.${COMPONENT}.fbar_obar.${smvar}_${smlev}.last31days.vhrmean_f${fcstday}_init${inithr}z.buk_${smregion}.png
-            if [ ! -e ${COMOUTplots}/${var}/${check_file} ]; then
-                sh ${PARMevs}/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/py_plotting_pm25_fbar_obar_time_series.config
-                cat ${LOGDIR}/*out
-                mv ${LOGDIR}/*out ${LOGFIN}
+            smvar=`echo ${var} | tr A-Z a-z`
+
+            cppng=evs.${COMPONENT}.ctc.${smvar}.${smlev}.last31days.csi_by_threshold_init${inithr}z_f${flead}.buk_${smregion}.png
+            if [ ! -e ${cppng} ]; then
+                $PARMevs/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/py_plotting_pmave_csi_threshold.config
+                export err=$?; err_chk
+                cat $LOGDIR/*out
+                mv $LOGDIR/*out $LOGFIN
             else
                 echo "RESTART - plot exists; copying over to plot directory"
-                cp ${COMOUTplots}/${var}/${check_file} ${PLOTDIR}
+                cp ${COMOUTplots}/${var}/${cppng} ${PLOTDIR}
             fi
-    
+
             if [ -e ${PLOTDIR}/aq/*/evs*png ]; then
-                mv ${PLOTDIR}/aq/*/evs*png ${PLOTDIR}/${check_file}
-                cp ${PLOTDIR}/${check_file} ${COMOUTplots}/${var}
-            elif [ ! -e ${PLOTDIR}/${check_file} ]; then
-                echo "NO PLOT FOR",${var},${region}
+                mv ${PLOTDIR}/aq/*/evs*png ${PLOTDIR}/${cppng}
+                cp ${PLOTDIR}/${cppng} ${COMOUTplots}/${var}
+		scp ${PLOTDIR}/${cppng} hchuang@rzdm:/home/people/emc/www/htdocs/mmb/hchuang/ftp
+            elif [ ! -e ${PLOTDIR}/${cppng} ]; then
+                echo "WARNING: NO PLOT FOR",${var},${region}
             fi
         done
     done
@@ -157,5 +142,3 @@ fi
 fi
 
 exit
-
-

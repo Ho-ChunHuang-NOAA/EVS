@@ -2,14 +2,14 @@
 
 ###############################################################################
 #
-# Name:          threshold_average.py
+# Name:          time_series.py
 # Contact(s):    Marcel Caron
-# Developed:     Nov. 22, 2021 by Marcel Caron 
-# Last Modified: Dec. 1, 2021 by Marcel Caron             
+# Developed:     Oct. 14, 2021 by Marcel Caron 
+# Last Modified: Dec. 01, 2022 by Marcel Caron             
 # Title:         Line plot of verification metric as a function of 
-#                forecast threshold
+#                valid or init time
 # Abstract:      Plots METplus output (e.g., BCRMSE) as a line plot, 
-#                varying by forecast threshold, which represents the x-axis. 
+#                varying by valid or init time, which represents the x-axis. 
 #                Line colors and styles are unique for each model, and several
 #                models can be plotted at once.
 #
@@ -29,7 +29,6 @@ import matplotlib.colors as colors
 import matplotlib.image as mpimg
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from datetime import datetime, timedelta as td
-from decimal import Decimal
 
 SETTINGS_DIR = os.environ['USH_DIR']
 sys.path.insert(0, os.path.abspath(SETTINGS_DIR))
@@ -55,27 +54,34 @@ reference = Reference()
 # =================== FUNCTIONS =========================
 
 
-def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger, 
-                      date_range: tuple, model_list: list, num: int = 0, 
-                      level: str = '500', flead='all', thresh: list = ['<20'], 
-                      metric_name: str = 'BCRMSE', 
-                      y_min_limit: float = -10., y_max_limit: float = 10., 
-                      y_lim_lock: bool = False, ylabel: str = '',  
-                      date_type: str = 'VALID', date_hours: list = [0,6,12,18], 
-                      verif_type: str = 'pres', save_dir: str = '.',
-                      requested_var: str = 'HGT', line_type: str = 'SL1L2',
-                      dpi: int = 300, confidence_intervals: bool = False,
-                      interp_pts: list = [],
-                      bs_nrep: int = 5000, bs_method: str = 'MATCHED_PAIRS', 
-                      ci_lev: float = .95, bs_min_samp: int = 30,
-                      eval_period: str = 'TEST', save_header: str = '', 
-                      display_averages: bool = True, 
-                      plot_group: str = 'sfc_upper',
-                      sample_equalization: bool = True,
-                      plot_logo_left: bool = False,
-                      plot_logo_right: bool = False, path_logo_left: str = '.',
-                      path_logo_right: str = '.', zoom_logo_left: float = 1.,
-                      zoom_logo_right: float = 1.):
+def daterange(start: datetime, end: datetime, td: td) -> datetime:
+    curr = start
+    while curr <= end:
+        yield curr
+        curr+=td
+
+def plot_time_series(df: pd.DataFrame, logger: logging.Logger, 
+                     date_range: tuple, model_list: list, num: int = 0, 
+                     level: str = '500', flead='all', thresh: list = ['<20'], 
+                     metric1_name: str = 'BCRMSE', metric2_name: str = 'BIAS',
+                     y_min_limit: float = -10., y_max_limit: float = 10., 
+                     y_lim_lock: bool = False,
+                     xlabel: str = 'Valid Date', date_type: str = 'VALID', 
+                     date_hours: list = [0,6,12,18], verif_type: str = 'pres', 
+                     save_dir: str = '.', requested_var: str = 'HGT', 
+                     line_type: str = 'SL1L2', dpi: int = 300, 
+                     confidence_intervals: bool = False, interp_pts: list = [],
+                     bs_nrep: int = 5000, bs_method: str = 'MATCHED_PAIRS',
+                     ci_lev: float = .95, bs_min_samp: int = 30,
+                     eval_period: str = 'TEST', save_header='', 
+                     display_averages: bool = True, 
+                     keep_shared_events_only: bool = False,
+                     plot_group: str = 'sfc_upper',
+                     sample_equalization: bool = True,
+                     plot_logo_left: bool = False,
+                     plot_logo_right: bool = False, path_logo_left: str = '.',
+                     path_logo_right: str = '.', zoom_logo_left: float = 1.,
+                     zoom_logo_right: float = 1.):
 
     logger.info("========================================")
     logger.info(f"Creating Plot {num} ...")
@@ -98,11 +104,7 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
         plt.close(num)
         logger.info("========================================")
         return None
-    if str(line_type).upper() == 'CTC' and np.array(thresh).size == 0:
-        logger.warning(f"Empty list of thresholds. Continuing onto next"
-                       + f" plot...")
-        logger.info("========================================")
-        return None
+
     # filter by forecast lead times
     if isinstance(flead, list):
         if len(flead) <= 8:
@@ -129,17 +131,13 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
         frange_save_string = f'F{flead:03d}'
         df = df[df['LEAD_HOURS'] == flead]
     else:
-        e1 = f"Invalid forecast lead: \'{flead}\'"
-        e2 = f"Please check settings for forecast leads."
-        logger.error(e1)
-        logger.error(e2)
-        raise ValueError(e1+"\n"+e2)
-    if df.empty:
-        logger.warning(f"Empty Dataframe. Continuing onto next plot...")
-        plt.close(num)
-        logger.info("========================================")
-        return None
-    
+        error_string = (
+            f"Invalid forecast lead: \'{flead}\'\nPlease check settings for"
+            + f" forecast leads."
+        )
+        logger.error(error_string)
+        raise ValueError(error_string)
+
     # Remove from date_hours the valid/init hours that don't exist in the 
     # dataframe
     date_hours = np.array(date_hours)[[
@@ -189,53 +187,58 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
             logger.error(error_string)
             raise ValueError(error_string)
 
-    requested_thresh_symbol, requested_thresh_letter = list(
-        zip(*[plot_util.format_thresh(t) for t in thresh])
-    )
-    symbol_found = False
-    for opt in ['>=', '>', '==','!=','<=', '<']:
-        if any(opt in t for t in requested_thresh_symbol):
-            if all(opt in t for t in requested_thresh_symbol):
-                symbol_found = True
-                break
+    if thresh and '' not in thresh:
+        requested_thresh_symbol, requested_thresh_letter = list(
+            zip(*[plot_util.format_thresh(t) for t in thresh])
+        )
+        symbol_found = False
+        for opt in ['>=', '>', '==', '!=', '<=', '<']:
+            if any(opt in t for t in requested_thresh_symbol):
+                if all(opt in t for t in requested_thresh_symbol):
+                    symbol_found = True
+                    opt_letter = requested_thresh_letter[0][:2]
+                    break
+                else:
+                    e = ("Threshold operands do not match among all requested"
+                         + f" thresholds.")
+                    logger.error(e)
+                    logger.error("Quitting ...")
+                    raise ValueError(e+"\nQuitting ...")
+        if not symbol_found:
+            e = "None of the requested thresholds contain a valid symbol."
+            logger.error(e)
+            logger.error("Quitting ...")
+            raise ValueError(e+"\nQuitting ...")
+        df_thresh_symbol, df_thresh_letter = list(
+            zip(*[plot_util.format_thresh(t) for t in df['FCST_THRESH']])
+        )
+        df['FCST_THRESH_SYMBOL'] = df_thresh_symbol
+        df['FCST_THRESH_VALUE'] = [str(item)[2:] for item in df_thresh_letter]
+        requested_thresh_value = [
+            str(item)[2:] for item in requested_thresh_letter
+        ]
+        df = df[df['FCST_THRESH_SYMBOL'].isin(requested_thresh_symbol)]
+        thresholds_removed = (
+            np.array(requested_thresh_symbol)[
+                ~np.isin(requested_thresh_symbol, df['FCST_THRESH_SYMBOL'])
+            ]
+        )
+        requested_thresh_symbol = (
+            np.array(requested_thresh_symbol)[
+                np.isin(requested_thresh_symbol, df['FCST_THRESH_SYMBOL'])
+            ]
+        )
+        if thresholds_removed.size > 0:
+            thresholds_removed_string = ', '.join(thresholds_removed)
+            if len(thresholds_removed) > 1:
+                warning_string = (f"{thresholds_removed_string} thresholds"
+                                  + f" were not found and will not be"
+                                  + f" plotted.")
             else:
-                e = ("Threshold operands do not match among all requested"
-                    + f" thresholds.")
-                logger.error(e)
-                logger.error("Quitting ...")
-                raise ValueError(e+"\nQuitting ...")
-    if not symbol_found:
-        e = "None of the requested thresholds contain a valid symbol."
-        logger.error(e)
-        logger.error("Quitting ...")
-        raise ValueError(e+"\nQuitting ...")
-    
-    df_thresh_symbol, df_thresh_letter = list(
-        zip(*[plot_util.format_thresh(t) for t in df['FCST_THRESH']])
-    )
-    df['FCST_THRESH_SYMBOL'] = df_thresh_symbol
-    df['FCST_THRESH_VALUE'] = [str(item)[2:] for item in df_thresh_letter]
-    df = df[df['FCST_THRESH_SYMBOL'].isin(requested_thresh_symbol)]
-    thresholds_removed = (
-        np.array(requested_thresh_symbol)[
-            ~np.isin(requested_thresh_symbol, df['FCST_THRESH_SYMBOL'])
-        ]
-    )
-    requested_thresh_symbol = (
-        np.array(requested_thresh_symbol)[
-            np.isin(requested_thresh_symbol, df['FCST_THRESH_SYMBOL'])
-        ]
-    )
-    if thresholds_removed.size > 0:
-        thresholds_removed_string = ', '.join(thresholds_removed)
-        if len(thresholds_removed) > 1:
-            warning_string = (f"{thresholds_removed_string} thresholds were"
-                              + f" not found and will not be plotted.")
-        else:
-            warning_string = (f"{thresholds_removed_string} threshold was"
-                              + f" not found and will not be plotted.")
-        logger.warning(warning_string)
-        logger.warning("Continuing ...")
+                warning_string = (f"{thresholds_removed_string} threshold was"
+                                  + f" not found and will not be plotted.")
+            logger.warning(warning_string)
+            logger.warning("Continuing ...")
 
     # Remove from model_list the models that don't exist in the dataframe
     cols_to_keep = [
@@ -262,8 +265,7 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
         plt.close(num)
         logger.info("========================================")
         return None
-    
-    group_by = ['MODEL','FCST_THRESH_VALUE']
+    group_by = ['MODEL',str(date_type).upper()]
     if sample_equalization:
         df, bool_success = plot_util.equalize_samples(logger, df, group_by)
         if not bool_success:
@@ -281,27 +283,30 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
         df_aggregated = df_groups.mean()
     if sample_equalization:
         df_aggregated['COUNTS']=df_groups.size()
-    # Remove data if they exist for some but not all models at some value of 
-    # the indep. variable. Otherwise plot_util.calculate_stat will throw an 
-    # error
-    df_split = [df_aggregated.xs(str(model)) for model in model_list]
-    df_reduced = reduce(
-        lambda x,y: pd.merge(
-            x, y, on='FCST_THRESH_VALUE', how='inner'
-        ), 
-        df_split
-    )
-    df_aggregated = df_aggregated[
-        df_aggregated.index.get_level_values('FCST_THRESH_VALUE')
-        .isin(df_reduced.index)
-    ]
-
+    if keep_shared_events_only:
+        # Remove data if they exist for some but not all models at some value of 
+        # the indep. variable. Otherwise plot_util.calculate_stat will throw an 
+        # error
+        df_split = [
+            df_aggregated.xs(str(model)) for model in model_list
+        ]
+        df_reduced = reduce(
+            lambda x,y: pd.merge(
+                x, y, on=str(date_type).upper(), how='inner'
+            ), 
+            df_split
+        )
+    
+        df_aggregated = df_aggregated[
+            df_aggregated.index.get_level_values(str(date_type).upper())
+            .isin(df_reduced.index)
+        ]
     if df_aggregated.empty:
         logger.warning(f"Empty Dataframe. Continuing onto next plot...")
         plt.close(num)
         logger.info("========================================")
         return None
-
+    
     units = df['FCST_UNITS'].tolist()[0]
     metrics_using_var_units = [
         'BCRMSE','RMSE','BIAS','ME','FBAR','OBAR','MAE','FBAR_OBAR',
@@ -315,14 +320,23 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
         var_long_name_key = df['FCST_VAR'].tolist()[0]
         if str(var_long_name_key).upper() == 'HGT':
             if str(df['OBS_VAR'].tolist()[0]).upper() in ['CEILING']:
-                if units in ['m', 'gpm']:
+                if units in ['m','gpm']:
                     units = 'gpm'
             elif str(df['OBS_VAR'].tolist()[0]).upper() in ['HPBL']:
                 unit_convert = False
             elif str(df['OBS_VAR'].tolist()[0]).upper() in ['HGT']:
                 unit_convert = False
         if unit_convert:
-            if str(metric_name).upper() in metrics_using_var_units:
+            if metric2_name is not None:
+                if (str(metric1_name).upper() in metrics_using_var_units
+                        and str(metric2_name).upper() in metrics_using_var_units):
+                    coef, const = (
+                        reference.unit_conversions[units]['formula'](
+                            None,
+                            return_terms=True
+                        )
+                    )
+            elif str(metric1_name).upper() in metrics_using_var_units:
                 coef, const = (
                     reference.unit_conversions[units]['formula'](
                         None,
@@ -330,72 +344,142 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
                     )
                 )
     # Calculate desired metric
-    stat_output = plot_util.calculate_stat(
-        logger, df_aggregated, str(metric_name).lower(), [coef, const]
-    )
-    df_aggregated[str(metric_name).upper()] = stat_output[0]
-    metric_long_name = stat_output[2]
-    if confidence_intervals:
-        ci_output = df_groups.apply(
-            lambda x: plot_util.calculate_bootstrap_ci(
-                logger, bs_method, x, str(metric_name).lower(), bs_nrep,
-                ci_lev, bs_min_samp, [coef, const]
+    metric_long_names = []
+    for stat in [metric1_name, metric2_name]:
+        if stat:
+            stat_output = plot_util.calculate_stat(
+                logger, df_aggregated, str(stat).lower(), [coef, const]
             )
-        )
-        if any(ci_output['STATUS'] == 1):
-            logger.warning(f"Failed attempt to compute bootstrap"
-                           + f" confidence intervals.  Sample size"
-                           + f" for one or more groups is too small."
-                           + f" Minimum sample size can be changed"
-                           + f" in settings.py.")
-            logger.warning(f"Confidence intervals will not be"
-                           + f" plotted.")
-            confidence_intervals = False
-        else:
-            ci_output = ci_output.reset_index(level=2, drop=True)
-            ci_output = (
-                ci_output
-                .reindex(df_aggregated.index)
-                .reindex(ci_output.index)
-            )
-            df_aggregated[str(metric_name).upper()+'_BLERR'] = ci_output[
-                'CI_LOWER'
-            ].values
-            df_aggregated[str(metric_name).upper()+'_BUERR'] = ci_output[
-                'CI_UPPER'
-            ].values
-
-    df_aggregated[str(metric_name).upper()] = (
-        df_aggregated[str(metric_name).upper()]
+            df_aggregated[str(stat).upper()] = stat_output[0]
+            metric_long_names.append(stat_output[2])
+            '''if confidence_intervals:
+                logger.warning(
+                    f"Confidence intervals are turned on but are not currently"
+                    + f" allowed on time series plots. None will be plotted"
+                    + f" for {str(stat).upper()}."
+                )
+                confidence_intervals = False
+            # Remove the above section to re-enable CIs for time series''' 
+            if confidence_intervals:
+                ci_output = df_groups.apply(
+                    lambda x: plot_util.calculate_bootstrap_ci(
+                        logger, bs_method, x, str(stat).lower(), bs_nrep,
+                        ci_lev, bs_min_samp, [coef, const]
+                    )
+                )
+                if any(ci_output['STATUS'] == 1):
+                    logger.warning(f"Failed attempt to compute bootstrap"
+                                   + f" confidence intervals.  Sample size"
+                                   + f" for one or more groups is too small."
+                                   + f" Minimum sample size can be changed"
+                                   + f" in settings.py.")
+                    logger.warning(f"Confidence intervals will not be"
+                                   + f" plotted.")
+                    confidence_intervals = False
+                    continue
+                ci_output = ci_output.reset_index(level=2, drop=True)
+                ci_output = (
+                    ci_output
+                    .reindex(df_aggregated.index)
+                    .reindex(ci_output.index)
+                )
+                df_aggregated[str(stat).upper()+'_BLERR'] = ci_output[
+                    'CI_LOWER'
+                ].values
+                df_aggregated[str(stat).upper()+'_BUERR'] = ci_output[
+                    'CI_UPPER'
+                ].values
+    df_aggregated[str(metric1_name).upper()] = (
+        df_aggregated[str(metric1_name).upper()]
     ).astype(float).tolist()
-
+    if metric2_name is not None:
+        df_aggregated[str(metric2_name).upper()] = (
+            df_aggregated[str(metric2_name).upper()]
+        ).astype(float).tolist()
     df_aggregated = df_aggregated[
         df_aggregated.index.isin(model_list, level='MODEL')
     ]
-
-    pivot_metric = pd.pivot_table(
-        df_aggregated, values=str(metric_name).upper(), columns='MODEL', 
-        index='FCST_THRESH_VALUE'
+    pivot_metric1 = pd.pivot_table(
+        df_aggregated, values=str(metric1_name).upper(), columns='MODEL', 
+        index=str(date_type).upper()
     )
     if sample_equalization:
         pivot_counts = pd.pivot_table(
             df_aggregated, values='COUNTS', columns='MODEL',
-            index='FCST_THRESH_VALUE'
+            index=str(date_type).upper()
         )
-    pivot_metric = pivot_metric.dropna()
+    if keep_shared_events_only:
+        pivot_metric1 = pivot_metric1.dropna() 
+    if metric2_name is not None:
+        pivot_metric2 = pd.pivot_table(
+            df_aggregated, values=str(metric2_name).upper(), columns='MODEL', 
+            index=str(date_type).upper()
+        )
+        if keep_shared_events_only:
+            pivot_metric2 = pivot_metric2.dropna()
     if confidence_intervals:
-        pivot_ci_lower = pd.pivot_table(
-            df_aggregated, values=str(metric_name).upper()+'_BLERR', 
-            columns='MODEL', index='FCST_THRESH_VALUE'
+        pivot_ci_lower1 = pd.pivot_table(
+            df_aggregated, values=str(metric1_name).upper()+'_BLERR',
+            columns='MODEL', index=str(date_type).upper()
         )
-        pivot_ci_upper = pd.pivot_table(
-            df_aggregated, values=str(metric_name).upper()+'_BUERR', 
-            columns='MODEL', index='FCST_THRESH_VALUE'
+        pivot_ci_upper1 = pd.pivot_table(
+            df_aggregated, values=str(metric1_name).upper()+'_BUERR',
+            columns='MODEL', index=str(date_type).upper()
         )
-    if pivot_metric.empty:
+        if metric2_name is not None:
+            pivot_ci_lower2 = pd.pivot_table(
+                df_aggregated, values=str(metric2_name).upper()+'_BLERR',
+                columns='MODEL', index=str(date_type).upper()
+            )
+            pivot_ci_upper2 = pd.pivot_table(
+                df_aggregated, values=str(metric2_name).upper()+'_BUERR',
+                columns='MODEL', index=str(date_type).upper()
+            )
+    # Reindex pivot table with full list of dates, introducing NaNs 
+    date_hours_incr = np.diff(date_hours)
+    if date_hours_incr.size == 0:
+        min_incr = 24
+    else:
+        min_incr = np.min(date_hours_incr)
+    incrs = [1,6,12,24]
+    incr_idx = np.digitize(min_incr, incrs)
+    if incr_idx < 1:
+        incr_idx = 1
+    incr = incrs[incr_idx-1]
+    idx = [
+        item 
+        for item in daterange(
+            date_range[0].replace(hour=np.min(date_hours)), 
+            date_range[1].replace(hour=np.max(date_hours)), 
+            td(hours=incr)
+        )
+    ]
+    pivot_metric1 = pivot_metric1.reindex(idx, fill_value=np.nan)
+    if sample_equalization:
+        pivot_counts = pivot_counts.reindex(idx, fill_value=np.nan)
+    if confidence_intervals:
+        pivot_ci_lower1 = pivot_ci_lower1.reindex(idx, fill_value=np.nan)
+        pivot_ci_upper1 = pivot_ci_upper1.reindex(idx, fill_value=np.nan)
+    if metric2_name is not None:
+        pivot_metric2 = pivot_metric2.reindex(idx, fill_value=np.nan)
+        if confidence_intervals:
+            pivot_ci_lower2 = pivot_ci_lower2.reindex(idx, fill_value=np.nan)
+            pivot_ci_upper2 = pivot_ci_upper2.reindex(idx, fill_value=np.nan)
+    if (metric2_name and (pivot_metric1.empty or pivot_metric2.empty)):
         print_varname = df['FCST_VAR'].tolist()[0]
         logger.warning(
-            f"Could not find (and cannot plot) {metric_name}"
+            f"Could not find (and cannot plot) {metric1_name} and/or"
+            + f" {metric2_name} stats for {print_varname} at any level. "
+            + f"Continuing ..."
+        )
+        plt.close(num)
+        logger.info("========================================")
+        print("Quitting due to missing data.  Check the log file for details.")
+        return None
+    elif not metric2_name and pivot_metric1.empty:
+        print_varname = df['FCST_VAR'].tolist()[0]
+        logger.warning(
+            f"Could not find (and cannot plot) {metric1_name}"
             + f" stats for {print_varname} at any level. "
             + f"Continuing ..."
         )
@@ -403,6 +487,7 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
         logger.info("========================================")
         print("Quitting due to missing data.  Check the log file for details.")
         return None
+
     models_renamed = []
     count_renamed = 1
     for requested_model in model_list:
@@ -420,7 +505,7 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
     temp_colors = [
         model_colors.get_color_dict(name)['color'] for name in models_renamed
     ]
-    colors_corrected = False
+    colors_corrected=False
     loop_count=0
     while not colors_corrected and loop_count < 10:
         unique, counts = np.unique(temp_colors, return_counts=True)
@@ -432,8 +517,8 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
                 ]
                 if np.flatnonzero(np.core.defchararray.find(
                         models_sharing_colors, 'model')!=-1):
-                    need_to_rename = models_sharing_colors[
-                        np.flatnonzero(np.core.defchararray.find(
+                    need_to_rename = models_sharing_colors[np.flatnonzero(
+                        np.core.defchararray.find(
                             models_sharing_colors, 'model'
                         )!=-1)[0]
                     ]
@@ -456,49 +541,123 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
 
     # Plot data
     logger.info("Begin plotting ...")
-
     if confidence_intervals:
-        indices_in_common = list(set.intersection(*map(
+        indices_in_common1 = list(set.intersection(*map(
             set, 
             [
-                pivot_metric.index, 
-                pivot_ci_lower.index, 
-                pivot_ci_upper.index
+                pivot_metric1.index, 
+                pivot_ci_lower1.index, 
+                pivot_ci_upper1.index
             ]
         )))
-        if pivot_metric[pivot_metric.index.isin(indices_in_common)].empty:
-            e = ("Some confidence intervals are missing. Turning "
-                 + f"confidence intervals off to avoid empty pivot tables.")
-            logger.warning(e)
-            confidence_intervals = False
-        else:
-            pivot_metric = pivot_metric[pivot_metric.index.isin(indices_in_common)]
-            pivot_ci_lower = pivot_ci_lower[pivot_ci_lower.index.isin(indices_in_common)]
-            pivot_ci_upper = pivot_ci_upper[pivot_ci_upper.index.isin(indices_in_common)]
-            if sample_equalization:
-                pivot_counts = pivot_counts[pivot_counts.index.isin(indices_in_common)]
-    x_vals = pivot_metric.index.astype(float).tolist()
-    if unit_convert:
-        x_vals = reference.unit_conversions[units]['formula'](
-            x_vals,
-            rounding=True
-        )
-    if units == '-':
-        units = ''
-    x_vals_argsort = np.argsort(x_vals)
-    x_vals = np.sort(x_vals)
-    x_vals_incr = np.diff(x_vals)
-    if len(x_vals) > 1:
-        min_incr = np.min(x_vals_incr)
-    else:
-        min_incr = 0
-    incrs = [.05,.1,.5,1.,5.,10.,50.,100.,500.,1E3,5E3,1E4,5E4,1E5,5E5]
-    incr_idx = np.digitize(min_incr, incrs)
-    if incr_idx < 1:
-        incr_idx = 1
-    incr = incrs[incr_idx-1]
+        pivot_metric1 = pivot_metric1[pivot_metric1.index.isin(indices_in_common1)]
+        pivot_ci_lower1 = pivot_ci_lower1[pivot_ci_lower1.index.isin(indices_in_common1)]
+        pivot_ci_upper1 = pivot_ci_upper1[pivot_ci_upper1.index.isin(indices_in_common1)]
+        if sample_equalization:
+            pivot_counts = pivot_counts[pivot_counts.index.isin(indices_in_common1)]
+        if metric2_name is not None:
+            indices_in_common2 = list(set.intersection(*map(
+                set, 
+                [
+                    pivot_metric2.index, 
+                    pivot_ci_lower2.index, 
+                    pivot_ci_upper2.index
+                ]
+            )))
+            pivot_metric2 = pivot_metric2[pivot_metric2.index.isin(indices_in_common2)]
+            pivot_ci_lower2 = pivot_ci_lower2[pivot_ci_lower2.index.isin(indices_in_common2)]
+            pivot_ci_upper2 = pivot_ci_upper2[pivot_ci_upper2.index.isin(indices_in_common2)]
+    x_vals1 = pivot_metric1.index
+    if metric2_name is not None:
+        x_vals2 = pivot_metric2.index
     y_min = y_min_limit
     y_max = y_max_limit
+    if thresh and '' not in thresh:
+        thresh_labels = np.unique(df['FCST_THRESH_VALUE'])
+        thresh_argsort = np.argsort(thresh_labels.astype(float))
+        requested_thresh_argsort = np.argsort([
+            float(item) for item in requested_thresh_value
+        ])
+        thresh_labels = [thresh_labels[i] for i in thresh_argsort]
+        requested_thresh_labels = [
+            requested_thresh_value[i] for i in requested_thresh_argsort
+        ]
+    plot_reference = [False, False]
+    ref_metrics = ['OBAR']
+    if str(metric1_name).upper() in ref_metrics:
+        plot_reference[0] = True
+        pivot_reference1 = pivot_metric1
+        reference1 = pivot_reference1.mean(axis=1)
+        if confidence_intervals:
+            reference_ci_lower1 = pivot_ci_lower1.mean(axis=1)
+            reference_ci_upper1 = pivot_ci_upper1.mean(axis=1)
+        if not np.any((pivot_reference1.T/reference1).T == 1.):
+            logger.warning(
+                f"{str(metric1_name).upper()} is requested, but the value "
+                + f"varies from model to model. "
+                + f"Will plot an individual line for each model. If a "
+                + f"single reference line is preferred, set the "
+                + f"sample_equalization toggle in ush/settings.py to 'True', "
+                + f"and check in the log file if sample equalization "
+                + f"completed successfully."
+            )
+            plot_reference[0] = False
+    if metric2_name is not None and str(metric2_name).upper() in ref_metrics:
+        plot_reference[1] = True
+        pivot_reference2 = pivot_metric2
+        reference2 = pivot_reference2.mean(axis=1)
+        if confidence_intervals:
+            reference_ci_lower2 = pivot_ci_lower2.mean(axis=1)
+            reference_ci_upper2 = pivot_ci_upper2.mean(axis=1)
+        if not np.any((pivot_reference2.T/reference2).T == 1.):
+            logger.warning(
+                f"{str(metric2_name).upper()} is requested, but the value "
+                + f"varies from model to model. "
+                + f"Will plot an individual line for each model. If a "
+                + f"single reference line is preferred, set the "
+                + f"sample_equalization toggle in ush/settings.py to 'True', "
+                + f"and check in the log file if sample equalization "
+                + f"completed successfully."
+            )
+            plot_reference[1] = False
+    if np.any(plot_reference):
+        plotted_reference = [False, False]
+        if confidence_intervals:
+            plotted_reference_CIs = [False, False]
+    f = lambda m,c,ls,lw,ms,mec: plt.plot(
+        [], [], marker=m, mec=mec, mew=2., c=c, ls=ls, lw=lw, ms=ms
+    )[0]
+    if metric2_name is not None:
+        if np.any(plot_reference):
+            ref_color_dict = model_colors.get_color_dict('obs')
+            handles = []
+            labels = []
+            line_settings = ['solid','dashed']
+            metric_names = [metric1_name, metric2_name]
+            for p, rbool in enumerate(plot_reference):
+                if rbool:
+                    handles += [
+                        f('', ref_color_dict['color'], line_settings[p], 5., 0, 'white')
+                    ]
+                else:
+                    handles += [
+                        f('', 'black', line_settings[p], 5., 0, 'white')
+                    ]
+                labels += [
+                    str(metric_names[p]).upper()
+                ]
+        else:
+            handles = [
+                f('', 'black', line_setting, 5., 0, 'white')
+                for line_setting in ['solid','dashed']
+            ]
+            labels = [
+                str(metric_name).upper()
+                for metric_name in [metric1_name, metric2_name]
+            ]
+    else:
+        handles = []
+        labels = []
     n_mods = 0
     for m in range(len(mod_setting_dicts)):
         if model_list[m] in model_colors.model_alias:
@@ -507,35 +666,47 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
             )
         else:
             model_plot_name = model_list[m]
-        if str(model_list[m]) not in pivot_metric:
+        if str(model_list[m]) not in pivot_metric1:
             continue
-        y_vals_metric = pivot_metric[str(model_list[m])].values
-        y_vals_metric = np.array([y_vals_metric[i] for i in x_vals_argsort])
-        y_vals_metric_mean = np.nanmean(y_vals_metric)
+        y_vals_metric1 = pivot_metric1[str(model_list[m])].values
+        y_vals_metric1_mean = np.nanmean(y_vals_metric1)
+        if metric2_name is not None:
+            y_vals_metric2 = pivot_metric2[str(model_list[m])].values
+            y_vals_metric2_mean = np.nanmean(y_vals_metric2)
         if confidence_intervals:
-            if (str(model_list[m]) not in pivot_ci_lower 
-                    or str(model_list[m]) not in pivot_ci_upper):
-                e = ("Some confidence intervals are missing. Turning "
-                     + f"confidence intervals off to avoid indexing errors.")
-                logger.warning(e)
-                confidence_intervals = False
-            else:
-                y_vals_ci_lower = pivot_ci_lower[
+            y_vals_ci_lower1 = pivot_ci_lower1[
+                str(model_list[m])
+            ].values
+            y_vals_ci_upper1 = pivot_ci_upper1[
+                str(model_list[m])
+            ].values
+            if metric2_name is not None:
+                y_vals_ci_lower2 = pivot_ci_lower2[
                     str(model_list[m])
                 ].values
-                y_vals_ci_upper = pivot_ci_upper[
+                y_vals_ci_upper2 = pivot_ci_upper2[
                     str(model_list[m])
                 ].values
         if not y_lim_lock:
-            if np.any(y_vals_metric != np.inf):
-                y_vals_metric_min = np.nanmin(y_vals_metric[y_vals_metric != np.inf])
-                y_vals_metric_max = np.nanmax(y_vals_metric[y_vals_metric != np.inf])
+            if metric2_name is not None:
+                y_vals_both_metrics = np.concatenate((y_vals_metric1, y_vals_metric2))
+                if np.any(y_vals_both_metrics != np.inf):
+                    y_vals_metric_min = np.nanmin(y_vals_both_metrics[y_vals_both_metrics != np.inf])
+                    y_vals_metric_max = np.nanmax(y_vals_both_metrics[y_vals_both_metrics != np.inf])
+                else:
+                    y_vals_metric_min = np.nanmin(y_vals_both_metrics)
+                    y_vals_metric_max = np.nanmax(y_vals_both_metrics)
             else:
-                y_vals_metric_min = np.nanmin(y_vals_metric)
-                y_vals_metric_max = np.nanmax(y_vals_metric)
+                if np.any(y_vals_metric1 != np.inf):
+                    y_vals_metric_min = np.nanmin(y_vals_metric1[y_vals_metric1 != np.inf])
+                    y_vals_metric_max = np.nanmax(y_vals_metric1[y_vals_metric1 != np.inf])
+                else:
+                    y_vals_metric_min = np.nanmin(y_vals_metric1)
+                    y_vals_metric_max = np.nanmax(y_vals_metric1)
             if n_mods == 0:
                 y_mod_min = y_vals_metric_min
                 y_mod_max = y_vals_metric_max
+                counts = pivot_counts[str(model_list[m])].values
                 n_mods+=1
             else:
                 if math.isinf(y_mod_min):
@@ -552,109 +723,143 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
             if (y_vals_metric_max < y_max_limit 
                     and y_vals_metric_max >= y_mod_max):
                 y_max = y_vals_metric_max
-        if display_averages:
-            if np.abs(y_vals_metric_mean) < 1E4:
-                metric_mean_fmt_string = (f'{model_plot_name}'
-                                          + f' ({y_vals_metric_mean:.2f})')
-            else:
-                metric_mean_fmt_string = (f'{model_plot_name}'
-                                          + f' ({y_vals_metric_mean:.2E})')
+        if np.abs(y_vals_metric1_mean) < 1E4:
+            metric1_mean_fmt_string = f'{y_vals_metric1_mean:.2f}'
         else:
-            metric_mean_fmt_string = f'{model_plot_name}'
-        plt.plot(
-            x_vals, y_vals_metric, 
-            marker='o', c=mod_setting_dicts[m]['color'], mew=2., mec='white', 
-            figure=fig, ms=12, ls=mod_setting_dicts[m]['linestyle'], 
-            lw=mod_setting_dicts[m]['linewidth'],
-            label=f'{metric_mean_fmt_string}'
-        )
-        if confidence_intervals:
-            plt.errorbar(
-                x_vals.tolist(), y_vals_metric,
-                yerr=[np.abs(y_vals_ci_lower), y_vals_ci_upper],
-                fmt='none', ecolor=mod_setting_dicts[m]['color'],
-                elinewidth=mod_setting_dicts[m]['linewidth'],
-                capsize=10., capthick=mod_setting_dicts[m]['linewidth'],
-                alpha=.70, zorder=0
+            metric1_mean_fmt_string = f'{y_vals_metric1_mean:.2E}'
+        if plot_reference[0]:
+            if not plotted_reference[0]:
+                ref_color_dict = model_colors.get_color_dict('obs')
+                plt.plot(
+                    x_vals1.tolist(), reference1,
+                    marker=ref_color_dict['marker'],
+                    c=ref_color_dict['color'], mew=2., mec='white',
+                    figure=fig, ms=ref_color_dict['markersize'], ls='solid',
+                    lw=ref_color_dict['linewidth']
+                )
+                plotted_reference[0] = True
+        else:
+            plt.plot(
+                x_vals1.tolist(), y_vals_metric1, 
+                marker=mod_setting_dicts[m]['marker'], 
+                c=mod_setting_dicts[m]['color'], mew=2., mec='white', 
+                figure=fig, ms=mod_setting_dicts[m]['markersize'], ls='solid', 
+                lw=mod_setting_dicts[m]['linewidth']
             )
+        if metric2_name is not None:
+            if np.abs(y_vals_metric2_mean) < 1E4:
+                metric2_mean_fmt_string = f'{y_vals_metric2_mean:.2f}'
+            else:
+                metric2_mean_fmt_string = f'{y_vals_metric2_mean:.2E}'
+            if plot_reference[1]:
+                if not plotted_reference[1]:
+                    ref_color_dict = model_colors.get_color_dict('obs')
+                    plt.plot(
+                        x_vals2.tolist(), reference2,
+                        marker=ref_color_dict['marker'],
+                        c=ref_color_dict['color'], mew=2., mec='white',
+                        figure=fig, ms=ref_color_dict['markersize'], ls='dashed',
+                        lw=ref_color_dict['linewidth']
+                    )
+                    plotted_reference[1] = True
+            else:
+                plt.plot(
+                    x_vals2.tolist(), y_vals_metric2, 
+                    marker=mod_setting_dicts[m]['marker'], 
+                    c=mod_setting_dicts[m]['color'], mew=2., mec='white', 
+                    figure=fig, ms=mod_setting_dicts[m]['markersize'], 
+                    ls='dashed', lw=mod_setting_dicts[m]['linewidth']
+                )
+        if confidence_intervals:
+            if plot_reference[0]:
+                if not plotted_reference_CIs[0]:
+                    ref_color_dict = model_colors.get_color_dict('obs')
+                    plt.errorbar(
+                        x_vals1.tolist(), reference1,
+                        yerr=[np.abs(reference_ci_lower1), reference_ci_upper1],
+                        fmt='none', ecolor=ref_color_dict['color'],
+                        elinewidth=ref_color_dict['linewidth'],
+                        capsize=10., capthick=ref_color_dict['linewidth'],
+                        alpha=.70, zorder=0
+                    )
+                    plotted_reference_CIs[0] = True
+            else:
+                plt.errorbar(
+                    x_vals1.tolist(), y_vals_metric1,
+                    yerr=[np.abs(y_vals_ci_lower1), y_vals_ci_upper1],
+                    fmt='none', ecolor=mod_setting_dicts[m]['color'],
+                    elinewidth=mod_setting_dicts[m]['linewidth'],
+                    capsize=10., capthick=mod_setting_dicts[m]['linewidth'],
+                    alpha=.70, zorder=0
+                )
+            if metric2_name is not None:
+                if plot_reference[1]:
+                    if not plotted_reference_CIs[1]:
+                        ref_color_dict = model_colors.get_color_dict('obs')
+                        plt.errorbar(
+                            x_vals2.tolist(), reference2,
+                            yerr=[np.abs(reference_ci_lower2), reference_ci_upper2],
+                            fmt='none', ecolor=ref_color_dict['color'],
+                            elinewidth=ref_color_dict['linewidth'],
+                            capsize=10., capthick=ref_color_dict['linewidth'],
+                            alpha=.70, zorder=0
+                        )
+                        plotted_reference_CIs[1] = True
+                else:
+                    plt.errorbar(
+                        x_vals2.tolist(), y_vals_metric2,
+                        yerr=[np.abs(y_vals_ci_lower2), y_vals_ci_upper2],
+                        fmt='none', ecolor=mod_setting_dicts[m]['color'],
+                        elinewidth=mod_setting_dicts[m]['linewidth'],
+                        capsize=10., capthick=mod_setting_dicts[m]['linewidth'],
+                        alpha=.70, zorder=0
+                    )
+        handles+=[
+            f(
+                mod_setting_dicts[m]['marker'], mod_setting_dicts[m]['color'],
+                'solid', mod_setting_dicts[m]['linewidth'], 
+                mod_setting_dicts[m]['markersize'], 'white'
+            )
+        ]
+        if display_averages:
+            if metric2_name is not None:
+                labels+=[
+                    f'{model_plot_name} ({metric1_mean_fmt_string},'
+                    + f' {metric2_mean_fmt_string})'
+                ]
+            else:
+                labels+=[
+                    f'{model_plot_name} ({metric1_mean_fmt_string})'
+                ]
+        else:
+            labels+=[f'{model_plot_name}']
+
     # Zero line
     plt.axhline(y=0, color='black', linestyle='--', linewidth=1, zorder=0) 
-    metrics_with_axline_at_1 = [
-        'FBIAS','RSD'
-    ]
-    if str(metric_name).upper() in metrics_with_axline_at_1:
-        plt.axhline(y=1, color='black', linestyle='--', linewidth=1, zorder=0)
 
     # Configure axis ticks
-    if unit_convert:
-        x_vals_incr = reference.unit_conversions[units]['formula'](x_vals)
-        units = reference.unit_conversions[units]['convert_to']
-
-    xticks_min = np.min(x_vals)
-    xticks_max = np.max(x_vals)
-    xlim_min = np.floor(xticks_min/incr)*incr
-    xlim_max = np.ceil(xticks_max/incr)*incr
-    if incr < 1.:
-        precision_scale = 100/incr
-    else:
-        precision_scale = 1.
     xticks = [
-        x_val for x_val 
-        in np.arange(
-            xlim_min*precision_scale, 
-            xlim_max*precision_scale+incr*precision_scale, 
-            incr*precision_scale
-        )
-    ]
-    xticks=np.divide(xticks,precision_scale)
-    xtick_labels = [f'{opt}{xtick}' for xtick in xticks]
-    number_of_ticks_dig = [25,50,75,100,125,150,175,200]
+        x_val for x_val in daterange(x_vals1[0], x_vals1[-1], td(hours=incr))
+    ] 
+    xtick_labels = [xtick.strftime('%HZ %m/%d') for xtick in xticks]
+    number_of_ticks_dig = [15,30,45,60,75,90,105,120,135,150,165,180,195,210,225]
+    ## number_of_ticks_dig = [30,60,90,120,150,180,210,240,270,300,330,360,390,420,450]
+    ## number_of_ticks_dig = [60,120,180,240,300,360,420,480,540,600,660,720,780,840,900]
+    imtemp=len(xtick_labels)
+    print("len of xtick_labels ="+str(imtemp))
+
     show_xtick_every = np.ceil((
         np.digitize(len(xtick_labels), number_of_ticks_dig) + 2
     )/2.)*2
+    print("show_xtick_every ="+str(int(show_xtick_every)))
+    num_max_xticks=16
+    imtemp=len(xtick_labels)/360
+    print("imtemp="+str(imtemp))
+    show_xtick_every=(int(imtemp)+1)*24
+    print("show_xtick_every ="+str(int(show_xtick_every)))
     xtick_labels_with_blanks = ['' for item in xtick_labels]
-    #for i, item in enumerate(xtick_labels[::int(show_xtick_every)]):
-    #     xtick_labels_with_blanks[int(show_xtick_every)*i] = item
-     
-    replace_xticks = [
-        xtick for xtick in xticks 
-        if np.any([
-            np.absolute(xtick-x_val) < incr/2.*show_xtick_every 
-            for x_val in x_vals.tolist()
-        ])
-    ]
-    res_xticks = [val for val in xticks if val not in replace_xticks]
-    res_xlabels = [
-        xtick_labels_with_blanks[v] if val not in replace_xticks
-        else '' for v, val in enumerate(xticks)  
-    ]
-    add_labels = [
-        f'{opt}{np.round(x_val)/precision_scale}' for x_val in x_vals*precision_scale
-    ]
-    xticks_argsort = np.argsort(np.concatenate((xticks, x_vals.tolist())))
-    xticks = np.concatenate((
-        xticks, x_vals.tolist()
-    ))[xticks_argsort]
-    xtick_labels_with_blanks = np.concatenate((
-        res_xlabels, add_labels
-    ))[xticks_argsort]
-    #xticks_argsort = np.argsort(x_vals.tolist())
-    #xticks = np.array(x_vals.tolist())[xticks_argsort]
-    #xtick_labels_with_blanks = np.array(add_labels)[xticks_argsort]
-    res_diff = np.diff(
-        [xtick for x, xtick in enumerate(xticks) if xtick_labels_with_blanks[x]]
-    )
-    arg_xtick_labels = [
-        i for i, lab in enumerate(xtick_labels_with_blanks) if lab
-    ]
-    for i, d in enumerate(res_diff):
-        if d < (incr/2.*show_xtick_every):
-            xtick_labels_with_blanks[arg_xtick_labels[i+1]] = ''
-
-    x_buffer_size = .015
-    ax.set_xlim(
-        xlim_min-incr*x_buffer_size, xlim_max+incr*x_buffer_size
-    )
+    for i, item in enumerate(xtick_labels[::int(show_xtick_every)]):
+         xtick_labels_with_blanks[int(show_xtick_every)*i] = item
     y_range_categories = np.array([
         [np.power(10.,y), 2.*np.power(10.,y)] 
         for y in [-5,-4,-3,-2,-1,0,1,2,3,4,5]
@@ -682,19 +887,40 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
         elif str(df['OBS_VAR'].tolist()[0]).upper() in ['HPBL']:
             var_long_name_key = 'HPBL'
     var_long_name = variable_translator[var_long_name_key]
-    if str(metric_name).upper() in metrics_using_var_units:
-        if units:
-            ylabel = f'{var_long_name} ({units})'
+    if unit_convert:
+        if thresh and '' not in thresh:
+            thresh_labels = [float(tlab) for tlab in thresh_labels]
+            thresh_labels = reference.unit_conversions[units]['formula'](
+                thresh_labels,
+                rounding=True
+            )
+            thresh_labels = [str(tlab) for tlab in thresh_labels]
+        units = reference.unit_conversions[units]['convert_to']
+    if units == '-':
+        units = ''
+    if metric2_name is not None:
+        metric1_string, metric2_string = metric_long_names
+        if (str(metric1_name).upper() in metrics_using_var_units
+                and str(metric2_name).upper() in metrics_using_var_units):
+            if units:
+                ylabel = f'{var_long_name} ({units})'
+            else:
+                ylabel = f'{var_long_name} (unitless)'
         else:
-            ylabel = f'{var_long_name} (unitless)'
+            ylabel = f'{metric1_string} and {metric2_string}'
     else:
-        ylabel = f'{metric_long_name}'
+        metric1_string = metric_long_names[0]
+        if str(metric1_name).upper() in metrics_using_var_units:
+            if units:
+                ylabel = f'{var_long_name} ({units})'
+            else:
+                ylabel = f'{var_long_name} (unitless)'
+        else:
+            ylabel = f'{metric1_string}'
+    ax.set_xlim(xticks[0], xticks[-1])
     ax.set_ylim(ylim_min, ylim_max)
     ax.set_ylabel(ylabel)
-    if units:
-        ax.set_xlabel(f'Forecast Threshold ({units})') 
-    else:
-        ax.set_xlabel(f'Forecast Threshold (unitless)')
+    ax.set_xlabel(xlabel)
     ax.set_xticklabels(xtick_labels_with_blanks)
     ax.set_yticks(yticks)
     ax.set_xticks(xticks)
@@ -708,8 +934,9 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
     majticks = [i for i, item in enumerate(xtick_labels_with_blanks) if item]
     for mt in majticks:
         ax.xaxis.get_major_ticks()[mt].tick1line.set_markersize(8)
+
     ax.legend(
-        loc='upper center', fontsize=15, framealpha=1, 
+        handles, labels, loc='upper center', fontsize=15, framealpha=1, 
         bbox_to_anchor=(0.5, -0.08), ncol=4, frameon=True, numpoints=2, 
         borderpad=.8, labelspacing=2., columnspacing=3., handlelength=3., 
         handletextpad=.4, borderaxespad=.5) 
@@ -718,21 +945,21 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
         visible=True, which='major', axis='both', alpha=.5, linestyle='--', 
         linewidth=.5, zorder=0
     )
-
+    
     if sample_equalization:
         counts = pivot_counts.mean(axis=1, skipna=True).fillna('')
-        for count, xval in zip(counts, x_vals.tolist()):
+        for count, xval in zip(counts, x_vals1.tolist()):
             if not isinstance(count, str):
                 count = str(int(count))
             ax.annotate(
-                f'{count}', xy=(xval,1.),
-                xycoords=('data','axes fraction'), xytext=(0,18),
-                textcoords='offset points', va='top', fontsize=16,
+                f'{count}', xy=(xval,1.), 
+                xycoords=('data','axes fraction'), xytext=(0,18), 
+                textcoords='offset points', va='top', fontsize=16, 
                 color='dimgrey', ha='center'
             )
         ax.annotate(
-            '#SAMPLES', xy=(0.,1.), xycoords='axes fraction',
-            xytext=(-50, 21), textcoords='offset points', va='top',
+            '#SAMPLES', xy=(0.,1.), xycoords='axes fraction', 
+            xytext=(-50, 21), textcoords='offset points', va='top', 
             fontsize=11, color='dimgrey', ha='center'
         )
         fig.subplots_adjust(top=.9)
@@ -752,18 +979,17 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
     else:
         domain_string = domain
         domain_save_string = domain
-    date_hours_string = plot_util.get_name_for_listed_items(
-        [f'{date_hour:02d}' for date_hour in date_hours],
-        ', ', '', 'Z', 'and ', ''
-    )
     '''
     date_hours_string = ' '.join([
         f'{date_hour:02d}Z,' for date_hour in date_hours
     ])
     '''
+    date_hours_string = plot_util.get_name_for_listed_items(
+        [f'{date_hour:02d}' for date_hour in date_hours],
+        ', ', '', 'Z', 'and ', ''
+    )
     date_start_string = date_range[0].strftime('%d %b %Y')
     date_end_string = date_range[1].strftime('%d %b %Y')
-    metric_string = metric_long_name
     if str(level).upper() in ['CEILING', 'TOTAL', 'PBL']:
         if str(level).upper() == 'CEILING':
             level_string = ''
@@ -789,7 +1015,7 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
         else:
             level_string = ''
             level_savename = f'{level}'
-    elif str(verif_type).lower() in ['sfc', 'conus_sfc', 'polar_sfc', 'mrms', 'metar']:
+    elif str(verif_type).lower() in ['sfc', 'conus_sfc', 'polar_sfc', 'metar']:
         if 'Z' in str(level):
             if str(level).upper() == 'Z0':
                 if str(var_long_name_key).upper() in ['MLSP', 'MSLET', 'MSLMA', 'PRMSL']:
@@ -806,13 +1032,9 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
                 else:
                     level_string = f'{level_num}-m '
                     level_savename = f'{level}'
-        elif 'L' in str(level): 
+        elif 'L' in str(level) or 'A' in str(level):
             level_string = ''
             level_savename = f'{level}'
-        elif 'A' in str(level): 
-            level_num = level.replace('A', '')
-            level_string = f'{level_num}-hour '
-            level_savename = f'A{level_num.zfill(2)}'
         else:
             level_string = f'{level} '
             level_savename = f'{level}'
@@ -827,13 +1049,31 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
     else:
         level_string = f'{level} '
         level_savename = f'{level}'
-    title1 = f'{metric_string}'
+    if metric2_name is not None:
+        title1 = f'{metric1_string} and {metric2_string}'
+    else:
+        title1 = f'{metric1_string}'
     if interp_pts and '' not in interp_pts:
         title1+=f' {interp_pts_string}'
-    if units:
-        title2 = f'{level_string}{var_long_name} ({units}), {domain_string}'
+    if thresh and '' not in thresh:
+        thresholds_phrase = ', '.join([
+            f'{opt}{thresh_label}' for thresh_label in thresh_labels
+        ])
+        thresholds_save_phrase = ''.join([
+            f'{opt_letter}{thresh_label}' 
+            for thresh_label in requested_thresh_labels
+        ]).replace('.','p')
+        if units:
+            title2 = (f'{level_string}{var_long_name} ({thresholds_phrase}'
+                      + f' {units}), {domain_string}')
+        else:
+            title2 = (f'{level_string}{var_long_name} ({thresholds_phrase}'
+                      + f' unitless), {domain_string}')
     else:
-        title2 = f'{level_string}{var_long_name} (unitless), {domain_string}'
+        if units:
+            title2 = f'{level_string}{var_long_name} ({units}), {domain_string}'
+        else:
+            title2 = f'{level_string}{var_long_name} (unitless), {domain_string}'
     title3 = (f'{str(date_type).capitalize()} {date_hours_string} '
               + f'{date_start_string} to {date_end_string}, {frange_string}')
     title_center = '\n'.join([title1, title2, title3])
@@ -896,12 +1136,16 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
 
     plot_info = '_'.join(
         [item for item in [
-            f'threshmean',
+            f'timeseries',
             f'{str(date_type).lower()}{str(date_hours_savename).lower()}',
             f'{str(frange_save_string).lower()}',
         ] if item]
     )
-    save_name = (f'{str(metric_name).lower()}')
+    save_name = (f'{str(metric1_name).lower()}')
+    if metric2_name is not None:
+        save_name+=f'_{str(metric2_name).lower()}'
+    if thresh and '' not in thresh:
+        save_name+=f'_{str(thresholds_save_phrase).lower()}'
     if interp_pts and '' not in interp_pts:
         save_name+=f'_{str(interp_pts_save_string).lower()}'
     save_name+=f'.{str(var_savename).lower()}'
@@ -1019,9 +1263,9 @@ def main():
     logger.debug(f"Y_MIN_LIMIT: {Y_MIN_LIMIT}")
     logger.debug(f"Y_MAX_LIMIT: {Y_MAX_LIMIT}")
     logger.debug(f"Y_LIM_LOCK: {Y_LIM_LOCK}")
-    logger.debug(f"X_MIN_LIMIT: Ignored for series by threshold")
-    logger.debug(f"X_MAX_LIMIT: Ignored for series by threshold")
-    logger.debug(f"X_LIM_LOCK: Ignored for series by threshold")
+    logger.debug(f"X_MIN_LIMIT: Ignored for time series plots")
+    logger.debug(f"X_MAX_LIMIT: Ignored for time series plots")
+    logger.debug(f"X_LIM_LOCK: Ignored for time series plots")
     logger.debug(f"Display averages? {'yes' if display_averages else 'no'}")
     logger.debug(
         f"Clear prune directories? {'yes' if clear_prune_dir else 'no'}"
@@ -1047,11 +1291,20 @@ def main():
         )
     logger.debug('========================================')
 
-    metrics = METRICS
     date_range = (
         datetime.strptime(date_beg, '%Y%m%d'), 
         datetime.strptime(date_end, '%Y%m%d')+td(days=1)-td(milliseconds=1)
     )
+    if len(METRICS) == 1:
+        metrics = (METRICS[0], None)
+    elif len(METRICS) > 1:
+        metrics = METRICS[:2]
+    else:
+        e = (f"Received no list of metrics.  Check that, for the METRICS"
+             + f" setting, a comma-separated string of at least one metric is"
+             + f" provided")
+        logger.error(e)
+        raise ValueError(e)
     fcst_thresh_symbol, fcst_thresh_letter = list(
         zip(*[plot_util.format_thresh(thresh) for thresh in FCST_THRESH])
     )
@@ -1078,7 +1331,7 @@ def main():
         logger.error("Quitting ...")
         raise ValueError(e+"\nQuitting ...")
     if (str(INTERP).upper()
-           not in case_specs['interp'].replace(' ','').split(',')):
+            not in case_specs['interp'].replace(' ','').split(',')):
         e = (f"The requested interp method is not valid for the"
              + f" requested case type ({VERIF_CASETYPE}) and"
              + f" line_type ({LINE_TYPE}): {INTERP}")
@@ -1086,15 +1339,16 @@ def main():
         logger.error("Quitting ...")
         raise ValueError(e+"\nQuitting ...")
     for metric in metrics:
-        if (str(metric).lower()
-                not in case_specs['plot_stats_list']
-                .replace(' ','').split(',')):
-            e = (f"The requested metric is not valid for the"
-                 + f" requested case type ({VERIF_CASETYPE}) and"
-                 + f" line_type ({LINE_TYPE}): {metric}")
-            logger.error(e)
-            logger.error("Quitting ...")
-            raise ValueError(e+"\nQuitting ...")
+        if metric is not None:
+            if (str(metric).lower() 
+                    not in case_specs['plot_stats_list']
+                    .replace(' ','').split(',')):
+                e = (f"The requested metric is not valid for the"
+                     + f" requested case type ({VERIF_CASETYPE}) and"
+                     + f" line_type ({LINE_TYPE}): {metric}")
+                logger.warning(e)
+                logger.warning("Continuing ...")
+                continue
     for requested_var in VARIABLES:
         if requested_var in list(case_specs['var_dict'].keys()):
             var_specs = case_specs['var_dict'][requested_var]
@@ -1111,14 +1365,14 @@ def main():
         letter_keep = []
         for fcst_thresh, obs_thresh in list(
                 zip(*[fcst_thresh_symbol, obs_thresh_symbol])):
-            if (fcst_thresh in var_specs['fcst_var_thresholds'] 
+            if (fcst_thresh in var_specs['fcst_var_thresholds']
                     and obs_thresh in var_specs['obs_var_thresholds']):
                 symbol_keep.append(True)
             else:
                 symbol_keep.append(False)
         for fcst_thresh, obs_thresh in list(
                 zip(*[fcst_thresh_letter, obs_thresh_letter])):
-            if (fcst_thresh in var_specs['fcst_var_thresholds'] 
+            if (fcst_thresh in var_specs['fcst_var_thresholds']
                     and obs_thresh in var_specs['obs_var_thresholds']):
                 letter_keep.append(True)
             else:
@@ -1144,63 +1398,53 @@ def main():
                 raise ValueError(e+"\nQuitting ...")
             if (FCST_LEVELS[l] not in var_specs['fcst_var_levels'] 
                     or OBS_LEVELS[l] not in var_specs['obs_var_levels']):
-                e = (f"The requested variable/level combination is not valid:"
-                     + f" {requested_var}/{fcst_level}")
+                e = (f"The requested variable/level combination is not valid: "
+                     + f"{requested_var}/{level}")
                 logger.warning(e)
-                logger.warning("Continuing ...")
                 continue
             for domain in DOMAINS:
                 if str(domain) not in case_specs['vx_mask_list']:
-                    e = (f"The requested domain is not valid for the requested"
-                         + f" case type ({VERIF_CASETYPE}) and line_type"
-                         + f" ({LINE_TYPE}): {domain}")
+                    e = (f"The requested domain is not valid for the"
+                         + f" requested case type ({VERIF_CASETYPE}) and"
+                         + f" line_type ({LINE_TYPE}): {domain}")
                     logger.warning(e)
                     logger.warning("Continuing ...")
                     continue
                 df = df_preprocessing.get_preprocessed_data(
-                    logger, STATS_DIR, PRUNE_DIR, OUTPUT_BASE_TEMPLATE, VERIF_CASE, VERIF_TYPE, 
-                    LINE_TYPE, DATE_TYPE, date_range, EVAL_PERIOD, date_hours, 
-                    FLEADS, requested_var, fcst_var_names, obs_var_names, MODELS, 
-                    domain, INTERP, MET_VERSION, clear_prune_dir
+                    logger, STATS_DIR, PRUNE_DIR, OUTPUT_BASE_TEMPLATE, VERIF_CASE, 
+                    VERIF_TYPE, LINE_TYPE, DATE_TYPE, date_range, EVAL_PERIOD, 
+                    date_hours, FLEADS, requested_var, fcst_var_names, 
+                    obs_var_names, MODELS, domain, INTERP, MET_VERSION, 
+                    clear_prune_dir
                 )
-                logger.info("test")
                 if df is None:
                     continue
-                for metric in metrics:
-                    if (str(metric).lower()
-                            not in case_specs['plot_stats_list']
-                            .replace(' ','').split(',')):
-                        e = (f"The requested metric is not valid for the"
-                             + f" requested case type ({VERIF_CASETYPE}) and"
-                             + f" line_type ({LINE_TYPE}): {metric}")
-                        logger.warning(e)
-                        logger.warning("Continuing ...")
-                        continue
-                    df_metric = df
-                    plot_threshold_average(
-                        df_metric, logger, date_range, MODELS, num=num, 
-                        flead=FLEADS, level=fcst_level, thresh=fcst_thresh, 
-                        metric_name=metric, date_type=DATE_TYPE, 
-                        y_min_limit=Y_MIN_LIMIT, y_max_limit=Y_MAX_LIMIT, 
-                        y_lim_lock=Y_LIM_LOCK, ylabel='Metric (unitless)', 
-                        line_type=LINE_TYPE, verif_type=VERIF_TYPE, 
-                        date_hours=date_hours, save_dir=SAVE_DIR, 
-                        eval_period=EVAL_PERIOD,
-                        display_averages=display_averages, 
-                        save_header=IMG_HEADER, plot_group=plot_group,
-                        confidence_intervals=CONFIDENCE_INTERVALS, 
-                        interp_pts=INTERP_PNTS,
-                        bs_nrep=bs_nrep, bs_method=bs_method, ci_lev=ci_lev,
-                        bs_min_samp=bs_min_samp,
-                        sample_equalization=sample_equalization,
-                        plot_logo_left=plot_logo_left,
-                        plot_logo_right=plot_logo_right,
-                        path_logo_left=path_logo_left,
-                        path_logo_right=path_logo_right,
-                        zoom_logo_left=zoom_logo_left,
-                        zoom_logo_right=zoom_logo_right
-                    )
-                    num+=1
+                plot_time_series(
+                    df, logger, date_range, MODELS, num=num, flead=FLEADS, 
+                    level=fcst_level, thresh=fcst_thresh, 
+                    metric1_name=metrics[0], metric2_name=metrics[1], 
+                    date_type=DATE_TYPE, y_min_limit=Y_MIN_LIMIT, 
+                    y_max_limit=Y_MAX_LIMIT, y_lim_lock=Y_LIM_LOCK, 
+                    xlabel=f'{str(date_type_string).capitalize()} Date', 
+                    verif_type=VERIF_TYPE, date_hours=date_hours, 
+                    line_type=LINE_TYPE, save_dir=SAVE_DIR, 
+                    eval_period=EVAL_PERIOD, 
+                    display_averages=display_averages, 
+                    keep_shared_events_only=keep_shared_events_only,
+                    save_header=IMG_HEADER, plot_group=plot_group,
+                    confidence_intervals=CONFIDENCE_INTERVALS,
+                    interp_pts=INTERP_PNTS,
+                    bs_nrep=bs_nrep, bs_method=bs_method, ci_lev=ci_lev,
+                    bs_min_samp=bs_min_samp,
+                    sample_equalization=sample_equalization,
+                    plot_logo_left=plot_logo_left,
+                    plot_logo_right=plot_logo_right,
+                    path_logo_left=path_logo_left,
+                    path_logo_right=path_logo_right,
+                    zoom_logo_left=zoom_logo_left,
+                    zoom_logo_right=zoom_logo_right
+                )
+                num+=1
 
 
 # ============ START USER CONFIGURATIONS ================
@@ -1253,9 +1497,6 @@ if __name__ == "__main__":
     FCST_THRESH = FCST_THRESH.replace(' ','').split(',')
     
     # requires two metrics to plot
-    METRICS = check_STATS(os.environ['STATS']).replace(' ','').split(',')
-
-    # requires two metrics to plot
     METRICS = list(filter(None, check_STATS(os.environ['STATS']).replace(' ','').split(',')))
 
     # set the lowest possible lower (and highest possible upper) axis limits. 
@@ -1273,7 +1514,8 @@ if __name__ == "__main__":
         Y_MAX_LIMIT = toggle.plot_settings['y_max_limit']
         Y_LIM_LOCK = toggle.plot_settings['y_lim_lock']
 
-    # Still need to configure CIs (doesn't work yet)
+
+    # configure CIs
     CONFIDENCE_INTERVALS = check_CONFIDENCE_INTERVALS(os.environ['CONFIDENCE_INTERVALS']).replace(' ','')
     bs_nrep = toggle.plot_settings['bs_nrep']
     bs_method = toggle.plot_settings['bs_method']
@@ -1290,6 +1532,9 @@ if __name__ == "__main__":
 
     # Whether or not to display average values beside legend labels
     display_averages = toggle.plot_settings['display_averages']
+
+    # Whether or not to display events shared among some but not all models
+    keep_shared_events_only = toggle.plot_settings['keep_shared_events_only']
 
     # Whether or not to clear the intermediate directory that stores pruned data
     clear_prune_dir = toggle.plot_settings['clear_prune_directory']

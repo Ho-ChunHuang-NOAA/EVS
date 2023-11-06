@@ -1022,6 +1022,7 @@ def main():
     logger.debug(f"X_MIN_LIMIT: Ignored for series by threshold")
     logger.debug(f"X_MAX_LIMIT: Ignored for series by threshold")
     logger.debug(f"X_LIM_LOCK: Ignored for series by threshold")
+    logger.debug(f"Sample size? {'yes' if sample_equalization else 'no'}")
     logger.debug(f"Display averages? {'yes' if display_averages else 'no'}")
     logger.debug(
         f"Clear prune directories? {'yes' if clear_prune_dir else 'no'}"
@@ -1290,6 +1291,9 @@ if __name__ == "__main__":
 
     # Whether or not to display average values beside legend labels
     display_averages = toggle.plot_settings['display_averages']
+
+    display_averages = True
+    sample_equalization = False
 
     # Whether or not to clear the intermediate directory that stores pruned data
     clear_prune_dir = toggle.plot_settings['clear_prune_directory']

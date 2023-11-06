@@ -2839,13 +2839,13 @@ class Reference():
                                   'fcst_var_levels': ['A23'],
                                   'fcst_var_thresholds': ('>5, >10, >12, >15,'
                                                           + '>20, >25, >30,'
-                                                          + '>35, >40, >45'),
+                                                          + '>35, >40, >45, >55, >65' ),
                                   'fcst_var_options': '',
                                   'obs_var_names': ['PM2.5-24hr'],
                                   'obs_var_levels': ['A1'],
                                   'obs_var_thresholds': ('>5, >10, >12, >15,'
                                                           + '>20, >25, >30,'
-                                                          + '>35, >40, >45'),
+                                                          + '>35, >40, >45, >55, >65'),
                                   'obs_var_options': '',
                                   'plot_group':'aq'},
                     }

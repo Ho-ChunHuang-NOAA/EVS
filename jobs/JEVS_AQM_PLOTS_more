@@ -65,9 +65,9 @@ export VDATE=${VDATE:-${PDYm3}}
 export NUM_DAY_BACK=${NUM_DAY_BACK:-31}
 let hour_back=${NUM_DAY_BACK}*24
 if [ "${VDATE}" == "${PDYm3}" ]; then
-    export PLOT_START=$(${NDATE} -${hour_back} ${PDY}${cyc} | cut -c1-8)
+    export PLOT_START=$(${NDATE} -${hour_back} ${PDY}${vhr} | cut -c1-8)
 else
-    export PLOT_START=$(${NDATE} -${hour_back} ${VDATE}${cyc} | cut -c1-8)
+    export PLOT_START=$(${NDATE} -${hour_back} ${VDATE}${vhr} | cut -c1-8)
 fi
 export PLOT_END=${VDATE}
 
