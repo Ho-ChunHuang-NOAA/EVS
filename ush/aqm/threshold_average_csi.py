@@ -272,6 +272,14 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
             plt.close(num)
             logger.info("========================================")
             return None
+    for xyx in df.keys():
+        print("df.keys="+xyx)
+    df_fthresh=df["FCST_THRESH"]
+    ## for xyx in df.items():
+    ##  print("df.items="+xyx)
+    ## for xyx in df_fthresh():
+    ##     print("df_fthresh="+xyx)
+    print("df_fthresh="+df_fthresh)
     df_groups = df.groupby(group_by)
     print("length of df_groups ="+str(len(df_groups)))
     # Aggregate unit statistics before calculating metrics
@@ -279,8 +287,12 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
         df_aggregated = df_groups.sum()
     else:
         df_aggregated = df_groups.mean()
+    for ayx in df_aggregated.keys():
+        print("df_aggregated.keys="+ayx)
     if sample_equalization:
         df_aggregated['COUNTS']=df_groups.size()
+    for byx in df_aggregated.keys():
+        print("df_aggregated.keys="+byx)
     ## print('df_aggregated['COUNTS']'+str(df_aggregated['COUNTS']))
     # Remove data if they exist for some but not all models at some value of 
     # the indep. variable. Otherwise plot_util.calculate_stat will throw an 
@@ -333,11 +345,45 @@ def plot_threshold_average(df: pd.DataFrame, logger: logging.Logger,
     # Calculate desired metric
     print('metric_name='+metric_name)
     print(df_aggregated.columns.values)
+    print(df_aggregated.index.values)
+
+    csi_test = df_aggregated.index
+    print("csi_index="+str(csi_test))
+    icount=0
+    for abc in csi_test:
+        if abc[0] == 'pmave_raw' and abc[1] == '5':
+            print("icount="+str(icount))
+        icount+=1
+    csi_test = df_aggregated.columns
+    print("csi_columns="+str(csi_test))
+    csi_test = df_aggregated.loc[(MODEL == 'pmave_raw', FCST_THRESH_VALUE == '5')]['FY_OY']
+    print("csi_loc="+str(csi_test))
+    ## csi_test = df_aggregated.loc[df['FY_OY'] == 'pmave_raw', '10'].values[0]
+    ## print("csi_loc="+str(csi_test))
+    ## csi_test = df_aggregated.loc[df['FY_OY'] == '10', 'pmave_raw'].values[0]
+    ## print("csi_loc="+str(csi_test))
 
     fy_oy_test = df_aggregated.loc[:]['FY_OY']
     fy_on_test = df_aggregated.loc[:]['FY_ON']
     fn_oy_test = df_aggregated.loc[:]['FN_OY']
     fn_on_test= df_aggregated.loc[:]['FN_ON']
+    inum_fy_oy=len(fy_oy_test)
+    print("length of fy_oy_test="+str(inum_fy_oy))
+    inum_fy_on=len(fy_on_test)
+    print("length of fy_on_test="+str(inum_fy_on))
+    inum_fn_oy=len(fn_oy_test)
+    print("length of fn_oy_test="+str(inum_fn_oy))
+    inum_fn_on=len(fn_on_test)
+    print("length of fn_on_test="+str(inum_fn_on))
+    icount=0
+    for abc in fy_oy_test:
+        csi_count = fy_oy_test[icount] + fy_on_test[icount] + fn_oy_test[icount]
+        csi_test=-999
+        if csi_count !=0:
+            csi_test = fy_oy_test[icount]/(fy_oy_test[icount] + fy_on_test[icount] + fn_oy_test[icount])
+        print("csi_count["+str(icount)+"]="+str(csi_count))
+        print("csi_test["+str(icount)+"]="+str(csi_test))
+        icount+=1
     csi_test = fy_oy_test/(fy_oy_test + fy_on_test + fn_oy_test)
     csi_num_test= fy_oy_test + fy_on_test + fn_oy_test
     csi_test_mean = (
@@ -1296,6 +1342,8 @@ if __name__ == "__main__":
     bs_method = toggle.plot_settings['bs_method']
     ci_lev = toggle.plot_settings['ci_lev']
     bs_min_samp = toggle.plot_settings['bs_min_samp']
+    ## bs_nrep = 1000
+    bs_min_samp = 20
 
     # list of points used in interpolation method
     INTERP_PNTS = check_INTERP_PTS(os.environ['INTERP_PNTS']).replace(' ','').split(',')
@@ -1308,8 +1356,8 @@ if __name__ == "__main__":
     # Whether or not to display average values beside legend labels
     display_averages = toggle.plot_settings['display_averages']
 
-    display_averages = True
-    sample_equalization = False
+    ## display_averages = True
+    ## sample_equalization = False
 
     # Whether or not to clear the intermediate directory that stores pruned data
     clear_prune_dir = toggle.plot_settings['clear_prune_directory']

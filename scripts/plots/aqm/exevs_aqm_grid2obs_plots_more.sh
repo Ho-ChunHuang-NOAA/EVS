@@ -46,7 +46,7 @@ for aqmtyp in ozone pm25 ozmax8 pmave; do
 done
 
 ## for region in CONUS CONUS_East CONUS_West CONUS_South CONUS_Central Appalachia CPlains DeepSouth GreatBasin GreatLakes Mezquital MidAtlantic NorthAtlantic NPlains NRockies PacificNW PacificSW Prairie Southeast Southwest SPlains SRockies; do
-for region in CONUS_East; do
+for region in CONUS_East CONUS_South; do
     export region
     case ${region} in
         CONUS) smregion=conus;;
@@ -117,7 +117,7 @@ for region in CONUS_East; do
             if [ -e ${PLOTDIR}/aq/*/evs*png ]; then
                 mv ${PLOTDIR}/aq/*/evs*png ${PLOTDIR}/${cppng}
                 cp ${PLOTDIR}/${cppng} ${COMOUTplots}/${var}
-		scp ${PLOTDIR}/${cppng} hchuang@rzdm:/home/people/emc/www/htdocs/mmb/hchuang/ftp
+		echo "scp ${PLOTDIR}/${cppng} hchuang@rzdm:/home/people/emc/www/htdocs/mmb/hchuang/ftp"
             elif [ ! -e ${PLOTDIR}/${cppng} ]; then
                 echo "WARNING: NO PLOT FOR",${var},${region}
             fi
