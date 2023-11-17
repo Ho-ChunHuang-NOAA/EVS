@@ -22,6 +22,7 @@ set -x
 ## Define surrogate severe settings
 #############################################################
 
+export machine=${machine:-"WCOSS2"}
 export VERIF_GRID=G211
 export VERIF_GRID_DX=81.271
 export GAUSS_RAD=120
@@ -213,7 +214,7 @@ i=1
          export subject="${MODELNAME} Forecast Data Missing for EVS ${COMPONENT}"
          echo "Warning: Only $nfiles ${MODELNAME} forecast files found for ${vhr}Z ${IDATE} cycle. At least $min_file_req files are required. METplus will not run." > mailmsg
          echo -e "`cat missing_file_list`" >> mailmsg
-         cat mailmsg | mail -s "$subject" $maillist
+         cat mailmsg | mail -s "$subject" $MAILTO
       fi
 
    fi

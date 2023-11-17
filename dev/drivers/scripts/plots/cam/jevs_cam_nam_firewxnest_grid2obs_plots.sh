@@ -3,8 +3,8 @@
 #PBS -S /bin/bash
 #PBS -q "dev"
 #PBS -A VERF-DEV
-#PBS -l walltime=00:30:00
-#PBS -l select=1:ncpus=1:mem=10GB
+#PBS -l walltime=01:00:00
+#PBS -l select=1:ncpus=1:mem=100GB
 #PBS -l debug=true
 
 export model=evs
@@ -41,8 +41,7 @@ export MODELNAME=nam_firewxnest
 export modsys=nam
 export mod_ver=${nam_ver}
 
-source $HOMEevs/modulefiles/$COMPONENT/${COMPONENT}_${STEP}.sh
-export evs_ver=v1.0.0
+source $HOMEevs/dev/modulefiles/$COMPONENT/${COMPONENT}_${STEP}.sh
 evs_ver_2d=$(echo $evs_ver | cut -d'.' -f1-2)
 
 export job=${PBS_JOBNAME:-jevs_${MODELNAME}_${VERIF_CASE}_${STEP}}

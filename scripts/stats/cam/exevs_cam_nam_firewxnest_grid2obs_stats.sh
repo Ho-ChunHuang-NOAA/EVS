@@ -6,6 +6,7 @@ mkdir -p $DATA/logs
 mkdir -p $DATA/stat
 mkdir -p $DATA/statanalysis
 
+export machine=${machine:-"WCOSS2"}
 export OBSDIR=OBS
 mkdir -p $DATA/$OBSDIR
 export modsys=nam
@@ -47,7 +48,7 @@ do
         echo "Warning: The NAM Firewx file is missing for valid date ${VDATE}. METplus will not run." > mailmsg
         echo "Missing file is $COMINnam/nam.${aday}/nam.t${acyc}z.${regionnest}.${outtyp}${fhr}.tm00.grib2" >> mailmsg
         echo "Job ID: $jobid" >> mailmsg
-        cat mailmsg | mail -s "$subject" $maillist
+        cat mailmsg | mail -s "$subject" $MAILTO
        fi
        fi
      fi
@@ -107,7 +108,7 @@ else
    echo "Warning: The ${obday} prepbufr file is missing for valid date ${VDATE}. METplus will not run." > mailmsg
    echo "Missing file is $COMINobsproc/${MODELNAME}.${obday}/${MODELNAME}.t${obcyc}z.prepbufr.tm${tmnum}" >> mailmsg
    echo "Job ID: $jobid" >> mailmsg
-   cat mailmsg | mail -s "$subject" $maillist
+   cat mailmsg | mail -s "$subject" $MAILTO
   fi
 fi
 

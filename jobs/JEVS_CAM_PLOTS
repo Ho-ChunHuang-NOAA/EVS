@@ -27,7 +27,6 @@ cd $DATA
 ####################################
 # Determine Job Output Name on System
 ####################################
-export pgmout="OUTPUT.${pid}"
 
 
 ####################################
@@ -39,7 +38,6 @@ export FIXevs=${FIXevs:-$HOMEevs/fix}
 export PARMevs=${PARMevs:-$HOMEevs/parm}
 export SCRIPTSevs=${SCRIPTSevs:-$HOMEevs/scripts}
 export USHevs=${USHevs:-$HOMEevs/ush}
-export cartopyDataDir=${cartopyDataDir:-/apps/ops/prod/data/cartopy}
 
 
 ##################################################
@@ -110,8 +108,6 @@ else
 fi
 export err=$?; err_chk
 
-if [ -e "$pgmout" ]; then
-   cat $pgmout
 fi
 
 if [ "$KEEPDATA" != "YES" ] ; then
