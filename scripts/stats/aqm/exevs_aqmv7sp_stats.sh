@@ -69,7 +69,7 @@ else
         echo "Warning: No AQM ${HOURLY_INPUT_TYPE} was available for ${vld_date} ${vld_time}" > mailmsg
         echo "Missing file is ${check_file}" >> mailmsg
         echo "Job ID: $jobid" >> mailmsg
-        cat mailmsg | mail -s "$subject" $maillist
+        cat mailmsg | mail -s "$subject" $MAILTO
     fi
     echo "Can not find pre-processed obs hourly input ${check_file}"
     ## add email function here
@@ -129,7 +129,7 @@ do
           echo "Warning: No AQM awpozcon${bctag} forecast was available for ${aday} t${acyc}z" > mailmsg
           echo "Missing file is ${fcst_file}" >> mailmsg
           echo "Job ID: $jobid" >> mailmsg
-          cat mailmsg | mail -s "$subject" $maillist
+          cat mailmsg | mail -s "$subject" $MAILTO
 	 fi
 
           echo "Warning: No AQM awpozcon${bctag} forecast was available for ${aday} t${acyc}z"
@@ -148,7 +148,7 @@ do
           echo "Warning: No AQM pm25${bctag} forecast was available for ${aday} t${acyc}z" > mailmsg
           echo "Missing file is ${fcst_file}" >> mailmsg
           echo "Job ID: $jobid" >> mailmsg
-          cat mailmsg | mail -s "$subject" $maillist
+          cat mailmsg | mail -s "$subject" $MAILTO
 	 fi
 
           echo "Warning: No AQM pm25${bctag} forecast was available for ${aday} t${acyc}z"
@@ -234,7 +234,7 @@ else
         echo "Warning: No AQM Daily Observed file was available for ${VDATE}" > mailmsg
         echo "Missing file is ${check_file}" >> mailmsg
         echo "Job ID: $jobid" >> mailmsg
-        cat mailmsg | mail -s "$subject" $maillist
+        cat mailmsg | mail -s "$subject" $MAILTO
      fi
     echo "Can not find pre-processed obs daily input ${check_file}"
     ## add email function here
@@ -282,7 +282,7 @@ then
           echo "Warning: No AQM ozmax8${bctag} daily forecast was available for ${VDAYm1} t${hour}z" > mailmsg
           echo "Missing file is ${ozmax8_preprocessed_file}" >> mailmsg
           echo "Job ID: $jobid" >> mailmsg
-          cat mailmsg | mail -s "$subject" $maillist
+          cat mailmsg | mail -s "$subject" $MAILTO
          fi
         echo "Warning: No AQM max_8hr_o3${bctag} forecast was available for ${VDAYm1} t${hour}z"
         echo "Missing file is ${ozmax8_preprocessed_file}"
@@ -297,7 +297,7 @@ then
           echo "Warning: No AQM ozmax{bctag} daily forecast was available for ${VDAYm2} t${hour}z" > mailmsg
           echo "Missing file is ${ozmax8_preprocessed_file}" >> mailmsg
           echo "Job ID: $jobid" >> mailmsg
-          cat mailmsg | mail -s "$subject" $maillist
+          cat mailmsg | mail -s "$subject" $MAILTO
         fi
         echo "Warning: No AQM max_8hr_o3${bctag} forecast was available for ${VDAYm2} t${hour}z"
         echo "Missing file is ${ozmax8_preprocessed_file}"
@@ -312,7 +312,7 @@ then
           echo "Warning: No AQM ozmax8${bctag} daily forecast was available for ${VDAYm3} t${hour}z" > mailmsg
           echo "Missing file is ${ozmax8_preprocessed_file}" >> mailmsg
           echo "Job ID: $jobid" >> mailmsg
-          cat mailmsg | mail -s "$subject" $maillist
+          cat mailmsg | mail -s "$subject" $MAILTO
         fi
         echo "Warning: No AQM max_8hr_o3${bctag} forecast was available for ${VDAYm3} t${hour}z"
         echo "Missing file is ${ozmax8_preprocessed_file}"
@@ -385,7 +385,7 @@ then
         echo "Warning: No AQM ave_24hr_pm25${bctag} forecast was available for ${VDAYm1} t${hour}z" > mailmsg
         echo "Missing file is $fcst_file}" >> mailmsg
         echo "Job ID: $jobid" >> mailmsg
-        cat mailmsg | mail -s "$subject" $maillist
+        cat mailmsg | mail -s "$subject" $MAILTO
 	 fi
 
         echo "Warning: No AQM ave_24hr_pm25${bctag} forecast was available for ${VDAYm1} t${hour}z"
@@ -401,7 +401,7 @@ then
         echo "Warning: No AQM ave_24hr_pm25${bctag} forecast was available for ${VDAYm2} t${hour}z" > mailmsg
         echo "Missing file is $fcst_file}" >> mailmsg
         echo "Job ID: $jobid" >> mailmsg
-        cat mailmsg | mail -s "$subject" $maillist
+        cat mailmsg | mail -s "$subject" $MAILTO
 	 fi
 
         echo "Warning: No AQM ave_24hr_pm25${bctag} forecast was available for ${VDAYm2} t${hour}z"
@@ -417,7 +417,7 @@ then
         echo "Warning: No AQM ave_24hr_pm25${bctag} forecast was available for ${VDAYm3} t${hour}z" > mailmsg
         echo "Missing file is $fcst_file}" >> mailmsg
         echo "Job ID: $jobid" >> mailmsg
-        cat mailmsg | mail -s "$subject" $maillist
+        cat mailmsg | mail -s "$subject" $MAILTO
 	 fi
 
         echo "Warning: No AQM ave_24hr_pm25${bctag} forecast was available for ${VDAYm3} t${hour}z"
