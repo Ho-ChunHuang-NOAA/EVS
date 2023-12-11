@@ -2,7 +2,7 @@
 #######################################################################
 ##  UNIX Script Documentation Block
 ##                      .
-## Script name:         exevs_aqmv7_stats.sh
+## Script name:         exevs_aqm_grid2obs_stats.sh
 ## Script description:  Perform MetPlus PointStat of Air Quality Model.
 ## Original Author   :  Perry Shafran
 ##
@@ -41,8 +41,6 @@ export fcstmax=72
 #
 ## export MASK_DIR is declared in the ~/EVS/jobs/JEVS_AQM_STATS 
 #
-export model1=`echo ${MODELNAME} | tr a-z A-Z`
-echo ${model1}
 
 # Begin verification of both the hourly data of ozone and PM
 #
@@ -77,15 +75,16 @@ else
 fi
 echo "index of hourly obs found = ${obs_hourly_found}"
 
+echo ${model1}
 for outtyp in awpozcon pm25; do
   export outtyp
   cap_outtyp=`echo ${outtyp} | tr a-z A-Z`
     
   case ${outtyp} in
-      awpozcon) point_stat_conf_file=PointStat_fcstOZONE_obsAIRNOW_${fcst_input_ver}.conf
+      awpozcon) point_stat_conf_file=PointStat_fcstOZONE_obsAIRNOW.conf
                 stat_analysis_conf_file=StatAnalysis_fcstOZONE_obsAIRNOW_GatherByDay.conf
                 stat_output_index=ozone;;
-      pm25)     point_stat_conf_file=PointStat_fcstPM2p5_obsAIRNOW_${fcst_input_ver}.conf
+      pm25)     point_stat_conf_file=PointStat_fcstPM2p5_obsAIRNOW.conf
                 stat_analysis_conf_file=StatAnalysis_fcstPM_obsANOWPM_GatherByDay.conf
                 stat_output_index=pm25;;
   esac
@@ -94,6 +93,7 @@ for outtyp in awpozcon pm25; do
     
   for biastyp in raw bc; do
     export biastyp
+    export model1=`echo ${stat_output_index}_${biastyp} | tr a-z A-Z`
     
     if [ ${biastyp} = "raw" ]; then
       export bctag=
@@ -162,7 +162,6 @@ for outtyp in awpozcon pm25; do
     if [ ${SENDCOM} = "YES" ]; then
       cpdir=${DATA}/point_stat/${MODELNAME}
       stat_file_count=$(find ${cpdir} -name "*${outtyp}${bcout}*" | wc -l)
-      stat_file_count=$(find ${cpdir} -name "*${outtyp}${bcout}*")
       if [ ${stat_file_count} -ne 0 ]; then cpreq ${cpdir}/*${outtyp}${bcout}* ${COMOUTsmall}; fi
     fi
     if [ "${vhr}" == "23" ]; then
@@ -203,13 +202,14 @@ echo "Index of daily obs found = ${obs_daily_found}"
 if [ ${vhr} = 11 ]; then
 
   export outtyp=OZMAX8
-  point_stat_conf_file=PointStat_fcstOZONEMAX_obsAIRNOW_${fcst_input_ver}.conf
+  point_stat_conf_file=PointStat_fcstOZONEMAX_obsAIRNOW.conf
   stat_analysis_conf_file=StatAnalysis_fcstOZONEMAX_obsAIRNOW_GatherByDay.conf
 
   fcstmax=48
 
   for biastyp in raw bc; do
     export biastyp
+    export model1=`echo ${outtyp}_${biastyp} | tr a-z A-Z`
 
     if [ ${biastyp} = "raw" ]; then
       export bctag=
@@ -253,7 +253,6 @@ if [ ${vhr} = 11 ]; then
     if [ ${SENDCOM} = "YES" ]; then
       cpdir=${DATA}/point_stat/${MODELNAME}
       stat_file_count=$(find ${cpdir} -name "*${outtyp}${bcout}*" | wc -l)
-      stat_file_count=$(find ${cpdir} -name "*${outtyp}${bcout}*")
       if [ ${stat_file_count} -ne 0 ]; then cpreq ${cpdir}/*${outtyp}${bcout}* ${COMOUTsmall}; fi
     fi
     stat_file_count=$(find ${COMOUTsmall} -name "*${outtyp}${bcout}*" | wc -l)
@@ -273,13 +272,14 @@ fi  ## vhr if logic
 if [ ${vhr} = 04 ]; then
 
   export outtyp=PMAVE
-  point_stat_conf_file=PointStat_fcstPMAVE_obsANOWPM_${fcst_input_ver}.conf
+  point_stat_conf_file=PointStat_fcstPMAVE_obsANOWPM.conf
   stat_analysis_conf_file=StatAnalysis_fcstPMAVE_obsANOWPM_GatherByDay.conf
 
   fcstmax=48
   for biastyp in raw bc; do
     export biastyp
     echo ${biastyp}
+    export model1=`echo ${outtyp}_${biastyp} | tr a-z A-Z`
 
     if [ ${biastyp} = "raw" ]; then
       export bctag=
@@ -325,7 +325,6 @@ if [ ${vhr} = 04 ]; then
     if [ ${SENDCOM} = "YES" ]; then
       cpdir=${DATA}/point_stat/${MODELNAME}
       stat_file_count=$(find ${cpdir} -name "*${outtyp}${bcout}*" | wc -l)
-      stat_file_count=$(find ${cpdir} -name "*${outtyp}${bcout}*")
       if [ ${stat_file_count} -ne 0 ]; then cpreq ${cpdir}/*${outtyp}${bcout}* ${COMOUTsmall}; fi
     fi
     stat_file_count=$(find ${COMOUTsmall} -name "*${outtyp}${bcout}*" | wc -l)
@@ -338,6 +337,21 @@ if [ ${vhr} = 04 ]; then
     fi
   done  ## biastyp loop
 fi  ## vhr if logic
+
+log_dir="$DATA/logs/${model1}"
+if [ -d $log_dir ]; then
+   log_file_count=$(find $log_dir -type f | wc -l)
+   if [[ $log_file_count -ne 0 ]]; then
+       log_files=("$log_dir"/*)
+       for log_file in "${log_files[@]}"; do
+          if [ -f "$log_file" ]; then
+             echo "Start: $log_file"
+             cat "$log_file"
+             echo "End: $log_file"
+          fi
+      done
+  fi
+fi
 
 exit
 

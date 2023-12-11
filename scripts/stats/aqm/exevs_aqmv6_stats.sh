@@ -162,6 +162,7 @@ for outtyp in awpozcon pm25; do
     if [ ${SENDCOM} = "YES" ]; then
       cpdir=${DATA}/point_stat/${MODELNAME}
       stat_file_count=$(find ${cpdir} -name "*${outtyp}${bcout}*" | wc -l)
+      stat_file_count=$(find ${cpdir} -name "*${outtyp}${bcout}*")
       if [ ${stat_file_count} -ne 0 ]; then cpreq ${cpdir}/*${outtyp}${bcout}* ${COMOUTsmall}; fi
     fi
     if [ "${vhr}" == "23" ]; then
@@ -252,6 +253,7 @@ if [ ${vhr} = 11 ]; then
     if [ ${SENDCOM} = "YES" ]; then
       cpdir=${DATA}/point_stat/${MODELNAME}
       stat_file_count=$(find ${cpdir} -name "*${outtyp}${bcout}*" | wc -l)
+      stat_file_count=$(find ${cpdir} -name "*${outtyp}${bcout}*")
       if [ ${stat_file_count} -ne 0 ]; then cpreq ${cpdir}/*${outtyp}${bcout}* ${COMOUTsmall}; fi
     fi
     stat_file_count=$(find ${COMOUTsmall} -name "*${outtyp}${bcout}*" | wc -l)
@@ -323,6 +325,7 @@ if [ ${vhr} = 04 ]; then
     if [ ${SENDCOM} = "YES" ]; then
       cpdir=${DATA}/point_stat/${MODELNAME}
       stat_file_count=$(find ${cpdir} -name "*${outtyp}${bcout}*" | wc -l)
+      stat_file_count=$(find ${cpdir} -name "*${outtyp}${bcout}*")
       if [ ${stat_file_count} -ne 0 ]; then cpreq ${cpdir}/*${outtyp}${bcout}* ${COMOUTsmall}; fi
     fi
     stat_file_count=$(find ${COMOUTsmall} -name "*${outtyp}${bcout}*" | wc -l)
