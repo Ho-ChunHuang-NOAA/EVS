@@ -159,10 +159,12 @@ for outtyp in awpozcon pm25; do
       fi
     done   ## hour loop
     mkdir -p ${COMOUTsmall}
+    # point_stat_aqm_awpozcon_raw_130000L_20231209_010000V.stat  point_stat_aqm_awpozcon_raw_670000L_20231209_010000V.stat  point_stat_aqm_awpozcon_raw_370000L_20231209_010000V.stat  point_stat_aqm_awpozcon_raw_190000L_20231209_010000V.stat  point_stat_aqm_awpozcon_raw_610000L_20231209_010000V.stat  point_stat_aqm_awpozcon_raw_430000L_20231209_010000V.stat
+    #  point_stat_aqm_pm25_bc_290000L_20231209_110000V.stat  point_stat_aqm_pm25_bc_710000L_20231209_110000V.stat  point_stat_aqm_pm25_bc_470000L_20231209_110000V.stat  point_stat_aqm_pm25_bc_530000L_20231209_110000V.stat  point_stat_aqm_pm25_bc_050000L_20231209_110000V.stat  point_stat_aqm_pm25_bc_230000L_20231209_110000V.stat
     if [ ${SENDCOM} = "YES" ]; then
       cpdir=${DATA}/point_stat/${MODELNAME}
       stat_file_count=$(find ${cpdir} -name "*${outtyp}${bcout}*" | wc -l)
-      stat_file_count=$(find ${cpdir} -name "*${outtyp}${bcout}*")
+      ## find ${cpdir} -name "*${outtyp}${bcout}*"
       if [ ${stat_file_count} -ne 0 ]; then cpreq ${cpdir}/*${outtyp}${bcout}* ${COMOUTsmall}; fi
     fi
     if [ "${vhr}" == "23" ]; then
@@ -250,10 +252,11 @@ if [ ${vhr} = 11 ]; then
         echo "WARNING: NUM FCST=${num_fcst_ozmax8}, INDEX OBS=${obs_daily_found}"
       fi
     done   ## hour loop
+    #  point_stat_OZMAX8_raw_710000L_20231210_110000V.stat  point_stat_OZMAX8_raw_770000L_20231210_110000V.stat  point_stat_OZMAX8_raw_530000L_20231210_110000V.stat  point_stat_OZMAX8_raw_290000L_20231210_110000V.stat  point_stat_OZMAX8_raw_230000L_20231210_110000V.stat  point_stat_OZMAX8_raw_470000L_20231210_110000V.stat
     if [ ${SENDCOM} = "YES" ]; then
       cpdir=${DATA}/point_stat/${MODELNAME}
       stat_file_count=$(find ${cpdir} -name "*${outtyp}${bcout}*" | wc -l)
-      stat_file_count=$(find ${cpdir} -name "*${outtyp}${bcout}*")
+      ## find ${cpdir} -name "*${outtyp}${bcout}*"
       if [ ${stat_file_count} -ne 0 ]; then cpreq ${cpdir}/*${outtyp}${bcout}* ${COMOUTsmall}; fi
     fi
     stat_file_count=$(find ${COMOUTsmall} -name "*${outtyp}${bcout}*" | wc -l)
@@ -322,10 +325,11 @@ if [ ${vhr} = 04 ]; then
         echo "WARNING: NUM FCST=${num_fcst_pmave}, INDEX OBS=${obs_daily_found}"
       fi
     done   ## hour loop
+    #  point_stat_PMAVE_raw_400000L_20231210_040000V.stat  point_stat_PMAVE_raw_700000L_20231210_040000V.stat  point_stat_PMAVE_raw_160000L_20231210_040000V.stat  point_stat_PMAVE_raw_460000L_20231210_040000V.stat  point_stat_PMAVE_raw_220000L_20231210_040000V.stat  point_stat_PMAVE_raw_640000L_20231210_040000V.stat
     if [ ${SENDCOM} = "YES" ]; then
       cpdir=${DATA}/point_stat/${MODELNAME}
       stat_file_count=$(find ${cpdir} -name "*${outtyp}${bcout}*" | wc -l)
-      stat_file_count=$(find ${cpdir} -name "*${outtyp}${bcout}*")
+      ## find ${cpdir} -name "*${outtyp}${bcout}*"
       if [ ${stat_file_count} -ne 0 ]; then cpreq ${cpdir}/*${outtyp}${bcout}* ${COMOUTsmall}; fi
     fi
     stat_file_count=$(find ${COMOUTsmall} -name "*${outtyp}${bcout}*" | wc -l)
