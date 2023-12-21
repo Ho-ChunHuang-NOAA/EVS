@@ -65,9 +65,9 @@ else
     export VDAYm31=$(${NDATE} -744 ${VDATE}${cyc} | cut -c1-8)  # 31 days back
 fi
 
-export COMIN=${COMIN:-$(compath.py ${envir}/com/${NET}/${evs_ver}/)}
+export COMIN=${COMIN:-$(compath.py ${envir}/com/${NET}/${evs_ver})}
 export EVSINaqm=${EVSINaqm:-${COMIN}/stats/${COMPONENT}/${MODELNAME}}
-export COMOUT=${COMOUT:-$(compath.py -o ${NET}/${evs_ver}/)}
+export COMOUT=${COMOUT:-$(compath.py -o ${NET}/${evs_ver})}
 export COMOUTplots=${COMOUTplots:-${COMOUT}/${STEP}/${COMPONENT}/${RUN}.${VDATE}}
 export COMOUTheadline=${COMOUTheadline:-${COMOUT}/${STEP}/${COMPONENT}/headline.${VDATE}}
 mkdir -m 775 -p $COMOUT $COMOUTplots $COMOUTheadline
