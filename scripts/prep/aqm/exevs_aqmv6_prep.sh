@@ -15,6 +15,7 @@
 ##   10/31/2023   Ho-Chun Huang  Update EVS model input directory
 ##                               structure from AQMv6 to AQMv7
 ##   11/14/2023   Ho-Chun Huang  Replace cp with cpreq
+##   01/05/2024   Ho-Chun Huang  modify for AQMv6 verification
 ##
 ##
 #######################################################################
@@ -60,8 +61,6 @@ while [ ${ic} -le ${endvhr} ]; do
 	if [ -s ${conf_dir}/Ascii2Nc_hourly_obsAIRNOW.conf ]; then
             run_metplus.py ${conf_dir}/Ascii2Nc_hourly_obsAIRNOW.conf ${PARMevs}/metplus_config/machine.conf
 	    export err=$?; err_chk
-	    cat $DATA/logs/${model1}/metplus_hourly_ascii2nc.log*
-	    mv $DATA/logs/${model1}/metplus_hourly_ascii2nc.log* $DATA/logs
 	    if [ ${SENDCOM} = "YES" ]; then
                 cpfile=${PREP_SAVE_DIR}/airnow_hourly_aqobs_${VDATE}${VHOUR}.nc 
                 if [ -e ${cpfile} ]; then cpreq ${cpfile} ${COMOUTproc}; fi
@@ -91,8 +90,6 @@ if [ -s ${checkfile} ]; then
     if [ -s ${conf_dir}/Ascii2Nc_daily_obsAIRNOW.conf ]; then
         run_metplus.py ${conf_dir}/Ascii2Nc_daily_obsAIRNOW.conf ${PARMevs}/metplus_config/machine.conf
         export err=$?; err_chk
-        cat $DATA/logs/${model1}}/metplus_daily_ascii2nc.log*
-        mv $DATA/logs/${model1}/metplus_daily_ascii2nc.log* $DATA/logs
 	if [ ${SENDCOM} = "YES" ]; then
             cpfile=${PREP_SAVE_DIR}/airnow_daily_${VDATE}.nc
             if [ -e ${cpfile} ]; then cpreq ${cpfile} ${COMOUTproc};fi
@@ -182,5 +179,19 @@ for hour in 06 12; do
         fi
     done
 done
+log_dir="$DATA/logs/${model1}"
+if [ -d $log_dir ]; then
+    log_file_count=$(find $log_dir -type f | wc -l)
+    if [[ $log_file_count -ne 0 ]]; then
+       log_files=("$log_dir"/*)
+       for log_file in "${log_files[@]}"; do
+          if [ -f "$log_file" ]; then
+             echo "Start: $log_file"
+             cat "$log_file"
+             echo "End: $log_file"
+          fi
+      done
+  fi
+fi
 exit
 

@@ -2,7 +2,7 @@
 #######################################################################
 ##  UNIX Script Documentation Block
 ##                      .
-## Script name:         exevs_aqmv7_stats.sh/exevs_aqm_grid2obs_stats.sh
+## Script name:         exevs_aqm_grid2obs_stats.sh
 ## Script description:  Perform MetPlus PointStat of Air Quality Model.
 ## Original Author   :  Perry Shafran
 ##
