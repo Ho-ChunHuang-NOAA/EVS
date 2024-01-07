@@ -83,10 +83,10 @@ for outtyp in awpozcon pm25; do
   cap_outtyp=`echo ${outtyp} | tr a-z A-Z`
     
   case ${outtyp} in
-      awpozcon) point_stat_conf_file=PointStat_fcstOZONE_obsAIRNOW.conf
+      awpozcon) point_stat_conf_file=PointStat_fcstOZONE_obsAIRNOW_${fcst_input_ver}.conf
                 stat_analysis_conf_file=StatAnalysis_fcstOZONE_obsAIRNOW_GatherByDay.conf
                 stat_output_index=ozone;;
-      pm25)     point_stat_conf_file=PointStat_fcstPM2p5_obsAIRNOW.conf
+      pm25)     point_stat_conf_file=PointStat_fcstPM2p5_obsAIRNOW_${fcst_input_ver}.conf
                 stat_analysis_conf_file=StatAnalysis_fcstPM_obsANOWPM_GatherByDay.conf
                 stat_output_index=pm25;;
   esac
@@ -209,7 +209,7 @@ echo "Index of daily obs found = ${obs_daily_found}"
 if [ ${vhr} = 11 ]; then
 
   export outtyp=OZMAX8
-  point_stat_conf_file=PointStat_fcstOZONEMAX_obsAIRNOW.conf
+  point_stat_conf_file=PointStat_fcstOZONEMAX_obsAIRNOW_${fcst_input_ver}.conf
   stat_analysis_conf_file=StatAnalysis_fcstOZONEMAX_obsAIRNOW_GatherByDay.conf
 
   fcstmax=48
@@ -300,7 +300,7 @@ fi  ## vhr if logic
 if [ ${vhr} = 04 ]; then
 
   export outtyp=PMAVE
-  point_stat_conf_file=PointStat_fcstPMAVE_obsANOWPM.conf
+  point_stat_conf_file=PointStat_fcstPMAVE_obsANOWPM_${fcst_input_ver}.conf
   stat_analysis_conf_file=StatAnalysis_fcstPMAVE_obsANOWPM_GatherByDay.conf
 
   fcstmax=48
