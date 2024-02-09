@@ -66,7 +66,7 @@ for aqmtyp in ozone pm25 ozmax8 pmave; do
             else
                 echo "WARNING ${COMPONENT} ${STEP} :: Can not find ${EVSINaqm}.${DAY}/${cpfile}"
             fi
-            DATE=`${NDATE} -24 ${DATE}`
+            DATE=`${NDATE} +24 ${DATE}`
         done
     done
 done
