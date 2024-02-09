@@ -55,7 +55,7 @@ ENDDATE=${PLOT_END}"00"
 for aqmtyp in ozone pm25 ozmax8 pmave; do
     for biasc in raw bc; do
         DATE=${STARTDATE}
-        while [ ${DATE} -ge ${ENDDATE} ]; do
+        while [ ${DATE} -le ${ENDDATE} ]; do
             echo ${DATE} > curdate
             DAY=`cut -c 1-8 curdate`
             cpfile=evs.stats.${COMPONENT}_${biasc}.${RUN}.${VERIF_CASE}_${aqmtyp}.v${DAY}.stat
@@ -134,7 +134,7 @@ for region in CONUS CONUS_East CONUS_West CONUS_South CONUS_Central Appalachia C
                 esac
                 figfile=evs.${COMPONENT}.${figtype}.${smvar}_${smlev}.last31days.fhrmean_init${inithr}z.buk_${smregion}.png
                 cpfile=${COMOUTplots}/${var}/${figfile}
-                if [ ! -e $${cpfile} ]; then
+                if [ ! -e ${cpfile} ]; then
                     ${PARMevs}/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}/${config_file}
                     export err=$?; err_chk
                 else
