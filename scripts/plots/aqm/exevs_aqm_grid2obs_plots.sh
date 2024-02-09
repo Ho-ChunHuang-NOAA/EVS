@@ -49,8 +49,8 @@ export model1
 
 # Bring in 31 days of stats files
 
-STARTDATE=${VDATE}00
-ENDDATE=${PDYm31}00
+STARTDATE=${PLOT_START}"00"
+ENDDATE=${PLOT_END}"00"
 
 for aqmtyp in ozone pm25 ozmax8 pmave; do
     for biasc in raw bc; do
