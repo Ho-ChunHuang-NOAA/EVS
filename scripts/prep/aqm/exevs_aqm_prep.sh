@@ -18,6 +18,7 @@
 ##   01/05/2024   Ho-Chun Huang  modify for AQMv6 verification
 ##   02/02/2024   Ho-Chun Huang  Replace cpreq with cp to copy file from DATA to COMOUT
 ##   02/08/2024   Ho-Chun Huang  modify for AQMv7 verification
+##   02/14/2024   Ho-Chun Huang  for single email of missing files of both OBS and FCST
 ##
 ##
 #######################################################################
@@ -51,6 +52,9 @@ mkdir -p ${PREP_SAVE_DIR}
 export model1=`echo $MODELNAME | tr a-z A-Z`
 echo $model1
 
+flag_send_message=NO
+if [ -e mailmsg ]; /bin/rm -f mailmsg; fi
+
 ## Pre-Processed EPA AIRNOW ASCII input file to METPlus NetCDF input for PointStat
 ##
 ## Hourly AirNOW observation
@@ -75,11 +79,10 @@ while [ ${ic} -le ${endvhr} ]; do
 	fi
     else
         if [ ${SENDMAIL} = "YES" ]; then
-            export subject="AIRNOW ASCII Hourly Data Missing for EVS ${COMPONENT}"
-            echo "WARNING: No AIRNOW ASCII data was available for valid date ${VDATE}${vldhr}" > mailmsg
+            echo "WARNING: No AIRNOW ASCII data was available for valid date ${VDATE}${vldhr}" >> mailmsg
             echo "Missing file is ${checkfile}" >> mailmsg
-            echo "Job ID: $jobid" >> mailmsg
-            cat mailmsg | mail -s "$subject" $MAILTO 
+            echo "==============" >> mailmsg
+            flag_send_message=YES
         fi
 
         echo "WARNING: No AIRNOW ASCII data was available for valid date ${VDATE}${vldhr}"
@@ -104,11 +107,10 @@ if [ -s ${checkfile} ]; then
     fi
 else
     if [ ${SENDMAIL} = "YES" ]; then
-        export subject="AIRNOW ASCII Daily Data Missing for EVS ${COMPONENT}"
-        echo "WARNING: No AIRNOW ASCII data was available for valid date ${VDATE}" > mailmsg
+        echo "WARNING: No AIRNOW ASCII data was available for valid date ${VDATE}" >> mailmsg
         echo "Missing file is ${checkfile}" >> mailmsg
-        echo "Job ID: $jobid" >> mailmsg
-        cat mailmsg | mail -s "$subject" $MAILTO 
+        echo "==============" >> mailmsg
+        flag_send_message=YES
     fi
 
     echo "WARNING: No AIRNOW ASCII data was available for valid date ${VDATE}"
@@ -149,11 +151,10 @@ for hour in 06 12; do
         	fi
             else
                 if [ ${SENDMAIL} = "YES" ]; then
-                    export subject="t${hour}z OZMAX8${bctag} AQM Forecast Data Missing for EVS ${COMPONENT}"
-                    echo "WARNING: No AQM OZMAX8${bctag} forecast was available for ${VDATE} t${hour}z" > mailmsg
+                    echo "WARNING: No AQM OZMAX8${bctag} forecast was available for ${VDATE} t${hour}z" >> mailmsg
                     echo "Missing file is ${ozmax8_file}" >> mailmsg
-                    echo "Job ID: $jobid" >> mailmsg
-                    cat mailmsg | mail -s "$subject" $MAILTO
+                    echo "==============" >> mailmsg
+                    flag_send_message=YES
                 fi
         
                 echo "WARNING: No AQM OZMAX8${bctag} forecast was available for ${VDATE} t${hour}z"
@@ -175,11 +176,10 @@ for hour in 06 12; do
         	fi
             else
                 if [ ${SENDMAIL} = "YES" ]; then
-                    export subject="t${hour}z OZMAX8${bctag} AQM Forecast Data Missing for EVS ${COMPONENT}"
-                    echo "WARNING: No AQM OZMAX8${bctag} forecast was available for ${VDATE} t${hour}z" > mailmsg
+                    echo "WARNING: No AQM OZMAX8${bctag} forecast was available for ${VDATE} t${hour}z" >> mailmsg
                     echo "Missing file is ${ozmax8_file}" >> mailmsg
-                    echo "Job ID: $jobid" >> mailmsg
-                    cat mailmsg | mail -s "$subject" $MAILTO
+                    echo "==============" >> mailmsg
+                    flag_send_message=YES
                 fi
         
                 echo "WARNING: No AQM OZMAX8${bctag} forecast was available for ${VDATE} t${hour}z"
@@ -202,5 +202,11 @@ if [ -d $log_dir ]; then
       done
   fi
 fi
-exit
 
+if [ "${flag_send_message}" == "YES" ]; then
+    export subject="OBS  or FCST, or both Missing Data for EVS ${COMPONENT}_${RUN}"
+    echo "Job ID: $jobid" >> mailmsg
+    cat mailmsg | mail -s "${subject}" $MAILTO 
+fi 
+
+exit
