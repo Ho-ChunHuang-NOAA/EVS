@@ -9,8 +9,6 @@ set -x
 
 typeset -Z2 vhr
 
-vday=$VDATE
-
 vhr=00
 missing=0 
 while [ $vhr -le 23 ] ; do 
@@ -23,15 +21,8 @@ done
 
 echo "Missing prepbufr files = " $missing
 if [ $missing -eq 24  ] ; then
-  echo "WARNING: all of the preppbufr files $COMINobsproc/rap.${vday}/rap.t??z.prepbufr.tm00 are missing"
-  >$DATA/prepbufr.missing
-  if [ $SENDMAIL = YES ] ; then
-     export subject="Prepbufr Data Missing for EVS ${COMPONENT}"
-     echo "WARNING all of the preppbufr files are missing" > mailmsg
-     echo "Missing file is $COMINobsproc/rap.${vday}/rap.t??z.prepbufr.tm00"  >> mailmsg
-     echo "Job ID: $jobid" >> mailmsg
-     cat mailmsg | mail -s "$subject" $MAILTO
-  fi
+  echo "all of the preppbufr files are missing, exit execution!!!"
+  exit
 else
   echo "Continue check NARRE mean files...." 
 fi
@@ -61,11 +52,14 @@ for grid in 130 242 ; do
 
   if [ $has_narre -eq 0 ] ; then
      echo "All narre files are missing for vhr " $vhr "  exit execution !!!"
-     >$DATA/narre_mean_grid${grid}_valid${vhr}.missing 
+     exit
   else
      echo "For vhr" $vhr " and  grid" $grid " has_narre = " $has_narre
   fi
 
  done
 done
+
+echo "COntinue run METplus ..." 
+
 

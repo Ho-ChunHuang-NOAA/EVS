@@ -22,14 +22,6 @@ export MET_CONFIG=${METPLUS_BASE}/parm/met_config
 export maskpath=$MASKS
 
 
-#********************************************
-# Check the input data files availability
-# ******************************************
-
-$USHevs/mesoscale/evs_check_sref_files.sh
-export err=$?; err_chk
-
-
 #***********************************************************************************
 # The method in ceiling and vis (cnv) job is to deal with the conditional mean
 #  (1) First average hits, false alarms, etc in the categoery table
@@ -47,16 +39,12 @@ export err=$?; err_chk
 #metrics. The results are much better. So for sref, first run cnv job. After it is
 #finished, run grid2obs job. In global_ens, both are combined together in grid2obs.
 #*****************************************************************************
-
-if [ -e $DATA/prepbufr.missing ] || [ -e $DATA/sref_mbrs.missing ]; then
-  echo "WARNING: either prepbufr or sref members are missing"
+if [ $just_cnv = yes ] ; then
+  $USHevs/mesoscale/evs_sref_cnv.sh
+  export err=$?; err_chk
 else
- if [ $just_cnv = yes ] ; then
-   $USHevs/mesoscale/evs_sref_cnv.sh
-   export err=$?; err_chk
- else
-   $USHevs/mesoscale/evs_sref_grid2obs.sh
-   export err=$?; err_chk
- fi
+  $USHevs/mesoscale/evs_sref_grid2obs.sh
+  export err=$?; err_chk
 fi
+
 
