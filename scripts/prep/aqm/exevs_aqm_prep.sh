@@ -53,7 +53,8 @@ export model1=`echo $MODELNAME | tr a-z A-Z`
 echo $model1
 
 flag_send_message=NO
-if [ -e ${DATA}/mailmsg ]; then /bin/rm -f ${DATA}/mailmsg; fi
+msgfile=${DATA}/mailmsg
+if [ -e ${msgfile} ]; then /bin/rm -f ${msgfile}; fi
 
 ## Pre-Processed EPA AIRNOW ASCII input file to METPlus NetCDF input for PointStat
 ##
@@ -79,9 +80,9 @@ while [ ${ic} -le ${endvhr} ]; do
 	fi
     else
         if [ ${SENDMAIL} = "YES" ]; then
-            echo "WARNING: No AIRNOW ASCII data was available for valid date ${VDATE}${vldhr}" >> ${DATA}/mailmsg
-            echo "Missing file is ${checkfile}" >> ${DATA}/mailmsg
-            echo "==============" >> ${DATA}/mailmsg
+            echo "WARNING: No AIRNOW ASCII data was available for valid date ${VDATE}${vldhr}" >> ${msgfile}
+            echo "Missing file is ${checkfile}" >> ${msgfile}
+            echo "==============" >> ${msgfile}
             flag_send_message=YES
         fi
 
@@ -107,9 +108,9 @@ if [ -s ${checkfile} ]; then
     fi
 else
     if [ ${SENDMAIL} = "YES" ]; then
-        echo "WARNING: No AIRNOW ASCII data was available for valid date ${VDATE}" >> ${DATA}/mailmsg
-        echo "Missing file is ${checkfile}" >> ${DATA}/mailmsg
-        echo "==============" >> ${DATA}/mailmsg
+        echo "WARNING: No AIRNOW ASCII data was available for valid date ${VDATE}" >> ${msgfile}
+        echo "Missing file is ${checkfile}" >> ${msgfile}
+        echo "==============" >> ${msgfile}
         flag_send_message=YES
     fi
 
@@ -151,9 +152,9 @@ for hour in 06 12; do
         	fi
             else
                 if [ ${SENDMAIL} = "YES" ]; then
-                    echo "WARNING: No AQM OZMAX8${bctag} forecast was available for ${VDATE} t${hour}z" >> ${DATA}/mailmsg
-                    echo "Missing file is ${ozmax8_file}" >> ${DATA}/mailmsg
-                    echo "==============" >> ${DATA}/mailmsg
+                    echo "WARNING: No AQM OZMAX8${bctag} forecast was available for ${VDATE} t${hour}z" >> ${msgfile}
+                    echo "Missing file is ${ozmax8_file}" >> ${msgfile}
+                    echo "==============" >> ${msgfile}
                     flag_send_message=YES
                 fi
         
@@ -176,9 +177,9 @@ for hour in 06 12; do
         	fi
             else
                 if [ ${SENDMAIL} = "YES" ]; then
-                    echo "WARNING: No AQM OZMAX8${bctag} forecast was available for ${VDATE} t${hour}z" >> ${DATA}/mailmsg
-                    echo "Missing file is ${ozmax8_file}" >> ${DATA}/mailmsg
-                    echo "==============" >> ${DATA}/mailmsg
+                    echo "WARNING: No AQM OZMAX8${bctag} forecast was available for ${VDATE} t${hour}z" >> ${msgfile}
+                    echo "Missing file is ${ozmax8_file}" >> ${msgfile}
+                    echo "==============" >> ${msgfile}
                     flag_send_message=YES
                 fi
         
@@ -205,8 +206,8 @@ fi
 
 if [ "${flag_send_message}" == "YES" ]; then
     export subject="OBS  or FCST, or both Missing Data for EVS ${COMPONENT}_${RUN}"
-    echo "Job ID: $jobid" >> ${DATA}/mailmsg
-    cat ${DATA}/mailmsg | mail -s "${subject}" $MAILTO 
+    echo "Job ID: $jobid" >> ${msgfile}
+    cat ${msgfile} | mail -s "${subject}" $MAILTO 
 fi 
 
 exit
