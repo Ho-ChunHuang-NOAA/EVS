@@ -53,7 +53,7 @@ export model1=`echo $MODELNAME | tr a-z A-Z`
 echo $model1
 
 flag_send_message=NO
-if [ -e mailmsg ]; then /bin/rm -f mailmsg; fi
+if [ -e mailmsg ]; /bin/rm -f mailmsg; fi
 
 ## Pre-Processed EPA AIRNOW ASCII input file to METPlus NetCDF input for PointStat
 ##
