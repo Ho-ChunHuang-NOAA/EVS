@@ -205,7 +205,7 @@ if [ -d $log_dir ]; then
 fi
 
 if [ "${flag_send_message}" == "YES" ]; then
-    export subject="OBS, or FCST, or both Missing Data for EVS ${COMPONENT}_${STEP}_${RUN}"
+    export subject="OBS  or FCST, or both Missing Data for EVS ${COMPONENT}_${STEP}_${RUN}"
     echo "Job ID: $jobid" >> ${msgfile}
     cat ${msgfile} | mail -s "${subject}" $MAILTO 
 fi 
