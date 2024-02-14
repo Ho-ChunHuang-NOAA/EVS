@@ -12,7 +12,7 @@
 ##   11/14/2023   Ho-Chun Huang  replace cp with cpreq
 ##   11/15/2023   Ho-Chun Huang  combine similar code for multiple variable
 ##   02/02/2024   Ho-Chun Huang  Replace cpreq with cp to copy file from DATA to COMOUT
-##   02/14/2024   Ho-Chun Huang  Use PLOT_START and PLOT_END to define the time period.
+##   02/08/2024   Ho-Chun Huang  modify for AQMv7 verification
 ##
 ## Plotting Information
 ##    OZMAX8 forecast lead option for init::06z are day1::F29, day2::F53, and day3::F77
