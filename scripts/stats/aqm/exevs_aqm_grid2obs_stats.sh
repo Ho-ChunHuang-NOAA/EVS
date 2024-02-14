@@ -57,7 +57,7 @@ export model1=`echo ${MODELNAME} | tr a-z A-Z`
 echo ${model1}
 
 flag_send_message=NO
-if [ -e ${DATA}/mailmsg ]; then /bin/rm -f ${DATA}/mailmsg; fi
+if [ -e mailmsg ]; then /bin/rm -f mailmsg; fi
 
 # Begin verification of both the hourly data of ozone and PM
 #
@@ -79,9 +79,9 @@ if [ -s ${check_file} ]; then
 else
   echo "WARNING: Can not find pre-processed obs hourly input ${check_file}"
   if [ $SENDMAIL = "YES" ]; then 
-    echo "WARNING: No AQM ${HOURLY_INPUT_TYPE} was available for ${vld_date} ${vld_time}" >> ${DATA}/mailmsg
-    echo "Missing file is ${check_file}" >> ${DATA}/mailmsg
-    echo "==============" >> ${DATA}/mailmsg
+    echo "WARNING: No AQM ${HOURLY_INPUT_TYPE} was available for ${vld_date} ${vld_time}" >> mailmsg
+    echo "Missing file is ${check_file}" >> mailmsg
+    echo "==============" >> mailmsg
     flag_send_message=YES
   fi
 fi
@@ -141,9 +141,9 @@ for outtyp in awpozcon pm25; do
             let "num_fcst_in_metplus=num_fcst_in_metplus+1"
           else
             if [ $SENDMAIL = "YES" ]; then
-              echo "WARNING: No AQM ${outtyp}${bctag} forecast was available for ${aday} t${acyc}z" >> ${DATA}/mailmsg
-              echo "Missing file is ${fcst_file}" >> ${DATA}/mailmsg
-              echo "==============" >> ${DATA}/mailmsg
+              echo "WARNING: No AQM ${outtyp}${bctag} forecast was available for ${aday} t${acyc}z" >> mailmsg
+              echo "Missing file is ${fcst_file}" >> mailmsg
+              echo "==============" >> mailmsg
               flag_send_message=YES
             fi
 
@@ -204,9 +204,9 @@ if [ -s ${check_file} ]; then
 else
   echo "WARNING: Can not find pre-processed obs daily input ${check_file}"
   if [ $SENDMAIL = "YES" ]; then
-    echo "WARNING: No AQM Daily Observed file was available for ${VDATE}" >> ${DATA}/mailmsg
-    echo "Missing file is ${check_file}" >> ${DATA}/mailmsg
-    echo "==============" >> ${DATA}/mailmsg
+    echo "WARNING: No AQM Daily Observed file was available for ${VDATE}" >> mailmsg
+    echo "Missing file is ${check_file}" >> mailmsg
+    echo "==============" >> mailmsg
     flag_send_message=YES
   fi
 fi
@@ -254,9 +254,9 @@ if [ ${vhr} = 11 ]; then
           let "num_fcst_in_metplus=num_fcst_in_metplus+1"
         else
           if [ $SENDMAIL = "YES" ]; then
-            echo "WARNING: No AQM ozmax8${bctag} daily forecast was available for ${chk_date} t${hour}z" >> ${DATA}/mailmsg
-            echo "Missing file is ${ozmax8_preprocessed_file}" >> ${DATA}/mailmsg
-            echo "==============" >> ${DATA}/mailmsg
+            echo "WARNING: No AQM ozmax8${bctag} daily forecast was available for ${chk_date} t${hour}z" >> mailmsg
+            echo "Missing file is ${ozmax8_preprocessed_file}" >> mailmsg
+            echo "==============" >> mailmsg
             flag_send_message=YES
           fi
           echo "WARNING: No AQM max_8hr_o3${bctag} forecast was available for ${chk_date} t${hour}z"
@@ -344,9 +344,9 @@ if [ ${vhr} = 04 ]; then
           let "num_fcst_in_metplus=num_fcst_in_metplus+1"
         else
           if [ $SENDMAIL = "YES" ]; then
-            echo "WARNING: No AQM ave_24hr_pm25${bctag} forecast was available for ${chk_date} t${hour}z" >> ${DATA}/mailmsg
-            echo "Missing file is $fcst_file}" >> ${DATA}/mailmsg
-            echo "==============" >> ${DATA}/mailmsg
+            echo "WARNING: No AQM ave_24hr_pm25${bctag} forecast was available for ${chk_date} t${hour}z" >> mailmsg
+            echo "Missing file is $fcst_file}" >> mailmsg
+            echo "==============" >> mailmsg
             flag_send_message=YES
           fi
 
@@ -409,8 +409,8 @@ fi
 
 if [ "${flag_send_message}" == "YES" ]; then
     export subject="OBS or FCST, or both Data Missing for EVS ${COMPONENT}_${RUN}"
-    echo "Job ID: $jobid" >> ${DATA}/mailmsg
-    cat ${DATA}/mailmsg | mail -s "${subject}" $MAILTO 
+    echo "Job ID: $jobid" >> mailmsg
+    cat mailmsg | mail -s "${subject}" $MAILTO 
 fi 
 
 exit
