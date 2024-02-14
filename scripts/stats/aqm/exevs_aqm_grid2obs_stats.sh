@@ -57,7 +57,7 @@ export model1=`echo ${MODELNAME} | tr a-z A-Z`
 echo ${model1}
 
 flag_send_message=NO
-if [ -e mailmsg ]; /bin/rm -f mailmsg; fi
+if [ -e mailmsg ]; then /bin/rm -f mailmsg; fi
 
 # Begin verification of both the hourly data of ozone and PM
 #
