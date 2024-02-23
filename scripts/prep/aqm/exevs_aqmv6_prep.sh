@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 #######################################################################
 ##  UNIX Script Documentation Block
 ##                      .
@@ -16,7 +16,7 @@
 ##                               structure from AQMv6 to AQMv7
 ##   11/14/2023   Ho-Chun Huang  Replace cp with cpreq
 ##   01/05/2024   Ho-Chun Huang  modify for AQMv6 verification
-##   02/05/2024   Ho-Chun Huang  Replace cpreq with cp to copy file from DATA to COMOUT
+##   02/02/2024   Ho-Chun Huang  Replace cpreq with cp to copy file from DATA to COMOUT
 ##
 ##
 #######################################################################

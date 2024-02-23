@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 #######################################################################
 ##  UNIX Script Documentation Block
 ##                      .
@@ -16,7 +16,7 @@
 ##   12/27/2023   Ho-Chun Huang  Select the lead hours input to the METPlus only when
 ##                               model output daily fcst files existed.
 ##   01/05/2024   Ho-Chun Huang  modify for AQMv6 verification
-##   02/05/2024   Ho-Chun Huang  Replace cpreq with cp to copy file from DATA to COMOUT
+##   02/02/2024   Ho-Chun Huang  Replace cpreq with cp to copy file from DATA to COMOUT
 ##
 ##   Note :  The lead hours specification is important to avoid the error generated 
 ##           by the MetPlus for not finding the input FCST or OBS files. The error
