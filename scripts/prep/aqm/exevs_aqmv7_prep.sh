@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 #######################################################################
 ##  UNIX Script Documentation Block
 ##                      .
@@ -15,7 +15,9 @@
 ##   10/31/2023   Ho-Chun Huang  Update EVS model input directory
 ##                               structure from AQMv6 to AQMv7
 ##   11/14/2023   Ho-Chun Huang  Replace cp with cpreq
-##   02/05/2024   Ho-Chun Huang  Replace cpreq with cp to copy file from DATA to COMOUT
+##   01/05/2024   Ho-Chun Huang  modify for AQMv6 verification
+##   02/02/2024   Ho-Chun Huang  Replace cpreq with cp to copy file from DATA to COMOUT
+##   02/21/2024   Ho-Chun Huang  modify for AQMv7 verification
 ##
 ##
 #######################################################################
