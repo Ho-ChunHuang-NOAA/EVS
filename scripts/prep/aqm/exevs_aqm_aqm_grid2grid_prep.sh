@@ -58,7 +58,7 @@ for mdl_cyc in "${cyc_opt[@]}"; do
     let endvhr=72
     while [ ${ic} -le ${endvhr} ]; do
         filehr=$(printf %3.3d ${ic})
-        checkfile=${COMINaqm}/${dirname}.${VDATE}/${mdl_cyc}/${MODELNAME}.t${mdl_cyc}z.${output_var}.f${filehr}.grib2
+        checkfile=${COMINaqm}/${dirname}.${VDATE}/${mdl_cyc}/${MODELNAME}.t${mdl_cyc}z.${output_var}.f${filehr}.nc
         if [ -s ${checkfile} ]; then
             export filein_mdl_grid=${checkfile}    # config variable
             num_mdl_grid=1
@@ -108,8 +108,8 @@ if [ "${num_mdl_grid}" != "0" ]; then
     done
 else
     if [ ${SENDMAIL} = "YES" ]; then
-        export subject="AIRNOW ASCII Daily Data Missing for EVS ${COMPONENT}"
-        echo "WARNING: No AIRNOW ASCII data was available for valid date ${VDATE}" > mailmsg
+        export subject="${MODELNAME} ${VARID} NC Output Missing for EVS ${COMPONENT}"
+        echo "WARNING: No ${MODELNAME} ${VARID} NC output was avaiable valid ${VDATE}" > mailmsg
         echo "Missing file is ${checkfile}" >> mailmsg
         echo "Job ID: $jobid" >> mailmsg
         cat mailmsg | mail -s "$subject" $MAILTO 
@@ -135,8 +135,8 @@ if [ -d ${log_dir} ]; then
 fi
 else
     if [ ${SENDMAIL} = "YES" ]; then
-        export subject="${MODELNAME} ${VARID} Grib2 Output Missing for EVS ${COMPONENT}"
-        echo "WARNING: No ${MODELNAME} ${VARID} grid2 output was avaiable valid ${VDATE}" > mailmsg
+        export subject="${MODELNAME} ${VARID} NC Output Missing for EVS ${COMPONENT}"
+        echo "WARNING: No ${MODELNAME} ${VARID} NC output was avaiable valid ${VDATE}" > mailmsg
         echo "Job ID: $jobid" >> mailmsg
         cat mailmsg | mail -s "$subject" $MAILTO 
     fi

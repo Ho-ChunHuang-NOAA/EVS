@@ -51,10 +51,13 @@ export jobid=$job.${PBS_JOBID:-$$}
 export COMIN=/lfs/h2/emc/vpppg/noscrub/${USER}/${NET}/${evs_ver_2d}
 export COMOUT=/lfs/h2/emc/vpppg/noscrub/${USER}/${NET}/${evs_ver_2d}
 #
+export COMINaqm=/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/v7.0
 export DCOMIN=/lfs/h2/emc/physics/noscrub/ho-chun.huang/GOES16_AOD/AOD
 #
 export KEEPDATA=YES
 export SENDMAIL=YES
+export KEEPDATA=NO
+export SENDMAIL=NO
 #
 export MAILTO=${MAILTO:-'ho-chun.huang@noaa.gov,alicia.bentley@noaa.gov'}
 
