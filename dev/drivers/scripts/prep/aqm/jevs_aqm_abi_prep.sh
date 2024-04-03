@@ -37,7 +37,7 @@ export NET=evs
 export STEP=prep
 export COMPONENT=aqm
 export RUN=atmos
-export VERIF_CASE=grid2obs
+export VERIF_CASE=grid2grid
 export MODELNAME=aqm
 export modsys=aqm
 export mod_ver=${aqm_ver}
@@ -49,6 +49,8 @@ export jobid=$job.${PBS_JOBID:-$$}
 
 export COMIN=/lfs/h2/emc/vpppg/noscrub/${USER}/${NET}/${evs_ver_2d}
 export COMOUT=/lfs/h2/emc/vpppg/noscrub/${USER}/${NET}/${evs_ver_2d}
+#
+export DCOMIN=/lfs/h2/emc/physics/noscrub/ho-chun.huang/GOES16_AOD/AOD
 #
 export KEEPDATA=YES
 export SENDMAIL=YES
@@ -62,7 +64,7 @@ if [ -z "$MAILTO" ]; then
 else
 
    # CALL executable job script here
-   $HOMEevs/jobs/JEVS_AQM_PREP
+   $HOMEevs/jobs/JEVS_AQM_GRID2GRID_PREP
 
 fi
 
