@@ -24,6 +24,8 @@ source ${config}
 #######################################################################
 # Define INPUT OBS DATA TYPE for ASCII2NC 
 #######################################################################
+export OBSTYPE=$(echo ${DATA_TYPE} | tr a-z A-Z)    # config variable
+
 #
 conf_dir=${PARMevs}/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}
 config_file=Point2Grid_hourly_obs${OBSTYPE}.conf
@@ -37,8 +39,6 @@ mkdir -p ${RUNTIME_PREP_DIR}
 
 export CMODEL=$(echo ${MODELNAME} | tr a-z A-Z)
 echo ${CMODEL}
-
-export OBSTYPE=$(echo ${DATA_TYPE} | tr a-z A-Z)    # config variable
 
 export jday=$(date2jday.sh ${VDATE})        # need module load prod_util
 
