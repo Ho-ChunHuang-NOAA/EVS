@@ -76,7 +76,7 @@ if [ "${num_mdl_grid}" != "0" ]; then
     let endvhr=23
     while [ ${ic} -le ${endvhr} ]; do
         vldhr=$(printf %2.2d ${ic})
-        checkfile="OR_${OBSTYPE}-L2-${VARID}C-M*_${SATID}-s${jday}${vldhr}*.nc"
+        checkfile="OR_${OBSTYPE}-L2-${VARID}C-M*_${SATID}_s${jday}${vldhr}*.nc"
         obs_file_count=$(find ${DCOMIN}/${VDATE} -name ${checkfile} | wc -l )
         if [ ${obs_file_count} -ne 0 ]; then
             export VHOUR=${vldhr}    # config variable
