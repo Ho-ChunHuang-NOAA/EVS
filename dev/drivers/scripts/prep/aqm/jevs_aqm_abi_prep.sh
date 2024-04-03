@@ -13,7 +13,8 @@ cd $PBS_O_WORKDIR
 
 export model=evs
 
-export HOMEevs=/lfs/h2/emc/vpppg/noscrub/$USER/EVS
+## export HOMEevs=/lfs/h2/emc/vpppg/noscrub/$USER/EVS
+export HOMEevs=/lfs/h2/emc/vpppg/noscrub/$USER/EVSAQMaod
 
 ###%include <head.h>
 ###%include <envir-p1.h>
