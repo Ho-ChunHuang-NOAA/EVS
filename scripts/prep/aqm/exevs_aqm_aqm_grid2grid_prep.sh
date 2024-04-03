@@ -32,7 +32,7 @@ config_file=Point2Grid_hourly_obs${OBSTYPE}.conf
 config_common_=${PARMevs}/metplus_config/machine.conf
  
 export dirname=aqm
-## export gridspec=793
+export gridspec=793
 
 export RUNTIME_PREP_DIR=${DATA}/prepsave
 mkdir -p ${RUNTIME_PREP_DIR}
@@ -58,7 +58,7 @@ for mdl_cyc in "${cyc_opt[@]}"; do
     let endvhr=72
     while [ ${ic} -le ${endvhr} ]; do
         filehr=$(printf %3.3d ${ic})
-        checkfile=${COMINaqm}/${dirname}.${VDATE}/${mdl_cyc}/${MODELNAME}.t${mdl_cyc}z.${output_var}.f${filehr}.nc
+        checkfile=${COMINaqm}/${dirname}.${VDATE}/${mdl_cyc}/${MODELNAME}.t${mdl_cyc}z.cmaq.f${filehr}.${gridspec}.grib2
         if [ -s ${checkfile} ]; then
             export filein_mdl_grid=${checkfile}    # config variable
             num_mdl_grid=1
