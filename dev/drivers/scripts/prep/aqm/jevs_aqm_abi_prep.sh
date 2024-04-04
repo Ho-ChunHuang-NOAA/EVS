@@ -1,4 +1,4 @@
-#PBS -N jevs_aqm_prep_00
+#PBS -N jevs_aqm_g2g_abi_prep_00
 #PBS -j oe
 #PBS -S /bin/bash
 #PBS -q "dev"
