@@ -29,7 +29,7 @@ export OBSTYPE=$(echo ${DATA_TYPE} | tr a-z A-Z)    # config variable
 #
 conf_dir=${PARMevs}/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}
 config_file=Point2Grid_hourly_obs${OBSTYPE}.conf
-config_common_=${PARMevs}/metplus_config/machine.conf
+config_common=${PARMevs}/metplus_config/machine.conf
  
 export dirname=aqm
 export gridspec=793
