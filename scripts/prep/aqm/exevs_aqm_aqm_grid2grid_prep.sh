@@ -136,7 +136,7 @@ if [ -d ${log_dir} ]; then
       done
   fi
 fi
-else
+if [ 1 -eq 2 ]; then   ## keep for future one email format
     if [ ${SENDMAIL} = "YES" ]; then
         export subject="${MODELNAME} ${VARID} NC Output Missing for EVS ${COMPONENT}"
         echo "WARNING: No ${MODELNAME} ${VARID} NC output was avaiable valid ${VDATE}" > mailmsg
