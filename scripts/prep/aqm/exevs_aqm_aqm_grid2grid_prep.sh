@@ -86,7 +86,9 @@ if [ "${num_mdl_grid}" != "0" ]; then
             ls ${DCOMIN}/${VDATE}/${checkfile} > all_hourly_aod_file
             export filein_aod=$(head -n1 all_hourly_aod_file)    # config variable
             if [ -s ${conf_dir}/${config_file} ]; then
-                run_metplus.py ${conf_dir}/${config_file} ${config_common}
+                ## run_metplus.py ${conf_dir}/${config_file} ${config_common}
+                out_file=${RUNTIME_PREP_DIR}/${DATA_TYPE}_AOD_${MODELNAME}_${satellite_name}_${VDATE}_${VHOUR}.nc
+		point2grid ${filein_aod} ${filein_mdl_grid} ${out_file} -field 'name="AOD"; level="(*,*)";' -method UW_MEAN -v 1 -qc ${AOD_QC_FLAG}
                 export err=$?; err_chk
                 if [ ${SENDCOM} = "YES" ]; then
                     cpfile=${RUNTIME_PREP_DIR}/${DATA_TYPE}_AOD_${MODELNAME}_${satellite_name}_${VDATE}_${VHOUR}.nc
