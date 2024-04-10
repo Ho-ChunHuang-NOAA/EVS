@@ -74,9 +74,6 @@ done
 if [ "${num_mdl_grid}" != "0" ]; then
     let ic=0
     let endvhr=23
-    ## for testing
-    let ic=21
-    let endvhr=21
     while [ ${ic} -le ${endvhr} ]; do
         vldhr=$(printf %2.2d ${ic})
         checkfile="OR_${OBSTYPE}-L2-${VARID}C-M*_${SATID}_s${jday}${vldhr}*.nc"
