@@ -55,30 +55,21 @@ if [ -e mailmsg ]; then /bin/rm -f mailmsg; fi
 
 for ObsType in ${grid2grid_list}; do
   export ObsType
+  export OBSTYPE=`echo ${ObsType} | tr a-z A-Z`    # config variable
+
   case ${ObsType} in
        abi) export obs_var=aod;;
        viirs)  export obs_var=aod;;
-   esac
+       *)  export obs_var=aod;;
+  esac
 
   export RUNTIME_STATS=${DATA}/grid_stat/${MODELNAME}_${ObsType}  # config variable
-  export OBSTYPE=`echo ${ObsType} | tr a-z A-Z`    # config variable
 
-  export VARID=$(echo ${obs_var} | tr a-z A-Z)    # config variable
+  for SatId in ${satellite_list}:
+    export SatId
+    export SATID=$(echo ${SatId} | tr a-z A-Z)    # config variable
 
-  for satellite_name in ${satellite_list}:
-    export satellite_name
-    export SATID=$(echo ${satellite_name} | tr a-z A-Z)    # config variable
-
-# Begin verification of both the hourly data of ozone and PM
-#
-# The valid time of forecast model output is the reference here in GridStat
-# Because of the valid time definition between forecat output and observation is different
-#     For average concentration of a period [ vhr-1 to vhr ], aqm output is defined at vhr Z
-#     while observation is defined at vhr-1 Z
-# Thus, the one hour back OBS input will be checked and used in GridStat
-#     [OBS_POINT_STAT_INPUT_TEMPLATE=****_{valid?fmt=%Y%m%d%H?shift=-3600}.nc]
-#
-    check_file=${EVSINaqm}/${RUN}.${VDATE}/${MODELNAME}/${ObsType}_${VARID}_${MODELNAME}_$(satellite_name}_${VDATE}_${vhr}.nc
+    check_file=${EVSINaqm}/${RUN}.${VDATE}/${MODELNAME}/${ObsType}_${VARID}_${MODELNAME}_$(SatId}_${VDATE}_${vhr}.nc
     obs_hourly_found=0
     if [ -s ${check_file} ]; then
       obs_hourly_found=1
@@ -94,30 +85,36 @@ for ObsType in ${grid2grid_list}; do
     fi
     echo "index of hourly obs found = ${obs_hourly_found}"
 
-    for outtyp in ${obs_var}; do
-      export outtyp
-      cap_outtyp=`echo ${outtyp} | tr a-z A-Z`
+    for VarId in ${obs_var}; do
+      export VarId
+      export VARID=$(echo ${VarId} | tr a-z A-Z)    # config variable
+
+      VARID=`echo ${VarId} | tr a-z A-Z`
     
-      case ${outtyp} in
-           aod) grid_stat_conf_file=GridStat_fcst${cap_outtyp}_obs.{OBSTYPE}conf
-                stat_analysis_conf_file=StatAnalysis_fcst${cap_outtyp}_obs{OBSTYPE}_GatherByDay.conf
-                export aqm_file_index=cmaq;;
+      case ${VarId} in
+           aod) grid_stat_conf_file=GridStat_fcst${VARID}_obs{OBSTYPE}conf
+                stat_analysis_conf_file=StatAnalysis_fcst${VARID}_obs{OBSTYPE}_GatherByDay.conf
+                export FileinId=cmaq;;
+                stat_output_index=aod;;
+           *)   grid_stat_conf_file=GridStat_fcst${VARID}_obs{OBSTYPE}conf
+                stat_analysis_conf_file=StatAnalysis_fcst${VARID}_obs{OBSTYPE}_GatherByDay.conf
+                export FileinId=cmaq;;
                 stat_output_index=aod;;
       esac
 
       # Verification to be done both on raw output files and bias-corrected files
     
-      for biastyp in raw ; do
+      for biastyp in raw; do
         export biastyp
     
-        if [ ${biastyp} = "raw" ]; then
+        if [ "${biastyp}" == "raw" ]; then
           export bctag=
-        elif [ ${biastyp} = "bc" ]; then
+        elif [ "${biastyp}" == "bc" ]; then
           export bctag="_${biastyp}"
         fi
         export bcout="_${biastyp}"
-        export OutputId=${MODELNAME}_${outtyp}${bcout}_${obs_var}            # config variable
-        export StatFileId=${NET}.${STEP}.${MODELNAME}${bcout}.${RUN}.${VERIF_CASE}_${ObsType}_${obs_var} # config variable
+        export OutputId=${MODELNAME}_${VarId}${bcout}_${VarId}            # config variable
+        export StatFileId=${NET}.${STEP}.${MODELNAME}${bcout}.${RUN}.${VERIF_CASE}_${ObsType}_${VarId} # config variable
     
         # check to see that model files exist, and list which forecast hours are to be used
         #
@@ -140,21 +137,21 @@ for ObsType in ${grid2grid_list}; do
             aday=`echo ${adate} |cut -c1-8`
             acyc=`echo ${adate} |cut -c9-10`
             if [ ${acyc} = ${hour} ]; then
-              fcst_file=${COMINaqm}/${dirname}.${aday}/${acyc}/aqm.t${acyc}z.${aqm_file_index}${bctag}.f${filehr}.${gridspec}.grib2
+              fcst_file=${COMINaqm}/${dirname}.${aday}/${acyc}/aqm.t${acyc}z.${FileinId}${bctag}.f${filehr}.${gridspec}.grib2
               if [ -s ${fcst_file} ]; then
                 echo "${fhr} found"
                 echo ${fhr} >> ${recorded_temp_list}
                 let "num_fcst_in_metplus=num_fcst_in_metplus+1"
               else
                 if [ $SENDMAIL = "YES" ]; then
-                  export subject="t${acyc}z ${aqm_file_index}${bctag} AQM Forecast Data Missing for EVS ${COMPONENT}"
-                  echo "WARNING: No AQM ${aqm_file_index}${bctag} forecast was available for ${aday} t${acyc}z" > mailmsg
+                  export subject="t${acyc}z ${FileinId}${bctag} AQM Forecast Data Missing for EVS ${COMPONENT}"
+                  echo "WARNING: No AQM ${FileinId}${bctag} forecast was available for ${aday} t${acyc}z" > mailmsg
                   echo "Missing file is ${fcst_file}" >> mailmsg
                   echo "Job ID: $jobid" >> mailmsg
                   cat mailmsg | mail -s "$subject" $MAILTO
                 fi
 
-                echo "WARNING: No AQM ${outtyp}${bctag} forecast was available for ${aday} t${acyc}z"
+                echo "WARNING: No AQM ${VarId}${bctag} forecast was available for ${aday} t${acyc}z"
                 echo "WARNING: Missing file is ${fcst_file}"
               fi 
             fi 
@@ -165,14 +162,14 @@ for ObsType in ${grid2grid_list}; do
           fi
           if [ -e ${recorded_temp_list} ]; then rm -f ${recorded_temp_list}; fi
           export num_fcst_in_metplus
-          echo "number of fcst lead in_metplus grid_stat for ${outtyp}${bctag} == ${num_fcst_in_metplus}"
+          echo "number of fcst lead in_metplus grid_stat for ${VarId}${bctag} == ${num_fcst_in_metplus}"
     
           if [ ${num_fcst_in_metplus} -gt 0 -a ${obs_hourly_found} -eq 1 ]; then
             export fcsthours=${fcsthours_list}
             run_metplus.py ${conf_file_dir}/${grid_stat_conf_file} ${config_common}
             export err=$?; err_chk
           else
-            echo "WARNING: NO ${cap_outtyp} FORECAST OR OBS TO VERIFY"
+            echo "WARNING: NO ${VARID} FORECAST OR OBS TO VERIFY"
             echo "WARNING: NUM FCST=${num_fcst_in_metplus}, INDEX OBS=${obs_hourly_found}"
           fi
         done   ## hour loop
@@ -204,8 +201,8 @@ for ObsType in ${grid2grid_list}; do
           fi
         fi
       done  ## biastyp loop
-    done  ## outtyp loop
-  done  ## satellite_name loop
+    done  ## VarId loop
+  done  ## SatId loop
 done  ## ObsType loop
 
 
