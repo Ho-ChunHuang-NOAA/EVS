@@ -48,7 +48,7 @@ grid2grid_list="${DATA_TYPE}"
 
 satellite_list="${SATELLITE_TYPE}"
 
-export vld_cyc="00 06 12 18"
+export vld_cyc="06 12"
 
 flag_send_message=NO
 if [ -e mailmsg ]; then /bin/rm -f mailmsg; fi
@@ -65,42 +65,40 @@ for ObsType in ${grid2grid_list}; do
 
   export RUNTIME_STATS=${DATA}/grid_stat/${MODELNAME}_${ObsType}  # config variable
 
-  for SatId in ${satellite_list}:
+  for SatId in ${satellite_list}; do
     export SatId
     export SATID=$(echo ${SatId} | tr a-z A-Z)    # config variable
-
-    check_file=${EVSINaqm}/${RUN}.${VDATE}/${MODELNAME}/${ObsType}_${VARID}_${MODELNAME}_$(SatId}_${VDATE}_${vhr}.nc
-    obs_hourly_found=0
-    if [ -s ${check_file} ]; then
-      obs_hourly_found=1
-    else
-      echo "WARNING: Can not find pre-processed obs hourly input ${check_file}"
-      if [ $SENDMAIL = "YES" ]; then 
-        export subject="AQM Hourly Observed Missing for EVS ${COMPONENT}"
-        echo "WARNING: No AQM ${HOURLY_INPUT_TYPE} was available for ${vld_date} ${vld_time}" > mailmsg
-        echo "Missing file is ${check_file}" >> mailmsg
-        echo "Job ID: $jobid" >> mailmsg
-        cat mailmsg | mail -s "$subject" $MAILTO
-      fi
-    fi
-    echo "index of hourly obs found = ${obs_hourly_found}"
 
     for VarId in ${obs_var}; do
       export VarId
       export VARID=$(echo ${VarId} | tr a-z A-Z)    # config variable
 
-      VARID=`echo ${VarId} | tr a-z A-Z`
-    
       case ${VarId} in
-           aod) grid_stat_conf_file=GridStat_fcst${VARID}_obs{OBSTYPE}conf
-                stat_analysis_conf_file=StatAnalysis_fcst${VARID}_obs{OBSTYPE}_GatherByDay.conf
-                export FileinId=cmaq;;
+           aod) grid_stat_conf_file=GridStat_fcst${VARID}_obs${OBSTYPE}.conf
+                stat_analysis_conf_file=StatAnalysis_fcst${VARID}_obs${OBSTYPE}_GatherByDay.conf
+                export FileinId=cmaq
                 stat_output_index=aod;;
-           *)   grid_stat_conf_file=GridStat_fcst${VARID}_obs{OBSTYPE}conf
-                stat_analysis_conf_file=StatAnalysis_fcst${VARID}_obs{OBSTYPE}_GatherByDay.conf
-                export FileinId=cmaq;;
+           *)   grid_stat_conf_file=GridStat_fcst${VARID}_obs${OBSTYPE}.conf
+                stat_analysis_conf_file=StatAnalysis_fcst${VARID}_obs${OBSTYPE}_GatherByDay.conf
+                export FileinId=cmaq
                 stat_output_index=aod;;
       esac
+
+      check_file=${EVSINaqm}/${RUN}.${VDATE}/${MODELNAME}/${ObsType}_${VARID}_${MODELNAME}_${SatId}_${VDATE}_${vhr}.nc
+      obs_hourly_found=0
+      if [ -s ${check_file} ]; then
+        obs_hourly_found=1
+      else
+        echo "WARNING: Can not find pre-processed obs hourly input ${check_file}"
+        if [ $SENDMAIL = "YES" ]; then 
+          export subject="AQM Hourly Observed Missing for EVS ${COMPONENT}"
+          echo "WARNING: No AQM ${HOURLY_INPUT_TYPE} was available for ${vld_date} ${vld_time}" > mailmsg
+          echo "Missing file is ${check_file}" >> mailmsg
+          echo "Job ID: $jobid" >> mailmsg
+          cat mailmsg | mail -s "$subject" $MAILTO
+        fi
+      fi
+      echo "index of hourly obs found = ${obs_hourly_found}"
 
       # Verification to be done both on raw output files and bias-corrected files
     
@@ -206,7 +204,7 @@ for ObsType in ${grid2grid_list}; do
 done  ## ObsType loop
 
 
-log_dir="$DATA/logs/${model1}"
+log_dir="$DATA/logs/${MODELNAME}"
 if [ -d $log_dir ]; then
    log_file_count=$(find $log_dir -type f | wc -l)
    if [[ $log_file_count -ne 0 ]]; then
@@ -222,4 +220,3 @@ if [ -d $log_dir ]; then
 fi
 
 exit
-

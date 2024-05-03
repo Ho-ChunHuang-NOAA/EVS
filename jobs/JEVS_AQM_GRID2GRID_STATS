@@ -72,6 +72,7 @@ mkdir -p $COMOUTsmall $COMOUTfinal
 
 export DATA_TYPE=${DATA_TYPE:-abi}
 
+export SATELLITE_TYPE=${SATELLITE_TYPE:-g16}
 #######################################################################
 # Execute the script.
 #######################################################################
