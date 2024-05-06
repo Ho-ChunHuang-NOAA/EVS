@@ -20,12 +20,10 @@ set -x
 export config=$PARMevs/evs_config/$COMPONENT/config.evs.aqm.prod
 source $config
 
-recorded_temp_list=${DATA}/fcstlist_in_metplus
-
 mkdir -p ${DATA}/logs
 mkdir -p ${DATA}/stat
-export finalstat=${DATA}/final
-mkdir -p ${DATA}/final
+export finalstat=${DATA}/final_${VDATE}${vhr}
+mkdir -p ${finalstat}
 
 export conf_file_dir=${PARMevs}/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}
 #######################################################################
@@ -63,7 +61,10 @@ for ObsType in ${grid2grid_list}; do
        *)  export obs_var=aod;;
   esac
 
-  export RUNTIME_STATS=${DATA}/grid_stat/${MODELNAME}_${ObsType}  # config variable
+  export RUNTIME_STATS=${DATA}/grid_stat/${ObsType}_${VDATE}${vhr}  # config variable
+  mkdir -p ${RUNTIME_STATS}
+  recorded_temp_list=${RUNTIME_STATS}/fcstlist_in_metplus
+
 
   for SatId in ${satellite_list}; do
     export SatId
@@ -92,7 +93,7 @@ for ObsType in ${grid2grid_list}; do
         echo "WARNING: Can not find pre-processed obs hourly input ${check_file}"
         if [ $SENDMAIL = "YES" ]; then 
           export subject="AQM Hourly Observed Missing for EVS ${COMPONENT}"
-          echo "WARNING: No AQM ${HOURLY_INPUT_TYPE} was available for ${vld_date} ${vld_time}" > mailmsg
+          echo "WARNING: No ${SatID} ${ObsType} ${VarId} was available for ${vld_date} ${vld_time}" > mailmsg
           echo "Missing file is ${check_file}" >> mailmsg
           echo "Job ID: $jobid" >> mailmsg
           cat mailmsg | mail -s "$subject" $MAILTO
@@ -111,8 +112,8 @@ for ObsType in ${grid2grid_list}; do
           export bctag="_${biastyp}"
         fi
         export bcout="_${biastyp}"
-        export OutputId=${MODELNAME}_${VarId}${bcout}_${VarId}            # config variable
-        export StatFileId=${NET}.${STEP}.${MODELNAME}${bcout}.${RUN}.${VERIF_CASE}_${ObsType}_${VarId} # config variable
+        export OutputId=${MODELNAME}_${biastyp}_${SatId}${VarId}            # config variable
+        export StatFileId=${NET}.${STEP}.${MODELNAME}_${biastyp}.${RUN}.${VERIF_CASE}_${ObsType}_${SatId}${VarId} # config variable
     
         # check to see that model files exist, and list which forecast hours are to be used
         #
@@ -149,7 +150,7 @@ for ObsType in ${grid2grid_list}; do
                   cat mailmsg | mail -s "$subject" $MAILTO
                 fi
 
-                echo "WARNING: No AQM ${VarId}${bctag} forecast was available for ${aday} t${acyc}z"
+                echo "WARNING: No AQM${bctag} ${SatId}${VarId} forecast was available for ${aday} t${acyc}z"
                 echo "WARNING: Missing file is ${fcst_file}"
               fi 
             fi 
@@ -173,19 +174,20 @@ for ObsType in ${grid2grid_list}; do
         done   ## hour loop
         mkdir -p ${COMOUTsmall}
         if [ ${SENDCOM} = "YES" ]; then
-          if [ -d ${RUNTIME_STATS} ]; then      ## does not exist if run_metplus.py did not execute
-            stat_file_count=$(find ${RUNTIME_STATS} -name "*${OutputId}*" | wc -l)
+          cpdir=${RUNTIME_STATS}/${MODELNAME}
+          if [ -d ${cpdir} ]; then      ## does not exist if run_metplus.py did not execute
+            stat_file_count=$(find ${cpdir} -name "*${OutputId}*.stat" | wc -l)
             if [ ${stat_file_count} -ne 0 ]; then
               mkdir -p ${COMOUTsmall}
-              cp -v ${RUNTIME_STATS}/*${OutputId}* ${COMOUTsmall}
+              cp -v ${cpdir}/*${OutputId}*.stat ${COMOUTsmall}
             fi
           fi
         fi
         if [ "${vhr}" == "23" ]; then
           mkdir -p ${COMOUTfinal}
-          stat_file_count=$(find ${COMOUTsmall} -name "*${OutputId}*" | wc -l)
+          stat_file_count=$(find ${COMOUTsmall} -name "*${OutputId}*.stat" | wc -l)
           if [ ${stat_file_count} -ne 0 ]; then
-            cpreq ${COMOUTsmall}/*${OutputId}* ${finalstat}
+            cpreq ${COMOUTsmall}/*${OutputId}*.stat ${finalstat}
             cd ${finalstat}
             run_metplus.py ${conf_file_dir}/${stat_analysis_conf_file} ${config_common}
             export err=$?; err_chk
