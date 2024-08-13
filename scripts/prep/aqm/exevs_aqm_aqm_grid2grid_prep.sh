@@ -77,10 +77,10 @@ if [ "${num_mdl_grid}" != "0" ]; then
     while [ ${ic} -le ${endvhr} ]; do
         vldhr=$(printf %2.2d ${ic})
         checkfile="OR_${OBSTYPE}-L2-${VARID}C-M*_${SATID}_s${jday}${vldhr}*.nc"
-        obs_file_count=$(find ${DCOMIN}/${VDATE} -name ${checkfile} | wc -l )
+        obs_file_count=$(find ${DCOMINabi} -name ${checkfile} | wc -l )
         if [ ${obs_file_count} -ne 0 ]; then
             export VHOUR=${vldhr}    # config variable
-            ls ${DCOMIN}/${VDATE}/${checkfile} > all_hourly_aod_file
+            ls ${DCOMINabi}/${checkfile} > all_hourly_aod_file
             export filein_aod=$(head -n1 all_hourly_aod_file)    # config variable
             if [ -s ${conf_dir}/${config_file} ]; then
                 run_metplus.py ${conf_dir}/${config_file} ${config_common}
@@ -121,20 +121,6 @@ else
     echo "WARNING: Missing file is ${checkfile}"
 fi
 
-log_dir="${DATA}/logs/${CMODEL}"
-if [ -d ${log_dir} ]; then
-    log_file_count=$(find ${log_dir} -type f | wc -l)
-    if [[ ${log_file_count} -ne 0 ]]; then
-       log_files=("${log_dir}"/*)
-       for log_file in "${log_files[@]}"; do
-          if [ -f "${log_file}" ]; then
-             echo "Start: ${log_file}"
-             cat "${log_file}"
-             echo "End: ${log_file}"
-          fi
-      done
-  fi
-fi
 if [ 1 -eq 2 ]; then   ## keep for future one email format
     if [ ${SENDMAIL} = "YES" ]; then
         export subject="${MODELNAME} ${VARID} NC Output Missing for EVS ${COMPONENT}"
