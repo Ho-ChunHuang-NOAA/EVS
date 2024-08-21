@@ -248,8 +248,12 @@ class PlotSpecs:
         """
         var_name_level = var_name+'/'+var_level
         var_plot_name_dict = {
+            'OZCON1/A1': 'Surface Layer Hourly Ozone Concentration'
+            'OZMAX8/A8': 'Daily Maximum 8-hour Average Ozone Concentration'
+            'PMTF/L0': 'Particulate matter with diameters $\u2264$ 2.5 $\u03bcm$'
+            'PMTF/L1': 'Particulate matter with diameters $\u2264$ 2.5 $\u03bcm$',
+            'PMAVE/A23': '24hr-Average Particulate matter with diameters $\u2264$ 2.5 $\u03bcm$'
             'AOTK/L0': 'Aerosol Optical Depth at 550nm',
-            'PMTF/L0': 'Particulate matter with diameters that are generally 2.5 micrometers and smaller',
             'APCP/A24': '24 hour Accumulated Precipitation',
             'APCP_A24/A24': '24 hour Accumulated Precipitation',
             'CAPE/P90-0': 'Mixed-Layer CAPE',

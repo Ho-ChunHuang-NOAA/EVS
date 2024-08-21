@@ -55,8 +55,8 @@ VERIF_CASE_STEP_type_list = (
     os.environ[VERIF_CASE_STEP_abbrev+'_type_list'].split(' ')
 )
 valid_VERIF_CASE_STEP_type_opts_dict = {
-    'RUN_GRID2GRID_PLOTS': ['abi', 'viirs'],
-    'RUN_GRID2OBS_PLOTS': ['aeronet', 'airnow']
+    'RUN_GRID2GRID_PLOTS': ['abiaod', 'viirsaod'],
+    'RUN_GRID2OBS_PLOTS': ['ozone', 'pm25', 'aeronetaod' ]
 }
 for VERIF_CASE_STEP_type in VERIF_CASE_STEP_type_list:
     if VERIF_CASE_STEP_type \
@@ -108,12 +108,13 @@ evs_aqm_settings_dict['RUN_GRID2OBS_PLOTS'] = [
 
 verif_case_step_settings_dict = {
     'RUN_GRID2GRID_PLOTS': {
-        'abi': ['init_hr_list', 'valid_hr_list'],
-        'viirs': ['init_hr_list', 'valid_hr_list']
+        'abiaod': ['init_hr_list', 'valid_hr_list'],
+        'viirsaod': ['init_hr_list', 'valid_hr_list']
     },
     'RUN_GRID2OBS_PLOTS': {
-        'aeronet': ['init_hr_list', 'valid_hr_list'],
-        'airnow': ['init_hr_list', 'valid_hr_list']
+        'ozone': ['init_hr_list', 'valid_hr_list'],
+        'pm25': ['init_hr_list', 'valid_hr_list'],
+        'aeronetaod': ['init_hr_list', 'valid_hr_list']
     }
 }
 
@@ -167,12 +168,13 @@ if STEP.upper() == 'PLOTS':
                                      +'_model_plot_name_list')
 verif_case_step_check_len_dict = {
     'RUN_GRID2GRID_PLOTS': {
-        'abi': [],
-        'viirs': []
+        'abiaod': [],
+        'viirsaod': []
     },
     'RUN_GRID2OBS_PLOTS': {
-        'aeronet': [],
-        'airnow': []
+        'ozone': [],
+        'pm25': [],
+        'aeronetaod': []
     },
 }
 for verif_type in verif_type_list:
