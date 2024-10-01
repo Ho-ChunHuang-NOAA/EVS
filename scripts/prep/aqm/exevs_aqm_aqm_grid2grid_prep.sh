@@ -10,6 +10,7 @@
 ##   Change Logs:
 ##
 ##   02/21/2024   Ho-Chun Huang  modify for AQMv7 verification
+##   09/30/2024   Ho-Chun Huang  modify for GOES-EAST/WEST and SCAN-MODE
 ##
 ##
 #######################################################################
@@ -42,7 +43,6 @@ echo ${CMODEL}
 
 export jday=$(date2jday.sh ${VDATE})        # need module load prod_util
 
-export satellite_name="g16"
 export SATID=$(echo ${satellite_name} | tr a-z A-Z)    # config variable
 
 export output_var="aod"
@@ -76,19 +76,22 @@ if [ "${num_mdl_grid}" != "0" ]; then
     let endvhr=23
     while [ ${ic} -le ${endvhr} ]; do
         vldhr=$(printf %2.2d ${ic})
-        checkfile="OR_${OBSTYPE}-L2-${VARID}C-M*_${SATID}_s${jday}${vldhr}*.nc"
-        obs_file_count=$(find ${DCOMINabi} -name ${checkfile} | wc -l )
+        checkfile="OR_${OBSTYPE}-L2-${AOD_SCAN}-M*_${SATID}_s${jday}${vldhr}*.nc"
+        obs_file_count=$(find ${DCOMINabi}/GOES_${AOD_SCAN} -name ${checkfile} | wc -l )
         if [ ${obs_file_count} -ne 0 ]; then
             export VHOUR=${vldhr}    # config variable
-            ls ${DCOMINabi}/${checkfile} > all_hourly_aod_file
+            ## ls ${DCOMINabi}/GOES_${ADP_SCAN}/${checkfile} > all_hourly_adp_file
+            ## export filein_adp=$(head -n1 all_hourly_adp_file)    # config variable
+            ls ${DCOMINabi}/GOES_${AOD_SCAN}/${checkfile} > all_hourly_aod_file
             export filein_aod=$(head -n1 all_hourly_aod_file)    # config variable
             if [ -s ${conf_dir}/${config_file} ]; then
+	        export out_file_prefix=${DATA_TYPE}_${AOD_SCAN}_${MODELNAME}_${satellite_name}
                 run_metplus.py ${conf_dir}/${config_file} ${config_common}
-                ## out_file=${RUNTIME_PREP_DIR}/${DATA_TYPE}_AOD_${MODELNAME}_${satellite_name}_${VDATE}_${VHOUR}.nc
+                ## out_file=${RUNTIME_PREP_DIR}/${out_file_prefix}_${VDATE}_${VHOUR}.nc
 		## point2grid ${filein_aod} ${filein_mdl_grid} ${out_file} -field 'name="AOD"; level="(*,*)";' -method UW_MEAN -v 2 -qc ${AOD_QC_FLAG}
                 export err=$?; err_chk
                 if [ ${SENDCOM} = "YES" ]; then
-                    cpfile=${RUNTIME_PREP_DIR}/${DATA_TYPE}_AOD_${MODELNAME}_${satellite_name}_${VDATE}_${VHOUR}.nc
+                    cpfile=${RUNTIME_PREP_DIR}/${out_file_prefix}_${VDATE}_${VHOUR}.nc
                     if [ -s ${cpfile} ]; then cp -v ${cpfile} ${COMOUTproc}; fi
                 fi
             else

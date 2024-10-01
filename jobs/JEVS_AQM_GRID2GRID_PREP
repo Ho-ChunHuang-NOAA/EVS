@@ -82,7 +82,11 @@ if [ "${VERIF_CASE}" == "grid2obs" ]; then
 else
     export DATA_TYPE=${DATA_TYPE:-abi}
     if [ "${DATA_TYPE}" == "abi" ]; then
-        export DCOMINabi=${DCOMINabi:-${DCOMROOT}/${VDATE}}
+        ## export DCOMINabi=${DCOMINabi:-${DCOMROOT}/${VDATE}/goes_abi}
+        export DCOMINabi=${DCOMINabi:-/lfs/h1/ops/dev/dcom/${VDATE}/goes_abi}
+        export satellite_name=${satellite_name:-g16}
+        export AOD_SCAN=${AOD_SCAN:-AODC}
+        export ADP_SCAN=${ADP_SCAN:-ADPC}
     else
         export DCOMINviirs=${DCOMINviirs:-${DCOMROOT}/${VDATE}}
     fi
