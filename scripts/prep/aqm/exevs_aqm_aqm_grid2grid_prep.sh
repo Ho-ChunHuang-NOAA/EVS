@@ -35,22 +35,30 @@ config_common=${PARMevs}/metplus_config/machine.conf
 export dirname=aqm
 export gridspec=793
 
-export RUNTIME_PREP_DIR=${DATA}/prepsave
-mkdir -p ${RUNTIME_PREP_DIR}
-
 export CMODEL=$(echo ${MODELNAME} | tr a-z A-Z)
 echo ${CMODEL}
 
 export jday=$(date2jday.sh ${VDATE})        # need module load prod_util
 
-export SATID=$(echo ${satellite_name} | tr a-z A-Z)    # config variable
+grid2grid_list="${DATA_TYPE}"
+
+satellite_list="${satellite_name}"
+
+goes_scan_list="${AOD_SCAN_TYPE}"
 
 export output_var="aod"
 export VARID=$(echo ${output_var} | tr a-z A-Z)    # config variable
 
 # AOD quality flag 0:high 1:medium 3:low 0,1: high+medium,...etc
-export AOD_QC_FLAG="0"    # config variable
-export FIG_QC_NAME="high"    # config variable
+if [ "${AOD_QC_NAME}" == "high" ]; then   # high quality AOD only
+    export AOD_QC_FLAG="0"    # config variable
+elif [ "${AOD_QC_NAME}" == "medium" ]; then   # high+medium quality AOD
+    export AOD_QC_FLAG="0,1"    # config variable
+else
+    echo "AOD quality usage = ${AOD_QC_NAME} is not defined, use high as default"
+    export AOD_QC_NAME="high"    # config variable
+    export AOD_QC_FLAG="0"    # config variable
+fi
 
 num_mdl_grid=0
 declare -a cyc_opt=( 06 12 )
@@ -73,45 +81,63 @@ done
 ## Pre-Processed GOES ABI high qualtiy AOD for GridStat
 #
 if [ "${num_mdl_grid}" != "0" ]; then
-    let ic=0
-    let endvhr=23
-    while [ ${ic} -le ${endvhr} ]; do
-        vldhr=$(printf %2.2d ${ic})
-        checkfile="OR_${OBSTYPE}-L2-${AOD_SCAN}-M*_${SATID}_s${jday}${vldhr}*.nc"
-        obs_file_count=$(find ${DCOMINabi}/GOES_${AOD_SCAN} -name ${checkfile} | wc -l )
-        if [ ${obs_file_count} -ne 0 ]; then
-            export VHOUR=${vldhr}    # config variable
-            ## ls ${DCOMINabi}/GOES_${ADP_SCAN}/${checkfile} > all_hourly_adp_file
-            ## export filein_adp=$(head -n1 all_hourly_adp_file)    # config variable
-            ls ${DCOMINabi}/GOES_${AOD_SCAN}/${checkfile} > all_hourly_aod_file
-            export filein_aod=$(head -n1 all_hourly_aod_file)    # config variable
-            if [ -s ${conf_dir}/${config_file} ]; then
-	        export out_file_prefix=${DATA_TYPE}_${AOD_SCAN}_${MODELNAME}_${satellite_name}
-                run_metplus.py ${conf_dir}/${config_file} ${config_common}
-                ## out_file=${RUNTIME_PREP_DIR}/${out_file_prefix}_${VDATE}_${VHOUR}_${FIG_QC_NAME}.nc
-		## point2grid ${filein_aod} ${filein_mdl_grid} ${out_file} -field 'name="AOD"; level="(*,*)";' -method UW_MEAN -v 2 -qc ${AOD_QC_FLAG}
-                export err=$?; err_chk
-                if [ ${SENDCOM} = "YES" ]; then
-                    cpfile=${RUNTIME_PREP_DIR}/${out_file_prefix}_${VDATE}_${VHOUR}_${FIG_QC_NAME}.nc
-                    if [ -s ${cpfile} ]; then cp -v ${cpfile} ${COMOUTproc}; fi
+  for ObsType in ${grid2grid_list}; do
+    export ObsType
+    export OBSTYPE=`echo ${ObsType} | tr a-z A-Z`    # config variable
+
+    for SatId in ${satellite_list}; do
+      export SatId
+      export SATID=$(echo ${SatId} | tr a-z A-Z)    # config variable
+
+      for AOD_SCAN in ${goes_scan_list}; do
+        export AOD_SCAN
+        export Aod_Scan=$(echo ${AOD_SCAN} | tr A-Z a-z)    # config variable
+
+        export RUNTIME_PREP_DIR=${DATA}/prepsave/${ObsType}_${Satid}_${Aod_Scan}_${VDATE}
+        mkdir -p ${RUNTIME_PREP_DIR}
+
+        let ic=0
+        let endvhr=23
+        while [ ${ic} -le ${endvhr} ]; do
+            vldhr=$(printf %2.2d ${ic})
+            checkfile="OR_${OBSTYPE}-L2-${AOD_SCAN}-M*_${SATID}_s${jday}${vldhr}*.nc"
+            obs_file_count=$(find ${DCOMINabi}/GOES_${AOD_SCAN} -name ${checkfile} | wc -l )
+            if [ ${obs_file_count} -ne 0 ]; then
+                export VHOUR=${vldhr}    # config variable
+                ## ls ${DCOMINabi}/GOES_${ADP_SCAN}/${checkfile} > all_hourly_adp_file
+                ## export filein_adp=$(head -n1 all_hourly_adp_file)    # config variable
+                ls ${DCOMINabi}/GOES_${AOD_SCAN}/${checkfile} > all_hourly_aod_file
+                export filein_aod=$(head -n1 all_hourly_aod_file)    # config variable
+                if [ -s ${conf_dir}/${config_file} ]; then
+                    export out_file_prefix=${ObsType}_${AOD_SCAN}_${MODELNAME}_${SatId}
+                    run_metplus.py ${conf_dir}/${config_file} ${config_common}
+                    ## out_file=${RUNTIME_PREP_DIR}/${out_file_prefix}_${VDATE}_${VHOUR}_${AOD_QC_NAME}.nc
+                    ## point2grid ${filein_aod} ${filein_mdl_grid} ${out_file} -field 'name="AOD"; level="(*,*)";' -method UW_MEAN -v 2 -qc ${AOD_QC_FLAG}
+                    export err=$?; err_chk
+                    if [ ${SENDCOM} = "YES" ]; then
+                        cpfile=${RUNTIME_PREP_DIR}/${out_file_prefix}_${VDATE}_${VHOUR}_${AOD_QC_NAME}.nc
+                        if [ -s ${cpfile} ]; then cp -v ${cpfile} ${COMOUTproc}; fi
+                    fi
+                else
+                    echo "WARNING: can not find ${conf_dir}/${config_file}"
                 fi
             else
-                echo "WARNING: can not find ${conf_dir}/${config_file}"
-            fi
-        else
-            if [ ${SENDMAIL} = "YES" ]; then
-                export subject="${OBSTYPE} ${SATID} ${VARID} Hourly Data Missing for EVS ${COMPONENT}"
-                echo "WARNING: No ${OBSTYPE} ${SATID} ${VARID} was avaiable valid ${VDATE}${vldhr}" > mailmsg
-                echo "Missing file is ${checkfile}" >> mailmsg
-                echo "Job ID: $jobid" >> mailmsg
-                cat mailmsg | mail -s "$subject" $MAILTO 
-            fi
+                if [ ${SENDMAIL} = "YES" ]; then
+                    export subject="${OBSTYPE} ${SATID} ${AOD_SCAN} Hourly Data Missing for EVS ${COMPONENT}"
+                    echo "WARNING: No ${OBSTYPE} ${SATID} ${AOD_SCAN} was avaiable valid ${VDATE}${vldhr}" > mailmsg
+                    echo "Missing file is ${checkfile}" >> mailmsg
+                    echo "Job ID: $jobid" >> mailmsg
+                    cat mailmsg | mail -s "$subject" $MAILTO 
+                fi
     
-            echo "WARNING: No ${OBSTYPE} ${SATID} ${VARID} was avaiable valid ${VDATE}${vldhr}"
-            echo "WARNING: Missing file is ${checkfile}"
-        fi
-        ((ic++))
-    done
+                echo "WARNING: No ${OBSTYPE} ${SATID} ${AOD_SCAN} was avaiable valid ${VDATE}${vldhr}"
+                echo "WARNING: Missing file is ${checkfile}"
+            fi
+            ((ic++))
+        done  # vldhr
+      done  # AOD_SCAN
+    done  # SatId
+  done  # ObsType
 else
     if [ ${SENDMAIL} = "YES" ]; then
         export subject="${MODELNAME} ${VARID} NC Output Missing for EVS ${COMPONENT}"
@@ -127,13 +153,13 @@ fi
 
 if [ 1 -eq 2 ]; then   ## keep for future one email format
     if [ ${SENDMAIL} = "YES" ]; then
-        export subject="${MODELNAME} ${VARID} NC Output Missing for EVS ${COMPONENT}"
-        echo "WARNING: No ${MODELNAME} ${VARID} NC output was avaiable valid ${VDATE}" > mailmsg
+        export subject="${MODELNAME} ${AOD_SCAN} NC Output Missing for EVS ${COMPONENT}"
+        echo "WARNING: No ${MODELNAME} ${AOD_SCAN} NC output was avaiable valid ${VDATE}" > mailmsg
         echo "Job ID: $jobid" >> mailmsg
         cat mailmsg | mail -s "$subject" $MAILTO 
     fi
 
-    echo "WARNING: No ${MODELNAME} ${VARID} grid2 output was avaiable valid ${VDATE}"
+    echo "WARNING: No ${MODELNAME} ${AOD_SCAN} grid2 output was avaiable valid ${VDATE}"
 fi
 exit
 

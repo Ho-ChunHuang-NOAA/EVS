@@ -39,16 +39,18 @@ export fcstmax=72
 export CMODEL=$(echo ${MODELNAME} | tr a-z A-Z)
 echo ${CMODEL}
 
-export FIG_QC_NAME="high"    # config variable
-
 export CONFIGevs=${CONFIGevs:-${PARMevs}/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}}
 export config_common=${PARMevs}/metplus_config/machine.conf
 
+if [ "${AOD_QC_NAME}" != "high" ] && [ "${AOD_QC_NAME}" != "medium" ]; then
+    export AOD_QC_NAME="high"    # config variable, use default for QC not expected.
+fi
+
 grid2grid_list="${DATA_TYPE}"
 
-satellite_list="${SATELLITE_TYPE}"
+satellite_list="${satellite_name}"
 
-goes_scan_list="${SCAN_TYPE}"
+goes_scan_list="${AOD_SCAN_TYPE}"
 
 export vld_cyc="06 12"
 
@@ -65,18 +67,16 @@ for ObsType in ${grid2grid_list}; do
        *)  export obs_var=aod;;
   esac
 
-  export RUNTIME_STATS=${DATA}/grid_stat/${ObsType}_${VDATE}${vhr}  # config variable
-  mkdir -p ${RUNTIME_STATS}
-  recorded_temp_list=${RUNTIME_STATS}/fcstlist_in_metplus
-
+  export VarId=${obs_var}
+  export VARID=$(echo ${VarId} | tr a-z A-Z)    # config variable
 
   for SatId in ${satellite_list}; do
     export SatId
     export SATID=$(echo ${SatId} | tr a-z A-Z)    # config variable
 
-    for VarId in ${obs_var}; do
-      export VarId
-      export VARID=$(echo ${VarId} | tr a-z A-Z)    # config variable
+    for AOD_SCAN in ${goes_scan_list}; do
+      export AOD_SCAN
+      export Aod_Scan=$(echo ${AOD_SCAN} | tr A-Z a-z)    # config variable
 
       case ${VarId} in
            aod) grid_stat_conf_file=GridStat_fcst${VARID}_obs${OBSTYPE}.conf
@@ -89,7 +89,12 @@ for ObsType in ${grid2grid_list}; do
                 stat_output_index=aod;;
       esac
 
-      check_file=${EVSINaqm}/${RUN}.${VDATE}/${MODELNAME}/${ObsType}_${VARID}_${MODELNAME}_${SatId}_${VDATE}_${vhr}.nc
+      export RUNTIME_STATS=${DATA}/grid_stat/${ObsType}_${SatId}_${Aod_Scan}_${VDATE}${vhr}  # config variable
+      mkdir -p ${RUNTIME_STATS}
+      recorded_temp_list=${RUNTIME_STATS}/fcstlist_in_metplus
+
+
+      check_file=${EVSINaqm}/${RUN}.${VDATE}/${MODELNAME}/${ObsType}_${AOD_SCAN}_${MODELNAME}_${SatId}_${VDATE}_${vhr}_${AOD_QC_NAME}.nc
       obs_hourly_found=0
       if [ -s ${check_file} ]; then
         obs_hourly_found=1
@@ -116,8 +121,8 @@ for ObsType in ${grid2grid_list}; do
           export bctag="_${biastyp}"
         fi
         export bcout="_${biastyp}"
-        export OutputId=${MODELNAME}_${biastyp}_${SatId}${VarId}            # config variable
-        export StatFileId=${NET}.${STEP}.${MODELNAME}_${biastyp}.${RUN}.${VERIF_CASE}_${ObsType}_${SatId}${VarId} # config variable
+        export OutputId=${MODELNAME}_${biastyp}_${SatId}${Aod_Scan}            # config variable
+        export StatFileId=${NET}.${STEP}.${MODELNAME}_${biastyp}.${RUN}.${VERIF_CASE}_${ObsType}_${SatId}${Aod_Scan} # config variable
     
         # check to see that model files exist, and list which forecast hours are to be used
         #
@@ -205,7 +210,7 @@ for ObsType in ${grid2grid_list}; do
           fi
         fi
       done  ## biastyp loop
-    done  ## VarId loop
+    done  ## AOD_SCAN loop
   done  ## SatId loop
 done  ## ObsType loop
 
