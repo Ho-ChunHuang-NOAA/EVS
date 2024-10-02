@@ -39,12 +39,16 @@ export fcstmax=72
 export CMODEL=$(echo ${MODELNAME} | tr a-z A-Z)
 echo ${CMODEL}
 
+export FIG_QC_NAME="high"    # config variable
+
 export CONFIGevs=${CONFIGevs:-${PARMevs}/metplus_config/${STEP}/${COMPONENT}/${VERIF_CASE}}
 export config_common=${PARMevs}/metplus_config/machine.conf
 
 grid2grid_list="${DATA_TYPE}"
 
 satellite_list="${SATELLITE_TYPE}"
+
+goes_scan_list="${SCAN_TYPE}"
 
 export vld_cyc="06 12"
 

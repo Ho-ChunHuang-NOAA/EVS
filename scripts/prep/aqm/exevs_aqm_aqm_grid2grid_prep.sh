@@ -50,6 +50,7 @@ export VARID=$(echo ${output_var} | tr a-z A-Z)    # config variable
 
 # AOD quality flag 0:high 1:medium 3:low 0,1: high+medium,...etc
 export AOD_QC_FLAG="0"    # config variable
+export FIG_QC_NAME="high"    # config variable
 
 num_mdl_grid=0
 declare -a cyc_opt=( 06 12 )
@@ -87,11 +88,11 @@ if [ "${num_mdl_grid}" != "0" ]; then
             if [ -s ${conf_dir}/${config_file} ]; then
 	        export out_file_prefix=${DATA_TYPE}_${AOD_SCAN}_${MODELNAME}_${satellite_name}
                 run_metplus.py ${conf_dir}/${config_file} ${config_common}
-                ## out_file=${RUNTIME_PREP_DIR}/${out_file_prefix}_${VDATE}_${VHOUR}.nc
+                ## out_file=${RUNTIME_PREP_DIR}/${out_file_prefix}_${VDATE}_${VHOUR}_${FIG_QC_NAME}.nc
 		## point2grid ${filein_aod} ${filein_mdl_grid} ${out_file} -field 'name="AOD"; level="(*,*)";' -method UW_MEAN -v 2 -qc ${AOD_QC_FLAG}
                 export err=$?; err_chk
                 if [ ${SENDCOM} = "YES" ]; then
-                    cpfile=${RUNTIME_PREP_DIR}/${out_file_prefix}_${VDATE}_${VHOUR}.nc
+                    cpfile=${RUNTIME_PREP_DIR}/${out_file_prefix}_${VDATE}_${VHOUR}_${FIG_QC_NAME}.nc
                     if [ -s ${cpfile} ]; then cp -v ${cpfile} ${COMOUTproc}; fi
                 fi
             else
