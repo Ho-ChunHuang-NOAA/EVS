@@ -89,7 +89,7 @@ for ObsType in ${grid2grid_list}; do
                 stat_output_index=aod;;
       esac
 
-      export RUNTIME_STATS=${DATA}/grid_stat/${ObsType}_${SatId}_${Aod_Scan}_${VDATE}${vhr}  # config variable
+      export RUNTIME_STATS=${DATA}/grid_stat/${ObsType}_${SatId}_${Aod_Scan}_${AOD_QC_NAME}_${VDATE}${vhr}  # config variable
       mkdir -p ${RUNTIME_STATS}
       recorded_temp_list=${RUNTIME_STATS}/fcstlist_in_metplus
 
