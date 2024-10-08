@@ -174,7 +174,7 @@ def merge_grid2grid_long_term_stats_datasets(logger, stat_base_dir,
                         ignore_index=True
                     )
             else:
-                logger.warning(f"{model_verif_sys_file_name} does not exist")
+                logger.debug(f"{model_verif_sys_file_name} does not exist")
         if time_range == 'monthly':
             model_merged_df = pd.DataFrame(
                 index=pd.MultiIndex.from_product(
@@ -254,6 +254,12 @@ def merge_grid2grid_long_term_stats_datasets(logger, stat_base_dir,
             else:
                 model_merged_verif_sys_date_dt_values = (
                     model_verif_sys_date_dt_df.values[0]
+                )
+            if evs_var_name == 'UGRD_VGRD':
+                model_merged_verif_sys_date_dt_values[2:] = np.asarray(
+                    np.asarray(model_merged_verif_sys_date_dt_values[2:],
+                               dtype=float) * 1.94384449412,
+                    dtype=str
                 )
             if time_range == 'monthly':
                 model_merged_df.loc[(model,f"{date_dt:%Y%m}")] = (
@@ -367,7 +373,7 @@ def merge_precip_long_term_stats_datasets(logger, stat_base_dir,
                         ignore_index=True
                     )
             else:
-                logger.warning(f"{model_verif_sys_file_name} does not exist")
+                logger.debug(f"{model_verif_sys_file_name} does not exist")
         if time_range == 'monthly':
             model_merged_df = pd.DataFrame(
                 index=pd.MultiIndex.from_product(

@@ -6,7 +6,6 @@
 #PBS -l walltime=00:15:00
 #PBS -l place=shared,select=1:ncpus=1:mem=5GB
 #PBS -l debug=true
-#PBS -V
 
 set -x 
 
@@ -43,7 +42,7 @@ export SENDCOM=${SENDCOM:-YES}
 export SENDECF=${SENDECF:-YES}
 export SENDDBN=${SENDDBN:-NO}
 export KEEPDATA=${KEEPDATA:-YES}
-export SENDMAIL=YES
+export SENDMAIL=${SENDMAIL:-YES}
 
 export MAILTO='alicia.bentley@noaa.gov,samira.ardani@noaa.gov'
 
@@ -62,7 +61,7 @@ export SITE=$(cat /etc/cluster_name)
 ############################################################
 # CALL executable job script here
 ############################################################
-$HOMEevs/jobs/JEVS_NFCENS_WAVE_GRID2OBS_PREP
+$HOMEevs/jobs/JEVS_NFCENS_PREP
 
 ######################################################################
 # Purpose: This does the prep work for the NFCENS wave model

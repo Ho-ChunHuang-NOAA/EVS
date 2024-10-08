@@ -296,15 +296,21 @@ def get_stat_file_line_type_columns(logger, met_version, line_type):
             'TOTAL', 'FABAR', 'OABAR', 'FOABAR', 'FFABAR', 'OOABAR', 'MAE'
          ]
    elif line_type == 'VL1L2':
-      if met_version <= 6.1:
+      if met_version >= 12.0:
          stat_file_line_type_columns = [
             'TOTAL', 'UFBAR', 'VFBAR', 'UOBAR', 'VOBAR', 'UVFOBAR',
-            'UVFFBAR', 'UVOOBAR'
+            'UVFFBAR', 'UVOOBAR', 'F_SPEED_BAR', 'O_SPEED_BAR', 'DIR_ME',
+            'DIR_MAE', 'DIR_MSE'
          ]
       elif met_version >= 7.0:
          stat_file_line_type_columns = [
             'TOTAL', 'UFBAR', 'VFBAR', 'UOBAR', 'VOBAR', 'UVFOBAR',
             'UVFFBAR', 'UVOOBAR', 'F_SPEED_BAR', 'O_SPEED_BAR'
+         ]
+      elif met_version <= 6.1:
+         stat_file_line_type_columns = [
+            'TOTAL', 'UFBAR', 'VFBAR', 'UOBAR', 'VOBAR', 'UVFOBAR',
+            'UVFFBAR', 'UVOOBAR'
          ]
    elif line_type == 'VAL1L2':
       if met_version >= 6.0:
@@ -350,12 +356,15 @@ def get_stat_file_line_type_columns(logger, met_version, line_type):
             'O_RATE', 'O_RATE_BCL', 'O_RATE_BCU'
          ]
    elif line_type == 'ECNT':
-      if met_version < 11.0:
+      if met_version >= 12.0:
          stat_file_line_type_columns = [
-            'TOTAL', 'N_ENS', 'CRPS', 'CRPSS', 'IGN', 'ME', 'RMSE', 'SPREAD',
-            'ME_OERR', 'RMSE_OERR', 'SPREAD_OERR', 'SPREAD_PLUS_OERR',
-            'CRPSCL', 'CRPS_EMP', 'CRPSCL_EMP', 'CRPSS_EMP'
-         ]
+             'TOTAL', 'N_ENS', 'CRPS', 'CRPSS', 'IGN', 'ME', 'RMSE', 'SPREAD',
+             'ME_OERR', 'RMSE_OERR', 'SPREAD_OERR', 'SPREAD_PLUS_OERR',
+             'CRPSCL', 'CRPS_EMP', 'CRPSCL_EMP', 'CRPSS_EMP',
+             'CRPS_EMP_FAIR', 'SPREAD_MD', 'MAE', 'MAE_OERR', 'BIAS_RATIO',
+             'N_GE_OBS', 'ME_GE_OBS', 'N_LT_OBS', 'ME_LT_OBS', 'IGN_CONV_OERR',
+             'IGN_CORR_OERR'
+         ] 
       elif met_version >= 11.0:
          stat_file_line_type_columns = [
              'TOTAL', 'N_ENS', 'CRPS', 'CRPSS', 'IGN', 'ME', 'RMSE', 'SPREAD',
@@ -364,6 +373,12 @@ def get_stat_file_line_type_columns(logger, met_version, line_type):
              'CRPS_EMP_FAIR', 'SPREAD_MD', 'MAE', 'MAE_OERR', 'BIAS_RATIO',
              'N_GE_OBS', 'ME_GE_OBS', 'N_LT_OBS', 'ME_LT_OBS'
          ] 
+      else:
+         stat_file_line_type_columns = [
+            'TOTAL', 'N_ENS', 'CRPS', 'CRPSS', 'IGN', 'ME', 'RMSE', 'SPREAD',
+            'ME_OERR', 'RMSE_OERR', 'SPREAD_OERR', 'SPREAD_PLUS_OERR',
+            'CRPSCL', 'CRPS_EMP', 'CRPSCL_EMP', 'CRPSS_EMP'
+         ]
    elif line_type == 'PSTD':
       if met_version >= 6.0:
          stat_file_line_type_columns = [
@@ -745,22 +760,24 @@ def calculate_bootstrap_ci(logger, bs_method, model_data, stat, nrepl, level,
          oobar = model_data.loc[:]['OOBAR']
          if bool_convert:
              coef, const = conversion
-             fbar = coef*fbar+const
-             obar = coef*obar+const
+             fbar_og = fbar
+             obar_og = obar
+             fbar = coef*fbar_og+const
+             obar = coef*obar_og+const
              fobar = (
                 np.power(coef, 2)*fobar
-                + coef*const*fbar
-                + coef*const*obar
+                + coef*const*fbar_og
+                + coef*const*obar_og
                 + np.power(const, 2)
              )
              ffbar = (
                 np.power(coef, 2)*ffbar
-                + 2.*coef*const*fbar
+                + 2.*coef*const*fbar_og
                 + np.power(const, 2)
              )
              oobar = (
                 np.power(coef, 2)*oobar
-                + 2.*coef*const*obar
+                + 2.*coef*const*obar_og
                 + np.power(const, 2)
              )
       elif all(elem in model_data_columns for elem in 
@@ -798,23 +815,27 @@ def calculate_bootstrap_ci(logger, bs_method, model_data, stat, nrepl, level,
          uvoobar = model_data.loc[:]['UVOOBAR']
          if bool_convert:
              coef, const = conversion
-             ufbar = coef*ufbar+const
-             vfbar = coef*vfbar+const
-             uobar = coef*uobar+const
-             vobar = coef*vobar+const
+             ufbar_og = ufbar
+             vfbar_og = vfbar
+             uobar_og = uobar
+             vobar_og = vobar
+             ufbar = coef*ufbar_og+const
+             vfbar = coef*vfbar_og+const
+             uobar = coef*uobar_og+const
+             vobar = coef*vobar_og+const
              uvfobar = (
                 np.power(coef, 2)*uvfobar
-                + coef*const*(ufbar + uobar + vfbar + vobar)
+                + coef*const*(ufbar_og + uobar_og + vfbar_og + vobar_og)
                 + np.power(const, 2)
              )
              uvffbar = (
                 np.power(coef, 2)*uvffbar
-                + 2.*coef*const*(ufbar + vfbar)
+                + 2.*coef*const*(ufbar_og + vfbar_og)
                 + np.power(const, 2)
              )
              uvoobar = (
                 np.power(coef, 2)*uvoobar
-                + 2.*coef*const*(uobar + vobar)
+                + 2.*coef*const*(uobar_og + vobar_og)
                 + np.power(const, 2)
              )
       elif all(elem in model_data_columns for elem in 
@@ -1591,22 +1612,24 @@ def calculate_stat(logger, model_data, stat, conversion):
          mae   = model_data.loc[:]['MAE']
          if bool_convert:
              coef, const = conversion
-             fbar = coef*fbar+const
-             obar = coef*obar+const
+             fbar_og = fbar
+             obar_og = obar
+             fbar = coef*fbar_og+const
+             obar = coef*obar_og+const
              fobar = (
                 np.power(coef, 2)*fobar
-                + coef*const*fbar
-                + coef*const*obar
+                + coef*const*fbar_og
+                + coef*const*obar_og
                 + np.power(const, 2)
              )
              ffbar = (
                 np.power(coef, 2)*ffbar
-                + 2.*coef*const*fbar
+                + 2.*coef*const*fbar_og
                 + np.power(const, 2)
              )
              oobar = (
                 np.power(coef, 2)*oobar
-                + 2.*coef*const*obar
+                + 2.*coef*const*obar_og
                 + np.power(const, 2)
              )
       elif all(elem in model_data_columns for elem in 
@@ -1642,23 +1665,27 @@ def calculate_stat(logger, model_data, stat, conversion):
          uvoobar = model_data.loc[:]['UVOOBAR']
          if bool_convert:
              coef, const = conversion
-             ufbar = coef*ufbar+const
-             vfbar = coef*vfbar+const
-             uobar = coef*uobar+const
-             vobar = coef*vobar+const
+             ufbar_og = ufbar
+             vfbar_og = vfbar
+             uobar_og = uobar
+             vobar_og = vobar
+             ufbar = coef*ufbar_og+const
+             vfbar = coef*vfbar_og+const
+             uobar = coef*uobar_og+const
+             vobar = coef*vobar_og+const
              uvfobar = (
                 np.power(coef, 2)*uvfobar
-                + coef*const*(ufbar + uobar + vfbar + vobar)
+                + coef*const*(ufbar_og + uobar_og + vfbar_og + vobar_og)
                 + np.power(const, 2)
              )
              uvffbar = (
                 np.power(coef, 2)*uvffbar
-                + 2.*coef*const*(ufbar + vfbar)
+                + 2.*coef*const*(ufbar_og + vfbar_og)
                 + np.power(const, 2)
              )
              uvoobar = (
                 np.power(coef, 2)*uvoobar
-                + 2.*coef*const*(uobar + vobar)
+                + 2.*coef*const*(uobar_og + vobar_og)
                 + np.power(const, 2)
              )
       elif all(elem in model_data_columns for elem in 

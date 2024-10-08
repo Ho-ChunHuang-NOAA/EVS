@@ -3,7 +3,7 @@
 #PBS -S /bin/bash
 #PBS -q dev
 #PBS -A VERF-DEV
-#PBS -l walltime=02:00:00
+#PBS -l walltime=02:30:00
 #PBS -l place=vscatter,select=1:ncpus=60:mem=100GB
 #PBS -l debug=true
 
@@ -37,6 +37,6 @@ export job=${PBS_JOBNAME:-jevs_${MODELNAME}_${VERIF_CASE}_${STEP}}
 export jobid=$job.${PBS_JOBID:-$$}
 export OMP_NUM_THREADS=1
 #export SENDMAIL=YES
-export MAILTO='alicia.bentley@noaa.gov,steven.simon@noaa.gov'
+export MAILTO='alicia.bentley@noaa.gov,lichuan.chen@noaa.gov'
 
 ${HOMEevs}/jobs/JEVS_GLOBAL_ENS_STATS

@@ -295,15 +295,21 @@ def get_stat_file_line_type_columns(logger, met_version, line_type):
             'TOTAL', 'FABAR', 'OABAR', 'FOABAR', 'FFABAR', 'OOABAR', 'MAE'
          ]
    elif line_type == 'VL1L2':
-      if met_version <= 6.1:
+      if met_version >= 12.0:
          stat_file_line_type_columns = [
             'TOTAL', 'UFBAR', 'VFBAR', 'UOBAR', 'VOBAR', 'UVFOBAR',
-            'UVFFBAR', 'UVOOBAR'
+            'UVFFBAR', 'UVOOBAR', 'F_SPEED_BAR', 'O_SPEED_BAR', 'DIR_ME', 
+            'DIR_MAE', 'DIR_MSE'
          ]
       elif met_version >= 7.0:
          stat_file_line_type_columns = [
             'TOTAL', 'UFBAR', 'VFBAR', 'UOBAR', 'VOBAR', 'UVFOBAR',
             'UVFFBAR', 'UVOOBAR', 'F_SPEED_BAR', 'O_SPEED_BAR'
+         ]
+      elif met_version <= 6.1:
+         stat_file_line_type_columns = [
+            'TOTAL', 'UFBAR', 'VFBAR', 'UOBAR', 'VOBAR', 'UVFOBAR',
+            'UVFFBAR', 'UVOOBAR'
          ]
    elif line_type == 'VAL1L2':
       if met_version >= 6.0:
@@ -1216,7 +1222,7 @@ def calculate_bootstrap_ci(logger, bs_method, model_data, stat, nrepl, level,
                ffbar_est_samp + oobar_est_samp - 2*fobar_est_samp
             )
             stat_values = 100 * stat_values_rmse / obar_est_mean
-            stat_values = stat_values[stat_values<=200]  #get rid of infinite values
+            stat_values = stat_values[stat_values<=500]  #get rid of infinite values
    else:
       logger.error("FATAL ERROR: "+stat+" is not a valid option")
       sys.exit(1)
@@ -1518,7 +1524,7 @@ def calculate_stat(logger, model_data, stat):
    elif stat == 'si':
        if line_type == 'SL1L2':
            stat_values = 100*(np.sqrt(ffbar + oobar - 2*fobar))/obar
-           stat_values = stat_values[stat_values<=200]  #get rid of infinite values
+           stat_values = stat_values[stat_values<=500]  #get rid of infinite values
    else:
       logger.error("FATAL ERROR: "+stat+" is not a valid option")
       sys.exit(1)

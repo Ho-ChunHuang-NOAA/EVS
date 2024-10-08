@@ -6,7 +6,6 @@
 #PBS -l walltime=01:00:00
 #PBS -l place=vscatter,select=1:ncpus=59:ompthreads=1:mem=70GB
 #PBS -l debug=true
-#PBS -V
 
 set -x
 
@@ -60,5 +59,6 @@ $HOMEevs/jobs/JEVS_SUBSEASONAL_STATS
 
 ######################################################################
 # Purpose: The job and task scripts work together to generate the
-#          subseasonal verification grid-to-grid statistics for the GEFS model#          and create the stat files in the databases.
+#          subseasonal verification grid-to-grid statistics for the GEFS model
+#          and create the stat files in the databases.
 ######################################################################

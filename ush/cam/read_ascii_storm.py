@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
-
 ###############################################################################
 # Name of Script: read_ascii_storm.py
-# Contact(s):     Logan C. Dawson (logan.dawson@noaa.gov)
+# Contact(s):     Marcel G. Caron (marcel.caron@noaa.gov)
 # Purpose of Script: Read SPC LSR data in csv format and output to 
 #                    a MET-compatible netcdf file
-#
 # History Log:
 #   1/2023: Script copied from METplus repository
 ###############################################################################
@@ -51,7 +49,7 @@ COLUMN_NAMES = (
 point_frame = pd.DataFrame(columns=COLUMN_NAMES,dtype='str')
 
 #Read in the Storm report, 8 columns not matching the 11 column standard
-temp_data = pd.read_csv(input_file,names=['Time', 'Fscale', 'Location', 'County','Stat','Lat', 'Lon', 'Comment'], dtype=str ,skiprows=1)
+temp_data = pd.read_csv(input_file,names=['Time', 'Fscale', 'Location', 'County','Stat','Lat', 'Lon', 'Comment'], dtype=str ,skiprows=1, on_bad_lines='warn')
 
 #Strip out any rows in the middle that are actually header rows
 #Allows for concatenating storm reports together

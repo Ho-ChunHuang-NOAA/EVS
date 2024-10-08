@@ -4,7 +4,7 @@
 #PBS -q dev
 #PBS -A VERF-DEV
 #PBS -l walltime=02:00:00
-#PBS -l place=vscatter,select=1:ncpus=4:mem=100GB
+#PBS -l place=vscatter,select=1:ncpus=30:mem=100GB
 #PBS -l debug=true
 
 
@@ -40,7 +40,7 @@ export job=${PBS_JOBNAME:-jevs_${MODELNAME}_${VERIF_CASE}_${STEP}}
 export jobid=$job.${PBS_JOBID:-$$}
 
 
-export MAILTO='alicia.bentley@noaa.gov,binbin.zhou@noaa.gov'
+export MAILTO='andrew.benjamin@noaa.gov,binbin.zhou@noaa.gov'
 
 if [ -z "$MAILTO" ]; then
 
