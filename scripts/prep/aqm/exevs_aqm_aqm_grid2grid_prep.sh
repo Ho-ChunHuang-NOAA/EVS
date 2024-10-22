@@ -93,7 +93,7 @@ if [ "${num_mdl_grid}" != "0" ]; then
         export AOD_SCAN
         export Aod_Scan=$(echo ${AOD_SCAN} | tr A-Z a-z)    # config variable
 
-        export RUNTIME_PREP_DIR=${DATA}/prepsave/${ObsType}_${Satid}_${Aod_Scan}_${AOD_QC_NAME}_${VDATE}
+        export RUNTIME_PREP_DIR=${DATA}/prepsave/${ObsType}_${SatId}_${Aod_Scan}_${AOD_QC_NAME}_${VDATE}
         mkdir -p ${RUNTIME_PREP_DIR}
 
         let ic=0
