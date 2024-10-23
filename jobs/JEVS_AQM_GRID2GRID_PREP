@@ -85,6 +85,8 @@ else
         ## export DCOMINabi=${DCOMINabi:-${DCOMROOT}/${VDATE}/goes_abi}
         export DCOMINabi=${DCOMINabi:-/lfs/h1/ops/dev/dcom/${VDATE}/goes_abi}
         export satellite_name=${satellite_name:-g16}
+        export GOES_EAST=${GOES_EAST:-g16}
+        export GOES_WEST=${GOES_WEST:-g18}
         export AOD_SCAN_TYPE=${AOD_SCAN_TYPE:-AODC}
         export ADP_SCAN_TYPE=${ADP_SCAN_TYPE:-ADPC}
         export AOD_QC_NAME=${AOD_QC_NAME:-high}
