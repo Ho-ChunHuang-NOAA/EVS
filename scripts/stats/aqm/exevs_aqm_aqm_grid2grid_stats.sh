@@ -46,18 +46,21 @@ if [ "${AOD_QC_NAME}" != "high" ] && [ "${AOD_QC_NAME}" != "medium" ]; then
     export AOD_QC_NAME="high"    # config variable, use default for QC not expected.
 fi
 
-grid2grid_list="${DATA_TYPE}"
+declare -a grid2grid_list=( ${DATA_TYPE} )
+num_obs=${#grid2grid_list[@]}
 
-satellite_list="${satellite_name}"
+declare -a satellite_list=( join )
+num_sat=${#satellite_list[@]}
 
-goes_scan_list="${AOD_SCAN_TYPE}"
+declare -a goes_scan_list=( ${AOD_SCAN_TYPE} )
+num_scan=${#goes_scan_list[@]}
 
 export vld_cyc="06 12"
 
 flag_send_message=NO
 if [ -e mailmsg ]; then /bin/rm -f mailmsg; fi
 
-for ObsType in ${grid2grid_list}; do
+for ObsType in "${grid2grid_list[@]}"; do
   export ObsType
   export OBSTYPE=`echo ${ObsType} | tr a-z A-Z`    # config variable
 
@@ -70,11 +73,11 @@ for ObsType in ${grid2grid_list}; do
   export VarId=${obs_var}
   export VARID=$(echo ${VarId} | tr a-z A-Z)    # config variable
 
-  for SatId in ${satellite_list}; do
+  for SatId in "${satellite_list[@]}"; do
     export SatId
     export SATID=$(echo ${SatId} | tr a-z A-Z)    # config variable
 
-    for AOD_SCAN in ${goes_scan_list}; do
+    for AOD_SCAN in "${goes_scan_list[@]}"; do
       export AOD_SCAN
       export Aod_Scan=$(echo ${AOD_SCAN} | tr A-Z a-z)    # config variable
 
