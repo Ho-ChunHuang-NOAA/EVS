@@ -14,7 +14,7 @@
 ###   06/04/2025   Ho-Chun Huang  mv from global_ens to global_chem
 ###   10/07/2025   Ho-Chun Huang  Revise code for GCAFSv1 naming and data structure
 ###   10/16/2025   Ho-Chun Huang  Add PM10 stats for GCAFSv1
-###   12/05/2025   Ho-Chun Huang  add restart function and non-zero size copyin
+###   12/05/2025   Ho-Chun Huang  add restart function and non-zero size copying
 ###
 ########################################################################
 set -x
@@ -117,7 +117,7 @@ for ObsType in ${grid2obs_list}; do
           filehr=$(printf %3.3d ${ihr})    ## fhr of grib2 filename is in 3 digit
           fhr=$(printf %2.2d ${ihr})       ## fhr for the processing valid hour is in 2 digit
           export fhr
-      
+
           export datehr=${VDATE}${vhr}
           adate=`${NDATE} -${ihr} ${datehr}`
           aday=`echo ${adate} |cut -c1-8`
@@ -181,7 +181,7 @@ for ObsType in ${grid2obs_list}; do
         cd ${finalstat}
         run_metplus.py ${stat_analysis_conf_file} ${config_common}
         export err=$?; err_chk
-        if [ ${SENDCOM} = "YES" ]; then
+        if [ "${SENDCOM}" == "YES" ]; then
           cpfile=${finalstat}/${StatFileId}.v${VDATE}.stat
           if [ -s ${cpfile} ]; then
             mkdir -p ${COMOUTfinal}
