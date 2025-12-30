@@ -164,7 +164,7 @@ for mdl_cyc in "${cyc_opt[@]}"; do
         let max_hour=120
         while [ ${hour_now} -le ${max_hour} ]; do
             fhr=`printf %3.3d ${hour_now}`
-            mdl_full_grib2="${MODELNAME}.t${mdl_cyc}z.pgrb2.0p25.f${fhr}"
+            mdl_full_grib2="${MODELNAME}.t${mdl_cyc}z.pres_a.0p25.f${fhr}.grib2"
             mdl_trim_grib2="${MODELNAME}.${RUN}.t${mdl_cyc}z.0p25.f${fhr}.trim.grib2"
             check_full_file=${com_gc_mdl}/${mdl_full_grib2}
             check_trim_file=${com_gc_mdl}/${mdl_trim_grib2}
