@@ -7,7 +7,6 @@
 ## CONTRIBUTORS: Ho-Chun Huang, ho-chun.huang@noaa.gov, NOAA/NWS/NCEP/EMC-VPPPGB
 ## PURPOSE: Set up configurations to run EVS Global Chemistry standalone
 ##---------------------------------------------------------------------------
-##--------------------------------------------------------------------------
 
 set -x
 
