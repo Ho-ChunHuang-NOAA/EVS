@@ -34,11 +34,7 @@ cd $DATA
 setpdy.sh
 . ./PDY
 
-export envir=${envir:-prod}
-
 # Define COMIN/COMOUT variables:
-
-echo ${COMPATH}
 
 export NET=${NET:-evs}
 export STEP=${STEP:-stats}
