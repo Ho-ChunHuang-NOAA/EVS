@@ -76,5 +76,5 @@ else
 fi
 
 #######################################################################
-# Purpose: This does the prep work for the global_chem GEFS-Chem model
+# Purpose: This does the prep work for the global_chem GCAFS model
 #######################################################################
