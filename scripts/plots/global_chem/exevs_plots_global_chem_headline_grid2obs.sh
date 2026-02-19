@@ -122,27 +122,16 @@ export err=$?; err_chk
 if [ "${SENDCOM}" == "YES" ]; then
     # Make and copy tar file
     cd ${DATA}/images
-    headline_tar_name=${DATA}/evs.plots.${COMPONENT}.atmos.${RUN}.v${VDATE_END}.tar
+    headline_tar_combine=evs.plots.${COMPONENT}.atmos.${RUN}.v${VDATE_END}.tar
+    headline_tar_name=${DATA}/${headline_tar_combine}
     tar -cvf ${headline_tar_name} *.png
     if [ -f "${headline_tar_name}" ]; then
         cp -v ${headline_tar_name} ${COMOUT}/.
-    fi
-fi
 
-# Cat the plotting log files
-log_dir=${DATA}/logs
-log_file_count=$(find ${log_dir} -type f |wc -l)
-if [[ ${log_file_count} -ne 0 ]]; then
-    for log_file in ${log_dir}/*; do
-        echo "Start: ${log_file}"
-        cat ${log_file}
-        echo "End: ${log_file}"
-    done
-fi
-
-if [ "${SENDDBN}" = "YES" ]; then
-    headline_tar_name=${COMOUT}/evs.plots.${COMPONENT}.atmos.${RUN}.v${VDATE_END}.tar
-    if [ -f "${headline_tar_name}" ]; then
-        ${DBNROOT}/bin/dbn_alert MODEL EVS_RZDM ${job} ${headline_tar_name}
+        if [ "${SENDDBN}" = "YES" ]; then
+            if [ -f "${headline_tar_name}" ]; then
+                ${DBNROOT}/bin/dbn_alert MODEL EVS_RZDM ${job} ${COMOUT}/${headline_tar_combine}
+            fi
+        fi
     fi
 fi
