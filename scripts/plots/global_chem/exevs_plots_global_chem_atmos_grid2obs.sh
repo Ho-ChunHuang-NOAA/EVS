@@ -170,6 +170,7 @@ if [ "${SENDCOM}" == "YES" ]; then
         fi
         if [ -f ${large_tar_file} ]; then
             cp -v ${large_tar_file} ${COMOUT}/.
+
             if [ "${SENDDBN}" == "YES" ]; then
                 ${DBNROOT}/bin/dbn_alert MODEL EVS_RZDM ${job} ${COMOUT}/${tar_file_combine}
             fi

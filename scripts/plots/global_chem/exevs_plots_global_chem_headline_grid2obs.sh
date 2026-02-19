@@ -129,9 +129,7 @@ if [ "${SENDCOM}" == "YES" ]; then
         cp -v ${headline_tar_name} ${COMOUT}/.
 
         if [ "${SENDDBN}" = "YES" ]; then
-            if [ -f "${headline_tar_name}" ]; then
-                ${DBNROOT}/bin/dbn_alert MODEL EVS_RZDM ${job} ${COMOUT}/${headline_tar_combine}
-            fi
+            ${DBNROOT}/bin/dbn_alert MODEL EVS_RZDM ${job} ${COMOUT}/${headline_tar_combine}
         fi
     fi
 fi
