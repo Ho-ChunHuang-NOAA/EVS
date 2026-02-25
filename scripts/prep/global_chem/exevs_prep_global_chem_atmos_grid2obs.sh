@@ -149,7 +149,8 @@ done
 ##  Backup Global-Chemical reduced output for global_chem_atmos_grid2obs
 ##    stats step due to insuccficent retention time (at least 6 days)
 ########################################################################
-readonly MATCH_AOD=("-match" ":AOTK:" "-match" "aerosol=Total Aerosol" "-match" "aerosol_size <2e-05" "-match" "aerosol_wavelength >=5.5e-07,<=5.5e-07")
+##readonly MATCH_AOD=("-match" ":AOTK:" "-match" "aerosol=Total Aerosol" "-match" "aerosol_size <2e-05" "-match" "aerosol_wavelength >=5.5e-07,<=5.5e-07")
+readonly MATCH_AOD=("-match" ":AOTK:" "-match" "aerosol=Total Aerosol" "-match" "aerosol_size <2e-05" "-match" "aerosol_wavelength >=5.45e-07,<=5.65e-07")
 readonly MATCH_PM25=("-match" "PMTF" "-match" "aerosol=Total Aerosol" "-match" "aerosol_size <2.5e-06")
 readonly MATCH_PM10=("-match" "PMTC" "-match" "aerosol=Total Aerosol" "-match" "aerosol_size <1e-05")
 
