@@ -103,7 +103,7 @@ for imdl in "${!mdl_list[@]}"; do
                 dest_model_date_stat_file=${linked_plot_stat_dir}/${model_name}_${obssrc}_${obsvar}_v${NOW}.stat
                 ln -s ${STATDIR}/${sedfile} ${dest_model_date_stat_file}
             else
-                echo "DEBUG :: Input Stats ${idir}/${target_model}.${NOW}/${cpfile} is missing and it will be skipped"
+                echo "DEBUG :: Input Stats ${idir}/${target_model}.${NOW}/${cpfile} is missing and the missing file will be skipped"
             fi
             cdate=${NOW}"00"
             NOW=$( ${NDATE} +24 ${cdate} | cut -c1-8 )
