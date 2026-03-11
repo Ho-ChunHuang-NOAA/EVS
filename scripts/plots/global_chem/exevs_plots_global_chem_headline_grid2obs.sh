@@ -81,37 +81,34 @@ export plot_plotname_list=$(IFS=,; echo "${plotname_list[*]}")
 # Bringing in all statistics files and rearranging the filename and
 # model ID according to the model name defined in `mdl_list`.
 #
-let imdl=0
-while [ ${imdl} -lt ${#mdl_list[@]} ]; do
-    biasc=$( echo ${mdl_list[${imdl}]} | awk -F"_" '{print $2}' )
-    input_plots_model_name=${mdl_list[${imdl}]}
-    idir=${mdl_idir_list[${imdl}]}
-    linked_plot_stat_dir=${linked_stat_base_dir}/${input_plots_model_name}
+for imdl in "${!mdl_list[@]}"; do
+    model_name=${mdl_list[${imdl}]}
+    linked_plot_stat_dir=${linked_stat_base_dir}/${model_name}
     if [ ! -d ${linked_plot_stat_dir} ]; then mkdir -p ${linked_plot_stat_dir}; fi
-    let ivar=0
-    while [ ${ivar} -lt ${num_obs_type} ]; do
+    idir=${mdl_idir_list[${imdl}]}
+    target_model="${model_name%v[0-9]*}"   ## model name separate by version number started with "v"
+    upper_model="${target_model^^}"     ## Upper case model name as in the stats files
+    for ivar in "${!obstype_list[@]}"; do
         obsvar=${obstype_list[${ivar}]}
         obssrc=${obssrc_list[${ivar}]}
         ## get 2 additional day's stat for day 1 forecast
         cdate=${VDATE_START}"00"
         NOW=$( ${NDATE} -48 ${cdate} | cut -c1-8 )
         while [ ${NOW} -le ${VDATE_END} ]; do
-            cpfile=evs.stats.${MODELNAME}.atmos.${VERIF_CASE}_${obssrc}_${obsvar}.v${NOW}.stat
-            sedfile=${input_plots_model_name}_${obssrc}_${obsvar}.v${NOW}.stat
-            if [ -s ${idir}/${MODELNAME}.${NOW}/${cpfile} ]; then
-                cp -v ${idir}/${MODELNAME}.${NOW}/${cpfile} ${STATDIR}
-                sed "s/${model1}/${input_plots_model_name}/g" ${STATDIR}/${cpfile} > ${STATDIR}/${sedfile}
-                dest_model_date_stat_file=${linked_plot_stat_dir}/${input_plots_model_name}_${obssrc}_${obsvar}_v${NOW}.stat
+            cpfile=evs.stats.${target_model}.atmos.${VERIF_CASE}_${obssrc}_${obsvar}.v${NOW}.stat
+            sedfile=${model_name}_${obssrc}_${obsvar}.v${NOW}.stat
+            if [ -s ${idir}/${target_model}.${NOW}/${cpfile} ]; then
+                cp -v ${idir}/${target_model}.${NOW}/${cpfile} ${STATDIR}
+                sed "s/${upper_model}/${model_name}/g" ${STATDIR}/${cpfile} > ${STATDIR}/${sedfile}
+                dest_model_date_stat_file=${linked_plot_stat_dir}/${model_name}_${obssrc}_${obsvar}_v${NOW}.stat
                 ln -s ${STATDIR}/${sedfile} ${dest_model_date_stat_file}
             else
-                echo "DEBUG :: Input Stats ${idir}/${MODELNAME}.${NOW}/${cpfile} is missing and it will be skipped"
+                echo "DEBUG :: Input Stats ${idir}/${target_model}.${NOW}/${cpfile} is missing and it will be skipped"
             fi
             cdate=${NOW}"00"
             NOW=$( ${NDATE} +24 ${cdate} | cut -c1-8 )
         done
-        ((ivar++))
     done
-    ((imdl++))
 done
 
 # Create headline plots
