@@ -59,19 +59,15 @@ if (( ${#mdl_list[@]} != ${#plotname_list[@]} )); then
 fi
 
 # Export verification type info
-export num_obs_type="${#obstype_list[@]}"
 export plot_obstype_list=$(IFS=,; echo "${obstype_list[*]}")
 
 # Export observation source info
-export num_obs_src="${#obssrc_list[@]}"
 export plot_obssrc_list=$(IFS=,; echo "${obssrc_list[*]}")
 
 # Export model info
-export num_plot_mdl="${#mdl_list[@]}"
 export plot_model_list=$(IFS=,; echo "${mdl_list[*]}")
 
 # Export plot name info
-export num_plot_name="${#plotname_list[@]}"
 export plot_plotname_list=$(IFS=,; echo "${plotname_list[*]}")
 
 #
