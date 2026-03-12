@@ -3,7 +3,7 @@
 Name: global_chem_plots_headline.py
 Contact(s): Ho-Chun Huang (ho-chun.huang@noaa.gov)
 Abstract: This is the driver script for creating headline plots.
-Run By: scripts/plots/exevs_global_chem_headline_grid2obs_plots.sh
+Run By: scripts/plots/global_chem/exevs_global_chem_headline_grid2obs_plots.sh
 '''
 
 import os

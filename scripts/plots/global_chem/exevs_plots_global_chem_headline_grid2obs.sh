@@ -25,9 +25,6 @@ export linked_stat_base_dir=${DATA}/data/headline
 
 mkdir -p ${STATDIR} ${linked_stat_base_dir}
 
-# model1=`echo ${MODELNAME} | tr a-z A-Z`
-# export model1
-
 gcafs_ver_id=$( echo ${gcafs_ver} | awk -F"." '{print $1}' )
 export modelid=${MODELNAME}${gcafs_ver_id}
 #
@@ -112,7 +109,7 @@ for imdl in "${!mdl_list[@]}"; do
 done
 
 # Create headline plots
-python ${USHevs}/global_chem/global_chem_plots_headline.py
+python ${USHevs}/${COMPONENT}/${COMPONENT}_${STEP}_${RUN}.py
 export err=$?; err_chk
 
 # Copy files to desired location
