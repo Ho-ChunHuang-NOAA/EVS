@@ -1,10 +1,10 @@
-#PBS -N jevs_nwps_wave_grid2obs_prep
+#PBS -N jevs_prep_glwu_wave_grid2obs
 #PBS -j oe
 #PBS -S /bin/bash
 #PBS -q dev
 #PBS -A VERF-DEV
 #PBS -l walltime=00:15:00
-#PBS -l select=1:ncpus=1:mem=30GB
+#PBS -l select=1:ncpus=1:mem=5GB
 #PBS -l debug=true
 
 
@@ -12,9 +12,9 @@ set -x
 
 export HOMEevs=/lfs/h2/emc/vpppg/noscrub/$USER/EVS
 
-export MODELNAME=nwps
+export MODELNAME=glwu
 export NET=evs
-export COMPONENT=nwps
+export COMPONENT=glwu
 export STEP=prep
 export RUN=wave
 export VERIF_CASE=grid2obs
@@ -25,7 +25,7 @@ export VERIF_CASE=grid2obs
 
 versionfile=$HOMEevs/versions/run.ver
 . $versionfile
-export model_ver=$nwps_ver
+export model_ver=$glwu_ver
 
 #############################################################
 # Load modules
@@ -54,10 +54,10 @@ export MAILTO='andrew.benjamin@noaa.gov,samira.ardani@noaa.gov'
 # developers directories
 export DATAROOT=/lfs/h2/emc/stmp/${USER}/evs_test/$envir/tmp
 export OUTPUTROOT=/lfs/h2/emc/vpppg/noscrub/$USER
-export COMIN=/lfs/h2/emc/vpppg/noscrub/${USER}/${NET}/${evs_ver_2d}
-export COMOUT=${OUTPUTROOT}/${NET}/${evs_ver_2d}/${STEP}/${COMPONENT}/${RUN}
+export COMIN=/lfs/h2/emc/vpppg/noscrub/${USER}/${NET}_devonly/${evs_ver_2d}
+export COMOUT=${OUTPUTROOT}/${NET}_devonly/${evs_ver_2d}/${STEP}/${COMPONENT}/${RUN}
 
-export job=${PBS_JOBNAME:-jevs_nwps_wave_grid2obs_prep}
+export job=${PBS_JOBNAME:-jevs_${STEP}_${COMPONENT}_${RUN}_${VERIF_CASE}}
 export jobid=$job.${PBS_JOBID:-$$}
 export TMPDIR=$DATAROOT
 export SITE=$(cat /etc/cluster_name)
@@ -65,10 +65,10 @@ export SITE=$(cat /etc/cluster_name)
 ############################################################
 # CALL executable job script here
 #############################################################
-$HOMEevs/jobs/JEVS_NWPS_PREP
+$HOMEevs/jobs/JEVS_PREP_GLWU
 
 #######################################################################
-# Purpose: This does the prep work for the NWPS wave model
+# Purpose: This does the prep work for the GLWU wave model
 # Author: Samira Ardani (samira.ardani@NOAA.gov)
 #######################################################################
 
