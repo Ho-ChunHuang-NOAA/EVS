@@ -1,4 +1,4 @@
-export evs_ver=v2.0.6
+#export evs_ver=v2.0.10
 
 export bacio_ver=2.4.1
 export bufr_ver=12.2.0
@@ -36,6 +36,8 @@ export w3emc_ver=2.12.0
 export wgrib2_ver=2.0.8
 export zlib_ver=1.2.11
 
+export aigefs_ver=v1.0
+export aigfs_ver=v1.0
 export aqm_ver=v7.0
 export ccpa_ver=v4.2
 export cfs_ver=v2.3
