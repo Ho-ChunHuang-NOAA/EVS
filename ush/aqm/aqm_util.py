@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 '''
 Name: aqm_util.py
-Original Author: Mallory Row (mallory.row@noaa.gov)
 Contact(s): Ho-Chun Huang (ho-chun.huang@noaa.gov)
 Abstract: This contains many functions used across aqm.
 '''
@@ -1581,6 +1580,8 @@ def check_plot_files(job_dict):
             plot_info_list = list(itertools.product(var_info))
         elif job_dict['plot'] == 'valid_hour_average_fhr_mean':
             plot_info_list = list(itertools.product(var_info))
+        elif job_dict['plot'] == 'threshold_average_fhrvhr_mean':
+            plot_info_list = list(itertools.product(var_info))
         if job_dict['plot'] in ['performance_diagram', 'threshold_average']:
             fcst_var_thresh_list = (job_dict['fcst_var_thresh_list']\
                                     .split(', '))
@@ -1626,7 +1627,8 @@ def check_plot_files(job_dict):
                 plot_dict['obs_var_level'] = plot_info[0][1][1]
                 plot_dict['obs_var_thresh'] = plot_info[0][1][2]
             elif plot_dict['plot'] in ['time_series_fhr_mean', 'lead_average_vhr_mean',
-                                        'valid_hour_average_fhr_mean' ]:
+                                       'valid_hour_average_fhr_mean',
+                                       'threshold_average_fhrvhr_mean' ]:
                 plot_dict['fcst_var_name'] = plot_info[0][0][0]
                 plot_dict['fcst_var_level'] = plot_info[0][0][1]
                 plot_dict['fcst_var_thresh'] = plot_info[0][0][2]
@@ -1650,7 +1652,8 @@ def check_plot_files(job_dict):
                     os.path.exists(plot_check)
                 )
             elif plot_dict['plot'] in ['time_series_fhr_mean', 'lead_average_vhr_mean',
-                                        'valid_hour_average_fhr_mean' ]:
+                                       'valid_hour_average_fhr_mean',
+                                       'threshold_average_fhrvhr_mean' ]:
                 plot_check = plot_specs.get_savefig_name(
                     plot_dict['job_COMOUT_dir'], plot_dict, plot_dict
                 )
@@ -1886,6 +1889,7 @@ def initialize_job_env_dict(verif_type, group,
     job_env_dict['JOB_GROUP'] = group
     job_env_dict['job_name'] = job
     job_env_dict['fig_name_label'] = os.environ['fig_name_label']
+    job_env_dict['plot_diff_fig'] = os.environ['plot_diff_fig']
     if group in ['reformat_data', 'assemble_data', 'generate_stats',
                  'filter_stats', 'make_plots']:
         if verif_case_step_abbrev_type+'_fhr_list' in list(os.environ.keys()):
