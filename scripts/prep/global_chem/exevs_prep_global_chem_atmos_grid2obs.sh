@@ -157,22 +157,22 @@ readonly MATCH_PM10=("-match" "PMTC" "-match" "aerosol=Total Aerosol" "-match" "
 declare -a cyc_opt=( 00 12 )
 let inc=3
 for mdl_cyc in "${cyc_opt[@]}"; do
-    com_gc_mdl=${COMINgcafs}/${MODELNAME}.${INITDATE}/${mdl_cyc}/products/${RUN}/grib2/0p25
+    com_gc_mdl=${COMINgefs}/${MODELNAME}.${INITDATE}/${mdl_cyc}/chem/pgrb2ap25   ## FOR GEFS-chem
     if [ -d ${com_gc_mdl} ]; then
-        prep_gc_mdl=${COMOUTprepmdl}/${mdl_cyc}/products/${RUN}/grib2/0p25
+        prep_gc_mdl=${COMOUTprepmdl}/${mdl_cyc}/${RUN}/pgrb2ap25
         mkdir -p ${prep_gc_mdl}
         let hour_now=0
         let max_hour=120
         while [ ${hour_now} -le ${max_hour} ]; do
             fhr=`printf %3.3d ${hour_now}`
-            mdl_full_grib2="${MODELNAME}.t${mdl_cyc}z.pres_a.0p25.f${fhr}.grib2"
-            mdl_trim_grib2="${MODELNAME}.${RUN}.t${mdl_cyc}z.0p25.f${fhr}.trim.grib2"
+            mdl_full_grib2=${MODELNAME}.chem.t${mdl_cyc}z.a2d_0p25.f${fhr}.grib2  ## FOR GEFS-chem
+            reduced_rec_grib2=${MODELNAME}.${RUN}.t${mdl_cyc}z.a2d_0p25.f${fhr}.reduced.grib2
             check_full_file=${com_gc_mdl}/${mdl_full_grib2}
-            check_trim_file=${com_gc_mdl}/${mdl_trim_grib2}
-            if [ -s ${check_trim_file} ]; then
-                echo "Found file ${check_trim_file}"
+            check_reduced_file=${com_gc_mdl}/${reduced_rec_grib2}
+            if [ -s ${check_reduced_file} ]; then
+                echo "Found file ${check_reduced_file}"
                 if [ ${SENDCOM} = "YES" ]; then
-                    cp -v ${check_trim_file} ${prep_gc_mdl}
+                    cp -v ${check_reduced_file} ${prep_gc_mdl}
                 fi
             elif [ -s ${check_full_file} ]; then
                 wgrib2 "${check_full_file}" "${MATCH_AOD[@]}" -grib "${mdl_trim_grib2}"
