@@ -74,6 +74,7 @@ export DATA_TYPE=${DATA_TYPE:-hourly}
 export OBS_SRC=${OBS_SRC:-${DATA_TYPE}}
 export restart_mode=${restart_mode:-YES}
 export fig_name_label=${fig_name_label:-last${NDAYS}days}
+export plot_diff_fig=${plot_diff_fig:-NO}
 
 if [ "${RUN}" != "headline" ]; then
     export config=${config:-${PARMevs}/evs_config/${COMPONENT}/config.${NET}.prod.${STEP}.${COMPONENT}.${RUN}.${VERIF_CASE}.${DATA_TYPE}}

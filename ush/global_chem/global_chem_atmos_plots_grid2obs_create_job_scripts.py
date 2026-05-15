@@ -40,6 +40,7 @@ end_date = os.environ['end_date']
 NDAYS = str(os.environ['NDAYS'])
 fig_name_label = os.environ['fig_name_label']
 dir_name_label = fig_name_label
+plot_diff_fig = os.environ['plot_diff_fig']
 restart_mode = os.environ['restart_mode']
 VERIF_CASE_STEP_abbrev = os.environ['VERIF_CASE_STEP_abbrev']
 VERIF_CASE_STEP_type_list = (os.environ[VERIF_CASE_STEP_abbrev+'_type_list'] \
@@ -409,6 +410,7 @@ for verif_type in VERIF_CASE_STEP_type_list:
         job_env_dict['end_date'] = end_date
         job_env_dict['NDAYS'] = NDAYS
         job_env_dict['fig_name_label'] = fig_name_label
+        job_env_dict['plot_diff_fig'] = plot_diff_fig
         job_env_dict['restart_mode'] = restart_mode
         job_env_dict['obs_src_name'] = VERIF_CASE_STEP_src_list[src_idx]
         job_env_dict['date_type'] = 'VALID'

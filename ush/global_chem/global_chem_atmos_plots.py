@@ -41,6 +41,7 @@ date_type = os.environ['date_type']
 NDAYS = os.environ['NDAYS']
 fig_name_label = os.environ['fig_name_label']
 dir_name_label = fig_name_label
+plot_diff_fig = os.environ['plot_diff_fig']
 obs_src_name=os.environ['obs_src_name']
 restart_mode = os.environ['restart_mode']
 plot_verbosity = os.environ['plot_verbosity']
@@ -446,6 +447,7 @@ elif JOB_GROUP == 'make_plots':
     elif plot == 'lead_average':
         import global_chem_atmos_plots_lead_average as gdap_la
         plot_info_dict['fig_name_label'] = fig_name_label
+        plot_info_dict['plot_diff_fig'] = plot_diff_fig
         plot_info_dict['obs_src_name'] = obs_src_name
         for la_info in list(itertools.product(valid_hrs, var_info)):
             date_info_dict['valid_hr_start'] = str(la_info[0])
@@ -498,6 +500,7 @@ elif JOB_GROUP == 'make_plots':
     elif plot == 'valid_hour_average':
         import global_chem_atmos_plots_valid_hour_average as gdap_vha
         plot_info_dict['fig_name_label'] = fig_name_label
+        plot_info_dict['plot_diff_fig'] = plot_diff_fig
         plot_info_dict['obs_src_name'] = obs_src_name
         for vha_info in list(itertools.product(var_info)):
             date_info_dict['valid_hr_start'] = valid_hr_start
@@ -555,6 +558,7 @@ elif JOB_GROUP == 'make_plots':
     elif plot == 'threshold_average':
         import global_chem_atmos_plots_threshold_average as gdap_ta
         plot_info_dict['fig_name_label'] = fig_name_label
+        plot_info_dict['plot_diff_fig'] = plot_diff_fig
         plot_info_dict['obs_src_name'] = obs_src_name
         for ta_info in list(itertools.product(valid_hrs, fhrs)):
             date_info_dict['valid_hr_start'] = str(ta_info[0])
