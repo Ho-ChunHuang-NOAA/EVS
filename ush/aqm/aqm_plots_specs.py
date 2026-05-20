@@ -82,9 +82,12 @@ class PlotSpecs:
             self.axis_label_size = 15
             self.xtick_label_size = 15
             self.ytick_label_size = 15
-        elif self.plot_type in ['lead_average', 'valid_hour_average',
-                                'lead_average_vhr_mean', 'valid_hour_average_fhr_mean',
-                                'threshold_average', 'threshold_average_fhrvhr_mean']:
+        elif self.plot_type in ['lead_average',
+                                'lead_average_vhr_mean',
+                                'valid_hour_average',
+                                'valid_hour_average_fhr_mean',
+                                'threshold_average',
+                                'threshold_average_fhrvhr_mean']:
             self.fig_size = (16., 16.)
             self.fig_subplot_top = 0.9
             self.fig_subplot_bottom = 0.05
@@ -583,7 +586,10 @@ class PlotSpecs:
             title_other_hr_list.sort()
             date_plot_name = (date_plot_name+', '.join(date_type_hr_list)
                               +', valid: '+', '.join(title_other_hr_list))
-        if plot_type not in ['lead_average', 'valid_hour_average' ]:
+        if plot_type not in ['lead_average',
+                             'lead_average_no_diffplot',
+                             'valid_hour_average',
+                             'valid_hour_average_no_diffplot']:
             forecast_day_list = []
             for forecast_hour in forecast_hour_list:
                 forecast_day = int(forecast_hour)/24.
@@ -763,20 +769,32 @@ class PlotSpecs:
                                 +int(date_info_dict['valid_hr_inc']),
                                 int(date_info_dict['valid_hr_inc']))
             ]
-        if self.plot_type in ['time_series', 
+        var_name_for_title = plot_info_dict['fcst_var_name']
+        if self.plot_type == 'threshold_average_no_diffplot': 
+            if var_name_for_title  in ['OZMAX8', 'PMAVE']:
+                hr_info_for_title = [date_info_dict['forecast_hours']]
+            else:
+                hr_info_for_title = selected_plot_hours
+        elif self.plot_type == 'lead_average_no_diffplot': 
+            if var_name_for_title  in ['OZMAX8', 'PMAVE']:
+                hr_info_for_title = date_info_dict['forecast_hours']
+            else:
+                hr_info_for_title = selected_plot_hours
+        elif self.plot_type == 'valid_hour_average_no_diffplot': 
+            if var_name_for_title  in ['OZMAX8', 'PMAVE']:
+                hr_info_for_title = date_info_dict['forecast_hours']
+            else:
+                hr_info_for_title = selected_plot_hours
+        elif self.plot_type in ['time_series', 
                               'performance_diagram', 'threshold_average']:
             hr_info_for_title = [date_info_dict['forecast_hours']]
         elif self.plot_type in ['time_series_fhr_mean',
                                 'lead_average_vhr_mean',
                                 'valid_hour_average_fhr_mean',
-                                'threshold_average_fhrvhr_mean',
-                                'lead_average_no_diffplot',
-                                'valid_hour_average_no_diffplot',
-                                'threshold_average_no_diffplot']:
+                                'threshold_average_fhrvhr_mean']:
             hr_info_for_title = selected_plot_hours
         else:
             hr_info_for_title = date_info_dict['forecast_hours']
-        var_name_for_title = plot_info_dict['fcst_var_name']
         var_level_for_title = plot_info_dict['fcst_var_level']
         if self.plot_type in ['performance_diagram', 'threshold_average',
                               'threshold_average_fhrvhr_mean',
@@ -879,7 +897,8 @@ class PlotSpecs:
                                 int(date_info_dict['valid_hr_inc']))
             ]
         if self.plot_type in ['time_series',
-                              'performance_diagram', 'threshold_average']:
+                              'performance_diagram', 'threshold_average',
+                              'threshold_average_no_diffplot']:
             fhr_for_title = [date_info_dict['forecast_hour']]
         else:
             fhr_for_title = date_info_dict['forecast_hours']
@@ -887,7 +906,8 @@ class PlotSpecs:
         fday_for_title = date_info_dict['fday_start']
         var_name_for_title = plot_info_dict['fcst_var_name']
         var_level_for_title = plot_info_dict['fcst_var_level']
-        if self.plot_type in ['performance_diagram', 'threshold_average']:
+        if self.plot_type in ['performance_diagram', 'threshold_average',
+                              'threshold_average_no_diffplot']:
             var_thresh_for_title = 'NA'
         else:
             var_thresh_for_title = plot_info_dict['fcst_var_thresh']
