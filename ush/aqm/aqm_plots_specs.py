@@ -57,7 +57,8 @@ class PlotSpecs:
         self.fig_size=(16.,16.)
         if self.plot_type in ['time_series',
                               'time_series_multifhr',
-                              'time_series_fhr_mean']:
+                              'time_series_fhr_mean',
+                              'threshold_average_no_diffplot']:
             self.fig_size = (16., 8.)
             self.fig_subplot_top = 0.87
             self.fig_subplot_bottom = 0.1
@@ -82,7 +83,8 @@ class PlotSpecs:
             self.ytick_label_size = 15
         elif self.plot_type in ['lead_average', 'valid_hour_average',
                                 'lead_average_vhr_mean', 'valid_hour_average_fhr_mean',
-                                'threshold_average']:
+                                'threshold_average',
+                                'threshold_average_fhrvhr_mean']:
             self.fig_size = (16., 16.)
             self.fig_subplot_top = 0.9
             self.fig_subplot_bottom = 0.05
@@ -639,14 +641,19 @@ class PlotSpecs:
                           +end_date_dt.strftime('%d%b%Y')+' ')
         title_other_hr_list = []
         if date_type == 'VALID':
-            if plot_type in [ 'time_series_fhr_mean', 'lead_average_vhr_mean', 'valid_hour_average_fhr_mean' ]:
+            if plot_type in [ 'time_series_fhr_mean', 'lead_average_vhr_mean',
+                              'valid_hour_average_fhr_mean',
+                              'threshold_average_fhrvhr_mean',
+                              'threshold_average_no_diffplot' ]:
                 title_other_list=other_hr_list[0]
                 if len(other_hr_list) > 1:
                     for i_other_hr in range(1,len(other_hr_list)):
                         title_other_list = ( title_other_lists + ", " +i_other_hr)
                 date_plot_name = (date_plot_name+', init. hours: '+title_other_list)
                 plot_hour_range=f"{title_plot_hour_list[0]}-{title_plot_hour_list[-1]}"
-                if plot_type in [ 'time_series_fhr_mean', 'valid_hour_average_fhr_mean' ]:
+                if plot_type in [ 'time_series_fhr_mean', 'valid_hour_average_fhr_mean',
+                                  'threshold_average_fhrvhr_mean',
+                                  'threshold_average_no_diffplot' ]:
                     date_plot_name = (date_plot_name+', fcst. hours:'+plot_hour_range+' hrs')
                 else:
                     date_plot_name = (date_plot_name+', valid hours:'+plot_hour_range+'Z')
@@ -680,7 +687,9 @@ class PlotSpecs:
                               +', valid: '+', '.join(title_other_hr_list))
         if plot_type not in ['lead_average', 'valid_hour_average',
                              'valid_hour_average_fhr_mean',
-                             'time_series_fhr_mean', 'lead_average_vhr_mean']:
+                             'time_series_fhr_mean', 'lead_average_vhr_mean',
+                             'threshold_average_fhrvhr_mean',
+                             'threshold_average_no_diffplot']:
             forecast_day_list = []
             for forecast_hour in forecast_hour_list:
                 forecast_day = int(forecast_hour)/24.
@@ -751,13 +760,17 @@ class PlotSpecs:
                               'performance_diagram', 'threshold_average']:
             hr_info_for_title = [date_info_dict['forecast_hours']]
         elif self.plot_type in ['time_series_fhr_mean', 'valid_hour_average_fhr_mean',
-                                'lead_average_vhr_mean' ]:
+                                'lead_average_vhr_mean',
+                                'threshold_average_fhrvhr_mean',
+                                'threshold_average_no_diffplot' ]:
             hr_info_for_title = selected_plot_hours
         else:
             hr_info_for_title = date_info_dict['forecast_hours']
         var_name_for_title = plot_info_dict['fcst_var_name']
         var_level_for_title = plot_info_dict['fcst_var_level']
-        if self.plot_type in ['performance_diagram', 'threshold_average']:
+        if self.plot_type in ['performance_diagram', 'threshold_average',
+                              'threshold_average_fhrvhr_mean',
+                              'threshold_average_no_diffplot']:
             var_thresh_for_title = 'NA'
         else:
             var_thresh_for_title = plot_info_dict['fcst_var_thresh']
@@ -781,7 +794,9 @@ class PlotSpecs:
         plot_title = (plot_title+' - '
                       +'Validation: '
                       +self.get_obs_plot_name(plot_info_dict['obs_src_name']))
-        if self.plot_type in [ 'time_series_fhr_mean', 'lead_average_vhr_mean', 'valid_hour_average_fhr_mean' ]:
+        if self.plot_type in [ 'time_series_fhr_mean', 'lead_average_vhr_mean', 'valid_hour_average_fhr_mean',
+                               'threshold_average_fhrvhr_mean',
+                               'threshold_average_no_diffplot' ]:
             self.logger.debug(f"pass {self.plot_type} to get_dates_plot_name_aqm")
             plot_title = (plot_title+'\n'
                       +self.get_dates_plot_name_aqm(date_info_dict['date_type'],
@@ -945,7 +960,9 @@ class PlotSpecs:
             plot_type_savefig_name = 'fhrmean'
         elif self.plot_type == 'performance_diagram':
             plot_type_savefig_name = 'perfdiag'
-        elif self.plot_type == 'threshold_average':
+        elif self.plot_type in ['threshold_average',
+                                'threshold_average_fhrvhr_mean',
+                                'threshold_average_no_diffplot']:
             plot_type_savefig_name = 'threshmean'
         elif self.plot_type == 'valid_hour_average':
             plot_type_savefig_name = 'vhrmean'
@@ -956,6 +973,8 @@ class PlotSpecs:
         if self.plot_type in ['time_series', 'time_series_multifhr',
                               'time_series_fhr_mean', 'performance_diagram',
                               'valid_hour_average_fhr_mean',
+                              'threshold_average_fhrvhr_mean',
+                              'threshold_average_no_diffplot',
                               'threshold_average' ]:
             init_hr_savefig_name = f"init{date_info_dict['init_hr_start']}z"
             fcst_day_savefig_name = f"day{date_info_dict['fday_start']}"
