@@ -614,7 +614,7 @@ class PlotSpecs:
                                   +'(FHRs='+','.join(forecast_hour_list)+')')
         return date_plot_name
 
-    def get_dates_plot_name_aqm(self, date_type, start_date, end_date,
+    def get_dates_plot_name_by_fday(self, date_type, start_date, end_date,
                             date_type_hr_list, other_hr_list,
                             title_plot_hour_list, plot_type):
         """! Get the full date information that will be displayed on the plot
@@ -721,7 +721,7 @@ class PlotSpecs:
                                   +'(Hours '+','.join(forecast_hour_list)+')')
         return date_plot_name
 
-    def get_plot_title_aqm(self, plot_info_dict, date_info_dict, units, selected_plot_hours ):
+    def get_plot_title_by_fday(self, plot_info_dict, date_info_dict, units, selected_plot_hours ):
         """! Construct the title for the plot
 
              Args:
@@ -830,9 +830,9 @@ class PlotSpecs:
                                'lead_average_no_diffplot',
                                'valid_hour_average_no_diffplot',
                                'threshold_average_no_diffplot' ]:
-            self.logger.debug(f"pass {self.plot_type} to get_dates_plot_name_aqm")
+            self.logger.debug(f"pass {self.plot_type} to get_dates_plot_name_by_fday")
             plot_title = (plot_title+'\n'
-                      +self.get_dates_plot_name_aqm(date_info_dict['date_type'],
+                      +self.get_dates_plot_name_by_fday(date_info_dict['date_type'],
                                                 date_info_dict['start_date'],
                                                 date_info_dict['end_date'],
                                                 date_type_hr_list, other_hr_list,
