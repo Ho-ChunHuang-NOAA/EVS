@@ -24,7 +24,6 @@ DATA = os.environ['DATA']
 COMIN = os.environ['COMIN']
 model_list = os.environ['model_list'].split(' ')
 model_evs_data_dir_list = os.environ['model_evs_data_dir_list'].split(' ')
-model_file_format_list = os.environ['model_file_format_list'].split(' ')
 start_date = os.environ['start_date']
 end_date = os.environ['end_date']
 VERIF_CASE_STEP_abbrev = os.environ['VERIF_CASE_STEP_abbrev']
