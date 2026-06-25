@@ -32,7 +32,7 @@ export RUN_GRID2OBS_PLOTS="YES"
 #model_file_format_list:     file format of model files
 aqm_ver_id=$( echo ${aqm_ver} | awk -F"." '{print $1$2}' )
 modelid=${MODELNAME}${aqm_ver_id}
-export model_list="${modelid}_raw ${modelid}_bc gefs rrfs"
+export model_list="aqm_raw aqm_bc gefs rrfs"
 export model_evs_data_dir_list="${STATDIR} ${STATDIR} ${STATDIR} ${STATDIR}"
 export model_evs_stats_dir_list="${COMIN}/stats/${COMPONENT} ${COMIN}/stats/${COMPONENT} /lfs/h2/emc/physics/noscrub/ho-chun.huang/evs/gefs_v2.0/stats/global_chem /lfs/h2/emc/vpppg/noscrub/ho-chun.huang/evs/rrfs_v2.0/stats/cam"
 ## OUTPUT DATA SETTINGS
