@@ -56,7 +56,7 @@ let imdl=0
 while [ ${imdl} -lt ${num_mdl} ]; do
     modelid=${mdl_list[${imdl}]}
     idir=${mdl_idir_list[${imdl}]}
-    if [ "${modelid}" == "aqm_raw" ] || [ "${modelid}" == "aqm_raw" ]; then dirid="aqm"; fi
+    if [ "${modelid}" == "aqm_raw" ] || [ "${modelid}" == "aqm_bc" ]; then dirid="aqm"; fi
     if [ "${modelid}" == "gefs" ] ; then dirid="gefs"; fi
     if [ "${modelid}" == "rrfs" ] ; then dirid="rrfs"; fi
     model1=`echo ${dirid} | tr a-z A-Z`
@@ -77,7 +77,7 @@ while [ ${imdl} -lt ${num_mdl} ]; do
             NOW=${VDATE_START}
 	fi
         while [ ${NOW} -le ${VDATE_END} ]; do
-            if [ "${modelid}" == "aqm_raw" ] || [ "${modelid}" == "aqm_raw" ]; then
+            if [ "${modelid}" == "aqm_raw" ] || [ "${modelid}" == "aqm_bc" ]; then
                 cpfile=evs.stats.${modelid}.${RUN}.${VERIF_CASE}_${ivar}.v${NOW}.stat
             elif [ "${modelid}" == "gefs" ]; then
                 cpfile=evs.stats.${modelid}.${RUN}.${VERIF_CASE}_airnow_${ivar}.v${NOW}.stat
