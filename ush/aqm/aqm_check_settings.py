@@ -95,7 +95,7 @@ else:
         'VERIF_CASE_STEP_abbrev'
 ]
 evs_aqm_settings_dict['shared'] = [
-    'model_list', 'model_evs_data_dir_list', 'model_file_format_list',
+    'model_list', 'model_evs_data_dir_list', 
     'OUTPUTROOT', 'start_date', 'end_date', 'KEEPDATA', 'SENDCOM',
     'model_evs_stats_dir_list', 'restart_mode', 'fig_name_label'
 ]
@@ -174,8 +174,7 @@ for verif_type in verif_type_list:
 
 # Do check for list variables lengths
 check_config_var_len_list = ['model_evs_data_dir_list',
-                             'model_evs_stats_dir_list',
-                             'model_file_format_list']
+                             'model_evs_stats_dir_list']
 if STEP.upper() == 'PLOTS':
     check_config_var_len_list.append(VERIF_CASE_STEP_abbrev
                                      +'_model_plot_name_list')
