@@ -1450,7 +1450,7 @@ class PlotSpecs:
                        'marker': 'None', 'markersize': 0,
                        'linestyle': 'solid', 'linewidth': 1.5},
             'model3': {'color': '#1e3cff', 'markevery': None,
-                       'marker': 'None', 'markersize': 0,
+                       'marker': 'X', 'markersize': 7,
                        'linestyle': 'solid', 'linewidth': 1.5},
             'model4': {'color': '#00dc00', 'markevery': None,
                        'marker': 'None', 'markersize': 0,
