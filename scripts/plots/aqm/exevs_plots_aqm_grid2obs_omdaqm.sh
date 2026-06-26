@@ -91,7 +91,13 @@ while [ ${imdl} -lt ${num_mdl} ]; do
             sedfile=${modelid}_${ivar}.v${NOW}.stat
             if [ -s ${idir}/${dirid}.${NOW}/${cpfile} ]; then
                 cp -v ${idir}/${dirid}.${NOW}/${cpfile} ${STATDIR}
-                sed "s/${model1}/${modelid}/g" ${STATDIR}/${cpfile} > ${STATDIR}/${sedfile}
+                if [ "${modelid}" == "gefs" ]; then
+                    sed "s/${model1}/${modelid}/g; s/L0/L1/g" ${STATDIR}/${cpfile} > ${STATDIR}/${sedfile}
+                elif [ "${modelid}" == "rrfs" ]; then
+                    sed "s/${model1}/${modelid}/g; s/Z8/L0/g" ${STATDIR}/${cpfile} > ${STATDIR}/${sedfile}
+                else
+                    sed "s/${model1}/${modelid}/g" ${STATDIR}/${cpfile} > ${STATDIR}/${sedfile}
+                fi
             else
                 echo "DEBUG ${modelid} ${STEP} :: Can not find ${idir}/${dirid}.${NOW}/${cpfile}"
             fi
@@ -127,9 +133,6 @@ export err=$?; err_chk
 # Link needed data files and set up model information
 python ${USHevs}/${COMPONENT}/${COMPONENT}_get_data_files.py
 export err=$?; err_chk
-
-echo "test stop"
-exit 
 
 # Create and run job scripts for condense_stats, filter_stats, make_plots, and tar_images
 declare -a proc_list=( condense_stats filter_stats make_plots tar_images )
@@ -190,7 +193,7 @@ if [ "${SENDCOM}" == "YES" ]; then
     # Make and copy tar file
     cd ${VERIF_CASE}_${STEP}/plot_output/tar_files
     for VERIF_TYPE in ${g2op_type_list}; do
-        tar_file_combine=${NET}.${STEP}.${COMPONENT}.${RUN}.${VERIF_CASE}_OMDAQM_${VERIF_TYPE}.${fig_name_label}.v${end_date}.tar
+        tar_file_combine=${NET}.${STEP}.${COMPONENT}.${RUN}.${VERIF_CASE}_omdaqm_${VERIF_TYPE}.${fig_name_label}.v${end_date}.tar
         large_tar_file=${DATA}/${VERIF_CASE}_${STEP}/plot_output/${tar_file_combine}
         tar_file_count=$(find ${DATA}/${VERIF_CASE}_${STEP}/plot_output/tar_files ${VERIF_CASE}_${VERIF_TYPE}*.tar 2>/dev/null | wc -l)
         if [ ${tar_file_count} -ne 0 ]; then
