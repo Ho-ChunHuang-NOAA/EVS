@@ -92,9 +92,9 @@ while [ ${imdl} -lt ${num_mdl} ]; do
             if [ -s ${idir}/${dirid}.${NOW}/${cpfile} ]; then
                 cp -v ${idir}/${dirid}.${NOW}/${cpfile} ${STATDIR}
                 if [ "${modelid}" == "gefs" ]; then
-                    sed "s/${model1}/${modelid}/g; s/L0/L1/g" ${STATDIR}/${cpfile} > ${STATDIR}/${sedfile}
+                    sed "s/${model1}/${modelid}/g; s/L0/L1/g; s/G004/NA  /g" ${STATDIR}/${cpfile} > ${STATDIR}/${sedfile}
                 elif [ "${modelid}" == "rrfs" ]; then
-                    sed "s/${model1}/${modelid}/g; s/Z8/L0/g" ${STATDIR}/${cpfile} > ${STATDIR}/${sedfile}
+                    sed "s/${model1}/${modelid}/g; s/Z8/L1/g" ${STATDIR}/${cpfile} > ${STATDIR}/${sedfile}
                 else
                     sed "s/${model1}/${modelid}/g" ${STATDIR}/${cpfile} > ${STATDIR}/${sedfile}
                 fi
