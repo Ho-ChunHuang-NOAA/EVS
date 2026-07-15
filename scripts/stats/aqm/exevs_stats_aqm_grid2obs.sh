@@ -376,7 +376,6 @@ export config_common=${PARMevs}/metplus_config/machine.conf
 
 check_restart=$( echo ${restart_mode} | tr a-z A-Z )
 
-export CMODEL=$(echo ${MODELNAME} | tr a-z A-Z)
 export ObsType="aeronet_aod"
 export ObsSrc=$( echo ${ObsType} | awk -F"_" '{print $1}' )
 export ObsVar=$( echo ${ObsType} | awk -F"_" '{print $2}' )
@@ -444,7 +443,7 @@ for mdl_cyc in ${init_cyc}; do
   fi
   if [ -e ${recorded_temp_list} ]; then rm -f ${recorded_temp_list}; fi
   export num_fcst_in_metplus
-  echo "DEBUG: number of fcst lead in_metplus point_stat for ${CMODEL} ${ObsType} == ${num_fcst_in_metplus}"
+  echo "DEBUG: number of fcst lead in_metplus point_stat for ${model1} ${ObsType} == ${num_fcst_in_metplus}"
 
   if [ ${num_fcst_in_metplus} -gt 0 -a ${num_obs_found} -eq 1 ]; then     ##  run Point Stat Analysis
     export fcsthours=${fcsthours_list}
@@ -455,7 +454,7 @@ for mdl_cyc in ${init_cyc}; do
         echo "DEBUG: There is no pre-processed ${ObsSrc} OBS, the metplus stats process will be skipped"
     fi
     if [ ${num_fcst_in_metplus} -eq 0 ]; then
-        echo "DEBUG: There is no pre-processed ${ObsVar} ${CMODEL}-smoke and dust ${mdl_cyc} cycle forecast output validated at ${vhr}Z, the metplus stats process will be skipped"
+        echo "DEBUG: There is no pre-processed ${ObsVar} ${model1}-smoke and dust ${mdl_cyc} cycle forecast output validated at ${vhr}Z, the metplus stats process will be skipped"
     fi
   fi
   if [ "${SENDCOM}" == "YES" ]; then
