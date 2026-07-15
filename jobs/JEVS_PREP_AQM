@@ -76,8 +76,8 @@ if [ "${VERIF_CASE}" == "grid2obs" ]; then
     export airnow_hourly_type=${airnow_hourly_type:-aqobs}
     export DCOMINairnow=${DCOMINairnow:-${DCOMROOT}}
     export DCOMINaeronet=${DCOMINaeronet:-${DCOMROOT}}
-    export COMOUTprepmdl=${COMOUTprepmdl:-${COMOUT}/${RUN}.${INITDATE}/${MODELNAME}}
-    export COMOUTprepobs=${COMOUTprepobs:-${COMOUT}/${RUN}.${INITDATE}/obs}
+    export COMOUTprepmdl=${COMOUTprepmdl:-${COMOUT}/${STEP}/${COMPONENT}/${RUN}.${INITDATE}/${MODELNAME}}
+    export COMOUTprepobs=${COMOUTprepobs:-${COMOUT}/${STEP}/${COMPONENT}/${RUN}.${INITDATE}/obs}
 
     export HOURLY_NCOL=${HOURLY_NCOL:-34}
     export DAILY_NCOL=${DAILY_NCOL:-13}

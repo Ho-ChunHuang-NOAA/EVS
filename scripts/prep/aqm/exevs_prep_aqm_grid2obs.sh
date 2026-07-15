@@ -73,7 +73,7 @@ while [ ${ic} -le ${endvhr} ]; do
                 export err=$?; err_chk
                 if [ ${SENDCOM} = "YES" ]; then
                     cpfile=${PREP_SAVE_DIR}/airnow_hourly_aqobs_${INITDATE}${VHOUR}.nc 
-                    if [ -s ${cpfile} ]; then cp -v ${cpfile} ${COMOUTproc}; fi
+                    if [ -s ${cpfile} ]; then cp -v ${cpfile} ${COMOUTprepobs}; fi
                 fi
             fi
         else
@@ -112,7 +112,7 @@ if [ -s ${checkfile} ]; then
             export err=$?; err_chk
             if [ ${SENDCOM} = "YES" ]; then
                 cpfile=${PREP_SAVE_DIR}/airnow_daily_${INITDATE}.nc
-                if [ -s ${cpfile} ]; then cp -v ${cpfile} ${COMOUTproc};fi
+                if [ -s ${cpfile} ]; then cp -v ${cpfile} ${COMOUTprepobs};fi
             fi
         fi
     else
@@ -218,7 +218,7 @@ for hour in 06 12; do
                 comout_file=aqm.t${hour}z.max_8hr_o3${bctag}.${gridspec}.grib2
                 cat out1.grb2 out2.grb2 out3.grb2 > ${comout_file}
                 if [ ${SENDCOM} = "YES" ]; then
-                    if [ -s ${comout_file} ]; then cp -v ${comout_file} ${COMOUTproc}; fi
+                    if [ -s ${comout_file} ]; then cp -v ${comout_file} ${COMOUTprepmdl}; fi
                 fi
             else
                 echo "FCST_OUTPUT_MISSING: AQM forecast file ${ozmax8_file} is missing. The missing AQM forecast file will be skipped"
@@ -235,7 +235,7 @@ for hour in 06 12; do
                 comout_file=aqm.t${hour}z.max_8hr_o3${bctag}.${gridspec}.grib2
                 cat out1.grb2 out2.grb2 out3.grb2 > ${comout_file}
                 if [ ${SENDCOM} = "YES" ]; then
-                    if [ -s ${comout_file} ]; then cp -v ${comout_file} ${COMOUTproc}; fi
+                    if [ -s ${comout_file} ]; then cp -v ${comout_file} ${COMOUTprepmdl}; fi
                 fi
             else
                 echo "FCST_OUTPUT_MISSING: AQM forecast file ${ozmax8_file} is missing. The missing AQM forecast file will be skipped"
