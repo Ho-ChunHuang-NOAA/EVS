@@ -400,7 +400,7 @@ else
 fi
 echo "DEBUG: index of daily aeronet obs found = ${num_obs_found}"
 
-export FileinId=cmaq
+export FileinId="cmaq"
 fcstmax=72
 for mdl_cyc in ${init_cyc}; do
   export mdl_cyc    ## variable used in *.conf
@@ -418,7 +418,7 @@ for mdl_cyc in ${init_cyc}; do
     aday=`echo ${adate} |cut -c1-8`
     acyc=`echo ${adate} |cut -c9-10`
     if [ "${acyc}" == "${mdl_cyc}" ]; then
-      fcst_file=${COMINaqm}/${MODELNAME}.${aday}/${acyc}/${MODELNAME}.t${acyc}z.${FileinId}${bctag}.f${filehr}.${gridspec}.grib2
+      fcst_file=${COMINaqm}/${dirname}.${aday}/${acyc}/${MODELNAME}.t${acyc}z.${FileinId}.f${filehr}.${gridspec}.grib2
       if [ -s ${fcst_file} ]; then
         if [ "${check_restart}" == "YES" ]; then
           point_stat_file="${COMOUTsmall}/point_stat_${OutputId}_${fhr}0000L_${VDATE}_${vhr}0000V.stat"
