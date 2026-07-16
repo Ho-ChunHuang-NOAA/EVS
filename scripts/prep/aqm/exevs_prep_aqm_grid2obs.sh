@@ -162,7 +162,7 @@ if [ -s ${checkfile} ] && [ "${flag_process_ascii_aeronet}" == "YES" ]; then
             run_metplus.py ${prep_config_file} ${config_common}
             export err=$?; err_chk
             if [ ${SENDCOM} = "YES" ]; then
-                cpfile=${finalprep}/${OBTTYPE}_All_${INITDATE}_lev15.nc
+                cpfile=${PREP_SAVE_DIR}/${OBTTYPE}_All_${INITDATE}_lev15.nc
                 if [ -e ${cpfile} ]; then
                     mkdir -p ${COMOUTprepobs}
                     cp -v ${cpfile} ${COMOUTprepobs}
