@@ -57,7 +57,9 @@ while [ ${imdl} -lt ${num_mdl} ]; do
     modelid=${mdl_list[${imdl}]}
     idir=${mdl_idir_list[${imdl}]}
     if [ "${modelid}" == "aqm_raw" ] || [ "${modelid}" == "aqm_bc" ]; then dirid="aqm"; fi
+    if [ "${modelid}" == "aqmv80_raw" ] || [ "${modelid}" == "aqmv80_bc" ]; then dirid="aqm"; fi
     if [ "${modelid}" == "gefs" ] ; then dirid="gefs"; fi
+    if [ "${modelid}" == "gcafs" ] ; then dirid="gcafs"; fi
     if [ "${modelid}" == "rrfs" ] ; then dirid="rrfs"; fi
     model1=`echo ${dirid} | tr a-z A-Z`
     export model1
@@ -79,7 +81,11 @@ while [ ${imdl} -lt ${num_mdl} ]; do
         while [ ${NOW} -le ${VDATE_END} ]; do
             if [ "${modelid}" == "aqm_raw" ] || [ "${modelid}" == "aqm_bc" ]; then
                 cpfile=evs.stats.${modelid}.${RUN}.${VERIF_CASE}_${ivar}.v${NOW}.stat
-            elif [ "${modelid}" == "gefs" ]; then
+            elif [ "${modelid}" == "aqmv80_raw" ]; then
+                cpfile=evs.stats.aqm_raw.${RUN}.${VERIF_CASE}_${ivar}.v${NOW}.stat
+            elif [ "${modelid}" == "aqmv80_bc" ]; then
+                cpfile=evs.stats.aqm_bc.${RUN}.${VERIF_CASE}_${ivar}.v${NOW}.stat
+            elif [ "${modelid}" == "gefs" ] || [ "${modelid}" == "gcafs" ]; then
                 cpfile=evs.stats.${modelid}.${RUN}.${VERIF_CASE}_airnow_${ivar}.v${NOW}.stat
             elif [ "${modelid}" == "rrfs" ]; then
                 cpfile=evs.stats.${modelid}.chem.${VERIF_CASE}_airnow_${ivar}.v${NOW}.stat
@@ -91,7 +97,7 @@ while [ ${imdl} -lt ${num_mdl} ]; do
             sedfile=${modelid}_${ivar}.v${NOW}.stat
             if [ -s ${idir}/${dirid}.${NOW}/${cpfile} ]; then
                 cp -v ${idir}/${dirid}.${NOW}/${cpfile} ${STATDIR}
-                if [ "${modelid}" == "gefs" ]; then
+                if [ "${modelid}" == "gefs" ] || [ "${modelid}" == "gcafs" ]; then
                     sed "s/${model1}/${modelid}/g; s/L0/L1/g; s/G004/NA  /g" ${STATDIR}/${cpfile} > ${STATDIR}/${sedfile}
                 elif [ "${modelid}" == "rrfs" ]; then
                     sed "s/${model1}/${modelid}/g; s/Z8/L1/g" ${STATDIR}/${cpfile} > ${STATDIR}/${sedfile}

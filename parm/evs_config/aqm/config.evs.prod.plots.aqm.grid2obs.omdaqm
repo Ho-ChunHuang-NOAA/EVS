@@ -32,9 +32,9 @@ export RUN_GRID2OBS_PLOTS="YES"
 #model_file_format_list:     file format of model files
 aqm_ver_id=$( echo ${aqm_ver} | awk -F"." '{print $1$2}' )
 modelid=${MODELNAME}${aqm_ver_id}
-export model_list="aqm_raw aqm_bc gefs rrfs"
-export model_evs_data_dir_list="${STATDIR} ${STATDIR} ${STATDIR} ${STATDIR}"
-export model_evs_stats_dir_list="${COMIN}/stats/${COMPONENT} ${COMIN}/stats/${COMPONENT} /lfs/h2/emc/physics/noscrub/ho-chun.huang/evs/gefs_v2.0/stats/global_chem /lfs/h2/emc/vpppg/noscrub/ho-chun.huang/evs/rrfs_v2.0/stats/cam"
+export model_list="aqm_raw aqm_bc gefs rrfs aqmv80_raw aqmv80_bc gcafs"
+export model_evs_data_dir_list="${STATDIR} ${STATDIR} ${STATDIR} ${STATDIR} ${STATDIR} ${STATDIR} ${STATDIR}"
+export model_evs_stats_dir_list="${COMIN}/stats/${COMPONENT} ${COMIN}/stats/${COMPONENT} /lfs/h2/emc/physics/noscrub/ho-chun.huang/evs/gefs_v2.0/stats/global_chem /lfs/h2/emc/vpppg/noscrub/ho-chun.huang/evs/rrfs_v2.0/stats/cam /lfs/h2/emc/physics/noscrub/ho-chun.huang/evs/aqmv80_v2.0/stats/aqm /lfs/h2/emc/physics/noscrub/ho-chun.huang/evs/aqmv80_v2.0/stats/aqm /lfs/h2/emc/physics/noscrub/ho-chun.huang/evs/gcafs_v2.0/stats/global_chem"
 ## OUTPUT DATA SETTINGS
 #OUTPUTROOT: base output directory
 export OUTPUTROOT="${DATAROOT}"
@@ -59,7 +59,7 @@ if [ $RUN_GRID2OBS_PLOTS = YES ]; then
     #    g2op_*_fhr_min: forecast hour to start verification: HH[H]
     #    g2op_*_fhr_max: forecast hour to end verification: HH[H]
     #    g2op_*_fhr_inc: frequency to verify forecast hours: at HH[H]
-    export g2op_model_plot_name_list="aqm_raw aqm_bc gefsv12 rrfsv1"
+    export g2op_model_plot_name_list="aqm_raw aqm_bc gefsv12 rrfsv1 aqmv80_raw aqmv80_bc gcafs"
     export g2op_type_list="pm25"
     export g2op_src_list="airnow"
     export g2op_event_equalization="NO"
