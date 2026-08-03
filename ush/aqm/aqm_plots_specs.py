@@ -1307,6 +1307,15 @@ class PlotSpecs:
                  model_plot_settings_dict - dictionary of
                                             model plotting specifications
                                             (strings)
+            'model5': {'color': '#e69f00', 'markevery': None,
+                       'marker': 'o', 'markersize': 6,
+                       'linestyle': 'solid', 'linewidth': 1.5},
+            'model6': {'color': '#56b4e9', 'markevery': None,
+                       'marker': 'o', 'markersize': 6,
+                       'linestyle': 'solid', 'linewidth': 1.5},
+            'model7': {'color': '#696969', 'markevery': None,
+                       'marker': 's', 'markersize': 6,
+                       'linestyle': 'solid', 'linewidth': 1.5},
         """
         model_plot_settings_dict = {
             'model1': {'color': '#000000', 'markevery': None,
@@ -1323,11 +1332,11 @@ class PlotSpecs:
                        'linestyle': 'solid', 'linewidth': 1.5},
             'model5': {'color': '#e69f00', 'markevery': None,
                        'marker': 'o', 'markersize': 6,
-                       'linestyle': 'solid', 'linewidth': 1.5},
+                       'linestyle': 'dashed', 'linewidth': 1.5},
             'model6': {'color': '#56b4e9', 'markevery': None,
                        'marker': 'o', 'markersize': 6,
-                       'linestyle': 'solid', 'linewidth': 1.5},
-            'model7': {'color': '#696969', 'markevery': None,
+                       'linestyle': 'dashed', 'linewidth': 1.5},
+            'model7': {'color': '#fb2020', 'markevery': None,
                        'marker': 's', 'markersize': 6,
                        'linestyle': 'solid', 'linewidth': 1.5},
             'model8': {'color': '#8400c8', 'markevery': None,
