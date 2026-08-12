@@ -66,6 +66,13 @@ export COMOUT=${COMOUT:-$(compath.py -o ${NET}/${evs_ver})}
 export COMOUTsmall=${COMOUTsmall:-${COMOUT}/${STEP}/${COMPONENT}/${RUN}.${VDATE}/${MODELNAME}/${VERIF_CASE}}
 export COMOUTfinal=${COMOUTfinal:-${COMOUT}/${STEP}/${COMPONENT}/${MODELNAME}.${VDATE}}
 
+##### TEMP #####
+if [ "${COMINaqm}" == "/lfs/h2/emc/vpppg/noscrub/ho-chun.huang/verification/aqm/aqmv80" ]; then
+    export COMINaqmaod="/lfs/h2/emc/vpppg/noscrub/ho-chun.huang/aod_verification/aqm/aqmv80"
+else
+    export COMINaqmaod=${COMINaqm}
+fi
+##### TEMP #####
 mkdir -p ${COMOUTsmall} ${COMOUTfinal}
 
 if [ "${VERIF_CASE}" == "grid2obs" ]; then
