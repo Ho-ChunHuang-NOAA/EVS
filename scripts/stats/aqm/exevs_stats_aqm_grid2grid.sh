@@ -134,7 +134,7 @@ for ObsType in "${grid2grid_list[@]}"; do
             aday=`echo ${adate} |cut -c1-8`
             acyc=`echo ${adate} |cut -c9-10`
             if [ ${acyc} = ${hour} ]; then
-              fcst_file=${COMINaqmaod}/${dirname}.${aday}/${acyc}/aqm.t${acyc}z.${FileinId}${bctag}.f${filehr}.${gridspec}.grib2
+              fcst_file=${COMINaqm}/${dirname}.${aday}/${acyc}/aqm.t${acyc}z.${FileinId}${bctag}.f${filehr}.${gridspec}.grib2
               if [ -s ${fcst_file} ]; then
                 echo "DEBUG: ${fhr} fcst file found"
                 echo ${fhr} >> ${recorded_temp_list}
