@@ -107,6 +107,12 @@ elif JOB_GROUP == 'make_plots':
     obs_var_thresh_list = os.environ['obs_var_thresh_list'].split(', ')
     stat = os.environ['stat']
     plot = os.environ['plot']
+    fbar_obar_ts_ymax_fix = os.getenv('fbar_obar_ts_ymax_fix', 'NONE')
+    fbar_obar_ts_ymin_fix = os.getenv('fbar_obar_ts_ymin_fix', 'NONE')
+    fbar_obar_ts_ytick_fix = os.getenv('fbar_obar_ts_ytick_fix', 'NONE')
+    rmse_ts_ymax_fix = os.getenv('rmse_ts_ymax_fix', 'NONE')
+    rmse_ts_ymin_fix = os.getenv('rmse_ts_ymin_fix', 'NONE')
+    rmse_ts_ytick_fix = os.getenv('rmse_ts_ytick_fix', 'NONE')
 elif JOB_GROUP == 'tar_images':
     KEEPDATA = os.environ['KEEPDATA']
 
@@ -491,6 +497,12 @@ elif JOB_GROUP == 'make_plots':
         date_info_dict['fday_inc'] = fday_inc
         plot_info_dict['fig_name_label'] = fig_name_label
         plot_info_dict['obs_src_name'] = obs_src_name
+        plot_info_dict['fbar_obar_ts_ymax_fix'] = fbar_obar_ts_ymax_fix
+        plot_info_dict['fbar_obar_ts_ymin_fix'] = fbar_obar_ts_ymin_fix
+        plot_info_dict['fbar_obar_ts_ytick_fix'] = fbar_obar_ts_ytick_fix
+        plot_info_dict['rmse_ts_ymax_fix'] = rmse_ts_ymax_fix
+        plot_info_dict['rmse_ts_ymin_fix'] = rmse_ts_ymin_fix
+        plot_info_dict['rmse_ts_ytick_fix'] = rmse_ts_ytick_fix
         for ts_info in list(var_info):
             logger.info(f"aqm_plots.py {ts_info}")
             date_info_dict['valid_hr_start'] = valid_hr_start

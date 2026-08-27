@@ -435,11 +435,26 @@ class TimeSeriesFhrMean:
             else:
                 self.logger.debug(f"{model_num} [{model_num_name},"
                                   +f"{model_num_plot_name}] has no points")
+        # Get fixed y-axis max if provided in plot_info_dict
+        ymax_fix = 'NONE'
+        ymin_fix = 'NONE'
+        ytick_fix = 'NONE'
+        if self.plot_info_dict.get('stat') == 'FBAR_OBAR':
+            ymax_fix = self.plot_info_dict.get('fbar_obar_ts_ymax_fix', 'NONE')
+            ymin_fix = self.plot_info_dict.get('fbar_obar_ts_ymin_fix', 'NONE')
+            ytick_fix = self.plot_info_dict.get('fbar_obar_ts_ytick_fix', 'NONE')
+        if self.plot_info_dict.get('stat') == 'RMSE':
+            ymax_fix = self.plot_info_dict.get('rmse_ts_ymax_fix', 'NONE')
+            ymin_fix = self.plot_info_dict.get('rmse_ts_ymin_fix', 'NONE')
+            ytick_fix = self.plot_info_dict.get('rmse_ts_ytick_fix', 'NONE')
+
         preset_y_axis_tick_min = ax.get_yticks()[0]
         preset_y_axis_tick_max = ax.get_yticks()[-1]
         preset_y_axis_tick_inc = ax.get_yticks()[1] - ax.get_yticks()[0]
         if self.plot_info_dict['stat'] in ['ACC']:
             y_axis_tick_inc = 0.1
+        elif ytick_fix != 'NONE':
+            y_axis_tick_inc = float(ytick_fix)
         elif self.plot_info_dict['stat'] in ['FBIAS'] \
                 and self.plot_info_dict['fcst_var_name'] \
                 in ['SNOD_A24', 'WEASD_A24']:
@@ -448,6 +463,8 @@ class TimeSeriesFhrMean:
             y_axis_tick_inc = preset_y_axis_tick_inc
         if np.ma.is_masked(stat_min):
             y_axis_min = preset_y_axis_tick_min
+        elif ymin_fix != 'NONE':
+            y_axis_min = float(ymin_fix)
         else:
             if self.plot_info_dict['stat'] in ['ACC']:
                 y_axis_min = round(stat_min,1) - y_axis_tick_inc
@@ -461,6 +478,8 @@ class TimeSeriesFhrMean:
                     y_axis_min = y_axis_min - y_axis_tick_inc
         if np.ma.is_masked(stat_max):
             y_axis_max = preset_y_axis_tick_max
+        elif ymax_fix != 'NONE':
+            y_axis_max = float(ymax_fix)
         else:
             if self.plot_info_dict['stat'] in ['ACC']:
                 y_axis_max = 1
@@ -472,6 +491,7 @@ class TimeSeriesFhrMean:
                 y_axis_max = preset_y_axis_tick_max + y_axis_tick_inc
                 while y_axis_max < stat_max:
                     y_axis_max = y_axis_max + y_axis_tick_inc
+
         ax.set_yticks(
             np.arange(y_axis_min, y_axis_max+y_axis_tick_inc, y_axis_tick_inc)
         )
