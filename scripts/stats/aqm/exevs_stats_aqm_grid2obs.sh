@@ -486,6 +486,5 @@ if [ "${vhr}" == "23" ]; then
   fi
 fi
 
-
 exit
 
