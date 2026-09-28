@@ -144,7 +144,7 @@ base_plot_jobs_info_dict = {
                                   'levels': ['A24']},
                  'obs_name': 'AIRNOW_DAILY_V2'}
     },
-    'aod': {
+    'aeronetaod': {
         'AOD': {'vx_masks': ['CONUS', 'CONUS_Central', 'CONUS_East',
                              'CONUS_South', 'CONUS_West',
                              'Appalachia', 'CPlains', 'DeepSouth',
@@ -210,13 +210,13 @@ for pmave_job in list(condense_stats_jobs_dict['pmave_headline'].keys()):
         pmave_job_line_types = ['SL1L2']
     condense_stats_jobs_dict['pmave_headline'][pmave_job]['line_types'] = pmave_job_line_types
 #### aeronet aod
-for aod_job in list(condense_stats_jobs_dict['aod'].keys()):
+for aod_job in list(condense_stats_jobs_dict['aeronetaod'].keys()):
     if aod_job == 'AOD':
         ## aod_job_line_types = ['SL1L2', 'CTC' ]
         aod_job_line_types = ['SL1L2']
     else:
         aod_job_line_types = ['SL1L2']
-    condense_stats_jobs_dict['aod'][aod_job]['line_types'] = aod_job_line_types
+    condense_stats_jobs_dict['aeronetaod'][aod_job]['line_types'] = aod_job_line_types
 if JOB_GROUP == 'condense_stats':
     JOB_GROUP_dict = condense_stats_jobs_dict
 
@@ -363,16 +363,16 @@ for pmave_job in list(filter_stats_jobs_dict['pmave'].keys()):
             (filter_stats_jobs_dict['pmave_headline'][f"{pmave_job}_Thresh"]\
              ['obs_var_dict']['threshs']) = [ 'gt35' ]
 #### aod
-for aod_job in list(filter_stats_jobs_dict['aod'].keys()):
+for aod_job in list(filter_stats_jobs_dict['aeronetaod'].keys()):
     ## column of "DESC" values
-    filter_stats_jobs_dict['aod'][aod_job]['grid'] = 'NA'
-    filter_stats_jobs_dict['aod'][aod_job]['interps'] = ['NEAREST/1']
+    filter_stats_jobs_dict['aeronetaod'][aod_job]['grid'] = 'NA'
+    filter_stats_jobs_dict['aeronetaod'][aod_job]['interps'] = ['NEAREST/1']
     aod_job_fcst_threshs = ['NA']
     aod_job_obs_threshs = ['NA']
-    filter_stats_jobs_dict['aod'][aod_job]['fcst_var_dict']['threshs'] = (
+    filter_stats_jobs_dict['aeronetaod'][aod_job]['fcst_var_dict']['threshs'] = (
         aod_job_fcst_threshs
     )
-    filter_stats_jobs_dict['aod'][aod_job]['obs_var_dict']['threshs'] = (
+    filter_stats_jobs_dict['aeronetaod'][aod_job]['obs_var_dict']['threshs'] = (
         aod_job_obs_threshs
     )
 if JOB_GROUP == 'filter_stats':
@@ -581,23 +581,23 @@ for pmave_job in list(make_plots_jobs_dict['pmave_headline'].keys()):
     make_plots_jobs_dict['pmave_headline'][pmave_job]['plots'] = pmave_job_plots
 
 #### aod
-for aod_job in list(make_plots_jobs_dict['aod'].keys()):
-    del make_plots_jobs_dict['aod'][aod_job]['line_types']
+for aod_job in list(make_plots_jobs_dict['aeronetaod'].keys()):
+    del make_plots_jobs_dict['aeronetaod'][aod_job]['line_types']
     if aod_job in ['AOD']:
         aod_job_line_type_stats = ['SL1L2/RMSE', 'SL1L2/ME']
-        make_plots_jobs_dict['aod'][aod_job+'_FBAR_OBAR'] = copy.deepcopy(
-            make_plots_jobs_dict['aod'][aod_job]
+        make_plots_jobs_dict['aeronetaod'][aod_job+'_FBAR_OBAR'] = copy.deepcopy(
+            make_plots_jobs_dict['aeronetaod'][aod_job]
         )
-        make_plots_jobs_dict['aod'][aod_job+'_FBAR_OBAR']['line_type_stats']=[
+        make_plots_jobs_dict['aeronetaod'][aod_job+'_FBAR_OBAR']['line_type_stats']=[
             'SL1L2/FBAR_OBAR'
         ]
-        make_plots_jobs_dict['aod'][aod_job+'_FBAR_OBAR']['vx_masks']=[
+        make_plots_jobs_dict['aeronetaod'][aod_job+'_FBAR_OBAR']['vx_masks']=[
             'CONUS', 'CONUS_Central', 'CONUS_East', 'CONUS_South', 'CONUS_West',
             'Appalachia', 'CPlains', 'DeepSouth', 'GreatBasin', 'GreatLakes', 'Mezquital',
             'MidAtlantic', 'NorthAtlantic', 'NPlains', 'NRockies', 'PacificNW',
             'PacificSW', 'Prairie', 'Southeast', 'Southwest', 'SPlains', 'SRockies'
         ]
-        make_plots_jobs_dict['aod'][aod_job+'_FBAR_OBAR']['plots'] = [
+        make_plots_jobs_dict['aeronetaod'][aod_job+'_FBAR_OBAR']['plots'] = [
             'time_series_fhr_mean'
         ]
     ## elif aod_job in ['AOD_Thresh']:
@@ -605,7 +605,7 @@ for aod_job in list(make_plots_jobs_dict['aod'].keys()):
     else:
         aod_job_line_type_stats = ['SL1L2/RMSE', 'SL1L2/ME']
 
-    make_plots_jobs_dict['aod'][aod_job]['line_type_stats'] = (
+    make_plots_jobs_dict['aeronetaod'][aod_job]['line_type_stats'] = (
         aod_job_line_type_stats
     )
 
@@ -615,16 +615,16 @@ for aod_job in list(make_plots_jobs_dict['aod'].keys()):
     ##     aod_job_plots = ['time_series_fhr_mean', 'lead_average_vhr_mean', 'threshold_average']
     else:
         aod_job_plots = ['time_series', 'lead_average']
-    make_plots_jobs_dict['aod'][aod_job]['plots'] = aod_job_plots
+    make_plots_jobs_dict['aeronetaod'][aod_job]['plots'] = aod_job_plots
 
-## for aod_job in list(make_plots_jobs_dict['aod'].keys()):
+## for aod_job in list(make_plots_jobs_dict['aeronetaod'].keys()):
 ##     if aod_job in ['AOD']:
-##         make_plots_jobs_dict['aod'][f"{aod_job}_PerfDiag"] = copy.deepcopy(
-##              make_plots_jobs_dict['aod'][f"{aod_job}_Thresh"]
+##         make_plots_jobs_dict['aeronetaod'][f"{aod_job}_PerfDiag"] = copy.deepcopy(
+##              make_plots_jobs_dict['aeronetaod'][f"{aod_job}_Thresh"]
 ##             )
-##         (make_plots_jobs_dict['aod'][f"{aod_job}_PerfDiag"]\
+##         (make_plots_jobs_dict['aeronetaod'][f"{aod_job}_PerfDiag"]\
 ##          ['line_type_stats']) = ['CTC/PERFDIAG']
-##         make_plots_jobs_dict['aod'][f"{aod_job}_PerfDiag"]['plots'] = [
+##         make_plots_jobs_dict['aeronetaod'][f"{aod_job}_PerfDiag"]['plots'] = [
 ##             'performance_diagram'
 ##         ]
 if JOB_GROUP == 'make_plots':
@@ -647,7 +647,7 @@ tar_images_jobs_dict = {
     'pmave': {'search_base_dir': search_dir},
     'ozmax8_headline': {'search_base_dir': search_dir},
     'pmave_headline': {'search_base_dir': search_dir},
-    'aod': {'search_base_dir': search_dir}
+    'aeronetaod': {'search_base_dir': search_dir}
 }
 if JOB_GROUP == 'tar_images':
     JOB_GROUP_dict = tar_images_jobs_dict
