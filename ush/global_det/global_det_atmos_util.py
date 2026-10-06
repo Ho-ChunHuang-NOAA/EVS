@@ -2135,7 +2135,7 @@ def check_truth_files(job_dict):
                 if 'DailyAvg_Concentration' in job_dict['job_name']:
                     osi_saf_file = os.path.join(
                         verif_case_dir, 'data', 'osi_saf',
-                        'osi_saf.multi.'+job_dict['hemisphere']+'.'
+                        'osi_saf.amsr3.'+job_dict['hemisphere']+'.'
                         +(valid_date_dt-datetime.timedelta(hours=24))\
                         .strftime('%Y%m%d%H')
                         +'to'+valid_date_dt.strftime('%Y%m%d%H')+'.nc'
@@ -2143,7 +2143,7 @@ def check_truth_files(job_dict):
                 elif 'DailyAvg_Extent' in job_dict['job_name']:
                     osi_saf_file = os.path.join(
                         verif_case_dir, 'data', 'osi_saf',
-                        'osi_saf.multi.'+job_dict['grid']+'.'
+                        'osi_saf.amsr3.'+job_dict['grid']+'.'
                         +(valid_date_dt-datetime.timedelta(hours=24))\
                         .strftime('%Y%m%d%H')
                         +'to'+valid_date_dt.strftime('%Y%m%d%H')+'.nc'
@@ -2734,6 +2734,11 @@ def initalize_job_env_dict(verif_type, group,
             )
             fhr_list = [str(i) for i in fhr_range]
         job_env_dict['fhr_list'] = ', '.join(fhr_list)
+        if verif_case_step_abbrev_type+'_vhrmean_fhr_list' in list(os.environ.keys()):
+            vhrmean_fhr_list = (
+                os.environ[verif_case_step_abbrev_type+'_vhrmean_fhr_list'].split(' ')
+            )
+            job_env_dict['vhrmean_fhr_list'] = ', '.join(vhrmean_fhr_list)
         if verif_type in ['pres_levs', 'means', 'sfc', 'ptype']:
             verif_type_valid_hr_list = (
                 os.environ[verif_case_step_abbrev_type+'_valid_hr_list']\
