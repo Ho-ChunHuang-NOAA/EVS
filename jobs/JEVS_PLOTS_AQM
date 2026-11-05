@@ -82,6 +82,7 @@ if [ "${VERIF_CASE}" == "grid2obs" ]; then
         export plot_diff_fig=${plot_diff_fig:-NO}
     else
         export plot_diff_fig=${plot_diff_fig:-YES}
+    fi
 else
     export plot_diff_fig=${plot_diff_fig:-NO}
 fi
