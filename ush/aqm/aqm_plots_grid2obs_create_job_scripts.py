@@ -30,6 +30,7 @@ VERIF_CASE = os.environ['VERIF_CASE']
 STEP = os.environ['STEP']
 COMPONENT = os.environ['COMPONENT']
 JOB_GROUP = os.environ['JOB_GROUP']
+EVAL_DATA_TYPE = os.environ['DATA_TYPE']
 evs_run_mode = os.environ['evs_run_mode']
 machine = os.environ['machine']
 USE_CFP = os.environ['USE_CFP']
@@ -696,6 +697,7 @@ for verif_type in VERIF_CASE_STEP_type_list:
         job_env_dict['restart_mode'] = restart_mode
         job_env_dict['obs_src_name'] = VERIF_CASE_STEP_src_list[src_idx]
         job_env_dict['date_type'] = 'VALID'
+        job_env_dict['EVAL_DATA_TYPE'] = EVAL_DATA_TYPE
         if JOB_GROUP in ['make_plots']:
             init_hr_start = int(job_env_dict['init_hr_start'])
             init_hr_end = int(job_env_dict['init_hr_end'])

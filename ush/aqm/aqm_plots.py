@@ -30,6 +30,7 @@ VERIF_CASE = os.environ['VERIF_CASE']
 STEP = os.environ['STEP']
 COMPONENT = os.environ['COMPONENT']
 JOB_GROUP = os.environ['JOB_GROUP']
+EVAL_DATA_TYPE = os.environ['DATA_TYPE']
 FIXevs = os.environ['FIXevs']
 MET_ROOT = os.environ['MET_ROOT']
 met_ver = os.environ['met_ver']
@@ -442,6 +443,7 @@ elif JOB_GROUP == 'make_plots':
         plot_info_dict['fig_name_label'] = fig_name_label
         plot_info_dict['plot_diff_fig'] = plot_diff_fig
         plot_info_dict['obs_src_name'] = obs_src_name
+        plot_info_dict['EVAL_DATA_TYPE'] = EVAL_DATA_TYPE
         for ts_info in \
                 list(itertools.product(valid_hrs, fhrs, var_info)):
             date_info_dict['valid_hr_start'] = str(ts_info[0])
@@ -499,6 +501,7 @@ elif JOB_GROUP == 'make_plots':
         plot_info_dict['fig_name_label'] = fig_name_label
         plot_info_dict['plot_diff_fig'] = plot_diff_fig
         plot_info_dict['obs_src_name'] = obs_src_name
+        plot_info_dict['EVAL_DATA_TYPE'] = EVAL_DATA_TYPE
         plot_info_dict['fbar_obar_ts_ymax_fix'] = fbar_obar_ts_ymax_fix
         plot_info_dict['fbar_obar_ts_ymin_fix'] = fbar_obar_ts_ymin_fix
         plot_info_dict['fbar_obar_ts_ytick_fix'] = fbar_obar_ts_ytick_fix
@@ -577,6 +580,7 @@ elif JOB_GROUP == 'make_plots':
         plot_info_dict['fig_name_label'] = fig_name_label
         plot_info_dict['plot_diff_fig'] = plot_diff_fig
         plot_info_dict['obs_src_name'] = obs_src_name
+        plot_info_dict['EVAL_DATA_TYPE'] = EVAL_DATA_TYPE
         for la_info in list(itertools.product(valid_hrs, var_info)):
             date_info_dict['valid_hr_start'] = str(la_info[0])
             date_info_dict['valid_hr_end'] = str(la_info[0])
@@ -633,6 +637,7 @@ elif JOB_GROUP == 'make_plots':
         plot_info_dict['fig_name_label'] = fig_name_label
         plot_info_dict['plot_diff_fig'] = plot_diff_fig
         plot_info_dict['obs_src_name'] = obs_src_name
+        plot_info_dict['EVAL_DATA_TYPE'] = EVAL_DATA_TYPE
         for la_info in list(var_info):
             date_info_dict['valid_hr_start'] = valid_hr_start
             date_info_dict['valid_hr_end'] = valid_hr_end
@@ -701,6 +706,7 @@ elif JOB_GROUP == 'make_plots':
         plot_info_dict['fig_name_label'] = fig_name_label
         plot_info_dict['plot_diff_fig'] = plot_diff_fig
         plot_info_dict['obs_src_name'] = obs_src_name
+        plot_info_dict['EVAL_DATA_TYPE'] = EVAL_DATA_TYPE
         for vha_info in list(var_info):
             date_info_dict['valid_hr_start'] = valid_hr_start
             date_info_dict['valid_hr_end'] = valid_hr_end
@@ -762,6 +768,7 @@ elif JOB_GROUP == 'make_plots':
         plot_info_dict['fig_name_label'] = fig_name_label
         plot_info_dict['plot_diff_fig'] = plot_diff_fig
         plot_info_dict['obs_src_name'] = obs_src_name
+        plot_info_dict['EVAL_DATA_TYPE'] = EVAL_DATA_TYPE
         for vhafm_info in list(var_info):
             date_info_dict['valid_hr_start'] = valid_hr_start
             date_info_dict['valid_hr_end'] = valid_hr_end
@@ -876,6 +883,7 @@ elif JOB_GROUP == 'make_plots':
         plot_info_dict['fig_name_label'] = fig_name_label
         plot_info_dict['plot_diff_fig'] = plot_diff_fig
         plot_info_dict['obs_src_name'] = obs_src_name
+        plot_info_dict['EVAL_DATA_TYPE'] = EVAL_DATA_TYPE
         for ta_info in list(itertools.product(valid_hrs, fhrs)):
             date_info_dict['valid_hr_start'] = str(ta_info[0])
             date_info_dict['valid_hr_end'] = str(ta_info[0])
@@ -944,6 +952,7 @@ elif JOB_GROUP == 'make_plots':
         plot_info_dict['fig_name_label'] = fig_name_label
         plot_info_dict['plot_diff_fig'] = plot_diff_fig
         plot_info_dict['obs_src_name'] = obs_src_name
+        plot_info_dict['EVAL_DATA_TYPE'] = EVAL_DATA_TYPE
         for tafvm_info in list(var_info):
             date_info_dict['valid_hr_start'] = valid_hr_start
             date_info_dict['valid_hr_end'] = valid_hr_end
@@ -1060,6 +1069,7 @@ elif JOB_GROUP == 'make_plots':
         plot_info_dict['fig_name_label'] = fig_name_label
         plot_info_dict['plot_diff_fig'] = plot_diff_fig
         plot_info_dict['obs_src_name'] = obs_src_name
+        plot_info_dict['EVAL_DATA_TYPE'] = EVAL_DATA_TYPE
         for pd_info in list(itertools.product(valid_hrs, fhrs)):
             date_info_dict['valid_hr_start'] = str(pd_info[0])
             date_info_dict['valid_hr_end'] = str(pd_info[0])

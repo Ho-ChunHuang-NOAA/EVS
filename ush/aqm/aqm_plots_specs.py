@@ -958,6 +958,152 @@ class PlotSpecs:
         }
         return model_plot_settings_dict
 
+    def get_model_plot_settings_aqm_eval(self):
+        """! Get dictionary plot settings for models
+
+             Args:
+
+             Returns:
+                 model_plot_settings_dict - dictionary of
+                                            model plotting specifications
+                                            (strings)
+            'model6': {'color': '#56b4e9', 'markevery': None,
+                       'marker': 'o', 'markersize': 3,
+                       'linestyle': 'dashed', 'linewidth': 2},
+            'model7': {'color': '#696969', 'markevery': None,
+            Line Style   Short Syntax    Full String
+            Solid        '-'             'solid'
+            Dashed       '--'            'dashed'
+            Dash-dot     '-.'            'dashdot'
+            Dotted       ':'             'dotted'
+            No Line      '' or ' '       'None'
+
+        """
+        model_plot_settings_dict = {
+            'model1': {'color': '#1e3cff', 'markevery': None,
+                       'marker': 'None', 'markersize': 0,
+                       'linestyle': 'solid', 'linewidth': 3},
+            'model2': {'color': '#1e3cff', 'markevery': None,
+                       'marker': 'None', 'markersize': 0,
+                       'linestyle': 'dashed', 'linewidth': 2},
+            'model3': {'color': '#fb2020', 'markevery': None,
+                       'marker': 'None', 'markersize': 5,
+                       'linestyle': 'solid', 'linewidth': 3},
+            'model4': {'color': '#fb2020', 'markevery': None,
+                       'marker': 'None', 'markersize': 0,
+                       'linestyle': 'dashed', 'linewidth': 2},
+            'model5': {'color': '#e69f00', 'markevery': None,
+                       'marker': 'o', 'markersize': 3,
+                       'linestyle': 'dashed', 'linewidth': None},
+            'model6': {'color': '#006400', 'markevery': None,
+                       'marker': 'o', 'markersize': 3,
+                       'linestyle': 'dashed', 'linewidth': 2},
+            'model7': {'color': '#fb2020', 'markevery': None,
+                       'marker': 's', 'markersize': 5,
+                       'linestyle': 'solid', 'linewidth': 1.5},
+            'model8': {'color': '#8400c8', 'markevery': None,
+                       'marker': 'None', 'markersize': 0,
+                       'linestyle': 'solid', 'linewidth': 1.5},
+            'model9': {'color': '#d269c1', 'markevery': None,
+                       'marker': 'None', 'markersize': 0,
+                       'linestyle': 'solid', 'linewidth': 1.5},
+            'model10': {'color': '#f0e492', 'markevery': None,
+                       'marker': 'None', 'markersize': 0,
+                        'linestyle': 'solid', 'linewidth': 1.5},
+            'prod_raw': {'color': '#1e3cff', 'markevery': None,
+                         'marker': 'None', 'markersize': 0,
+                         'linestyle': 'solid', 'linewidth': 2},
+            'dev_raw': {'color': '#fb2020', 'markevery': None,
+                       'marker': 'None', 'markersize': 0,
+                       'linestyle': 'solid', 'linewidth': 2},
+            'prod_bc': {'color': '#1e3cff', 'markevery': None,
+                       'marker': 'None', 'markersize': 0,
+                       'linestyle': '--', 'linewidth': 2},
+            'dev_bc': {'color': '#fb2020', 'markevery': None,
+                       'marker': 'None', 'markersize': 0,
+                       'linestyle': '--', 'linewidth': 2},
+            'obsdot': {'color': '#000000', 'markevery': None,
+                       'marker': 'o', 'markersize': 6,
+                       'linestyle': 'None', 'linewidth': 0},
+            'obs': {'color': '#aaaaaa', 'markevery': None,
+                    'marker': 'None', 'markersize': 0,
+                    'linestyle': 'solid', 'linewidth': 2},
+        }
+        return model_plot_settings_dict
+
+    def get_model_plot_settings_omdaqm(self):
+        """! Get dictionary plot settings for models
+
+             Args:
+
+             Returns:
+                 model_plot_settings_dict - dictionary of
+                                            model plotting specifications
+                                            (strings)
+            'model6': {'color': '#56b4e9', 'markevery': None,
+                       'marker': 'o', 'markersize': 3,
+                       'linestyle': 'dashed', 'linewidth': 2},
+            'model7': {'color': '#696969', 'markevery': None,
+            Line Style   Short Syntax    Full String
+            Solid        '-'             'solid'
+            Dashed       '--'            'dashed'
+            Dash-dot     '-.'            'dashdot'
+            Dotted       ':'             'dotted'
+            No Line      '' or ' '       'None'
+
+        """
+        model_plot_settings_dict = {
+            'model1': {'color': '#000000', 'markevery': None,
+                       'marker': 'None', 'markersize': 0,
+                       'linestyle': 'solid', 'linewidth': 3},
+            'model2': {'color': '#fb2020', 'markevery': None,
+                       'marker': 'None', 'markersize': 0,
+                       'linestyle': 'solid', 'linewidth': 1.5},
+            'model3': {'color': '#1e3cff', 'markevery': None,
+                       'marker': 'X', 'markersize': 5,
+                       'linestyle': 'solid', 'linewidth': 1.5},
+            'model4': {'color': '#00dc00', 'markevery': None,
+                       'marker': 'None', 'markersize': 0,
+                       'linestyle': 'solid', 'linewidth': 1.5},
+            'model5': {'color': '#e69f00', 'markevery': None,
+                       'marker': 'o', 'markersize': 3,
+                       'linestyle': 'dashed', 'linewidth': None},
+            'model6': {'color': '#006400', 'markevery': None,
+                       'marker': 'o', 'markersize': 3,
+                       'linestyle': 'dashed', 'linewidth': 2},
+            'model7': {'color': '#fb2020', 'markevery': None,
+                       'marker': 's', 'markersize': 5,
+                       'linestyle': 'solid', 'linewidth': 1.5},
+            'model8': {'color': '#8400c8', 'markevery': None,
+                       'marker': 'None', 'markersize': 0,
+                       'linestyle': 'solid', 'linewidth': 1.5},
+            'model9': {'color': '#d269c1', 'markevery': None,
+                       'marker': 'None', 'markersize': 0,
+                       'linestyle': 'solid', 'linewidth': 1.5},
+            'model10': {'color': '#f0e492', 'markevery': None,
+                       'marker': 'None', 'markersize': 0,
+                        'linestyle': 'solid', 'linewidth': 1.5},
+            'prod_raw': {'color': '#1e3cff', 'markevery': None,
+                         'marker': 'None', 'markersize': 0,
+                         'linestyle': 'solid', 'linewidth': 2},
+            'dev_raw': {'color': '#fb2020', 'markevery': None,
+                       'marker': 'None', 'markersize': 0,
+                       'linestyle': 'solid', 'linewidth': 2},
+            'prod_bc': {'color': '#1e3cff', 'markevery': None,
+                       'marker': 'None', 'markersize': 0,
+                       'linestyle': '--', 'linewidth': 2},
+            'dev_bc': {'color': '#fb2020', 'markevery': None,
+                       'marker': 'None', 'markersize': 0,
+                       'linestyle': '--', 'linewidth': 2},
+            'obsdot': {'color': '#000000', 'markevery': None,
+                       'marker': 'o', 'markersize': 6,
+                       'linestyle': 'None', 'linewidth': 0},
+            'obs': {'color': '#aaaaaa', 'markevery': None,
+                    'marker': 'None', 'markersize': 0,
+                    'linestyle': 'solid', 'linewidth': 2},
+        }
+        return model_plot_settings_dict
+
 
     def get_model_plot_settings_linemarker(self):
         """! Get dictionary plot settings for models
@@ -1031,4 +1177,6 @@ class PlotSpecs:
                     'linestyle': 'solid', 'linewidth': 2},
         }
         return model_plot_settings_dict
+
+
 

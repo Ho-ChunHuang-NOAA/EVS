@@ -339,7 +339,12 @@ class LeadAverage:
                 right_logo_img_array, right_logo_xpixel_loc,
                 right_logo_ypixel_loc, zorder=1, alpha=right_logo_alpha
             )
-        model_plot_settings_dict = plot_specs_la.get_model_plot_settings()
+        if self.plot_info_dict['EVAL_DATA_TYPE'] in [ "hourly", "daily", "hourly_aod" ]:
+            model_plot_settings_dict = plot_specs_la.get_model_plot_settings_aqm_eval()
+        elif self.plot_info_dict['EVAL_DATA_TYPE'] in [ "omdaqm" ]:
+            model_plot_settings_dict = plot_specs_la.get_model_plot_settings_omdaqm()
+        else
+            model_plot_settings_dict = plot_specs_la.get_model_plot_settings()
         model_idx_list = (
             forecast_hours_avg_df.index.get_level_values(0).unique().tolist()
         )
