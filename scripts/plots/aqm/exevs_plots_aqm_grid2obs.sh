@@ -30,6 +30,8 @@ mkdir -p ${STATDIR}
 source ${config}
 export err=$?; err_chk
 
+model1=`echo ${MODELNAME} | tr a-z A-Z`
+export model1
 
 aqm_ver_id=$( echo ${aqm_ver} | awk -F"." '{print $1$2}' )
 export modelid=${MODELNAME}${aqm_ver_id}
@@ -54,16 +56,8 @@ if [ ${num_mdl} -gt 10 ]; then
 fi
 let imdl=0
 while [ ${imdl} -lt ${num_mdl} ]; do
-    modelid=${mdl_list[${imdl}]}
+    biasc=$( echo ${mdl_list[${imdl}]} | awk -F"_" '{print $2}' )
     idir=${mdl_idir_list[${imdl}]}
-    if [ "${modelid}" == "aqm_raw" ] || [ "${modelid}" == "aqm_bc" ]; then dirid="aqm"; fi
-    if [ "${modelid}" == "aqm70_raw" ] || [ "${modelid}" == "aqm70_bc" ]; then dirid="aqm"; fi
-    if [ "${modelid}" == "aqmv80_raw" ] || [ "${modelid}" == "aqmv80_bc" ]; then dirid="aqm"; fi
-    if [ "${modelid}" == "gefs" ] ; then dirid="gefs"; fi
-    if [ "${modelid}" == "gcafs" ] ; then dirid="gcafs"; fi
-    if [ "${modelid}" == "rrfs" ] ; then dirid="rrfs"; fi
-    model1=`echo ${dirid} | tr a-z A-Z`
-    export model1
     for ivar in "${obstype_list[@]}"; do
         #
         ## the time stamp of aqm daily variable is valided at 11Z (ozmax8)
@@ -80,31 +74,13 @@ while [ ${imdl} -lt ${num_mdl} ]; do
             NOW=${VDATE_START}
 	fi
         while [ ${NOW} -le ${VDATE_END} ]; do
-            if [ "${modelid}" == "aqm_raw" ] || [ "${modelid}" == "aqmv70_raw" ] || [ "${modelid}" == "aqmv80_raw" ]; then
-                cpfile=evs.stats.aqm_raw.${RUN}.${VERIF_CASE}_${ivar}.v${NOW}.stat
-            elif [ "${modelid}" == "aqm_bc" ] || [ "${modelid}" == "aqmv70_bc" ] || [ "${modelid}" == "aqmv80_bc" ]; then
-                cpfile=evs.stats.aqm_bc.${RUN}.${VERIF_CASE}_${ivar}.v${NOW}.stat
-            elif [ "${modelid}" == "gefs" ] || [ "${modelid}" == "gcafs" ]; then
-                cpfile=evs.stats.${modelid}.${RUN}.${VERIF_CASE}_airnow_${ivar}.v${NOW}.stat
-            elif [ "${modelid}" == "rrfs" ]; then
-                cpfile=evs.stats.${modelid}.chem.${VERIF_CASE}_airnow_${ivar}.v${NOW}.stat
+            cpfile=evs.stats.${MODELNAME}_${biasc}.${RUN}.${VERIF_CASE}_${ivar}.v${NOW}.stat
+            sedfile=${modelid}_${biasc}_${ivar}.v${NOW}.stat
+            if [ -s ${idir}/${MODELNAME}.${NOW}/${cpfile} ]; then
+                cp -v ${idir}/${MODELNAME}.${NOW}/${cpfile} ${STATDIR}
+                sed "s/${model1}/${modelid}_${biasc}/g" ${STATDIR}/${cpfile} > ${STATDIR}/${sedfile}
             else
-                echo "DEBUG ${modelid} is not supported in this plot script"
-		exit
-            fi
-
-            sedfile=${modelid}_${ivar}.v${NOW}.stat
-            if [ -s ${idir}/${dirid}.${NOW}/${cpfile} ]; then
-                cp -v ${idir}/${dirid}.${NOW}/${cpfile} ${STATDIR}
-                if [ "${modelid}" == "gefs" ] || [ "${modelid}" == "gcafs" ]; then
-                    sed "s/${model1}/${modelid}/g; s/L0/L1/g; s/G004/NA  /g" ${STATDIR}/${cpfile} > ${STATDIR}/${sedfile}
-                elif [ "${modelid}" == "rrfs" ]; then
-                    sed "s/${model1}/${modelid}/g; s/Z8/L1/g" ${STATDIR}/${cpfile} > ${STATDIR}/${sedfile}
-                else
-                    sed "s/${model1}/${modelid}/g" ${STATDIR}/${cpfile} > ${STATDIR}/${sedfile}
-                fi
-            else
-                echo "DEBUG ${modelid} ${STEP} :: Can not find ${idir}/${dirid}.${NOW}/${cpfile}"
+                echo "DEBUG ${MODELNAME} ${STEP} :: Can not find ${idir}/${MODELNAME}.${NOW}/${cpfile}"
             fi
             cdate=${NOW}"00"
             NOW=$( ${NDATE} +24 ${cdate} | cut -c1-8 )
