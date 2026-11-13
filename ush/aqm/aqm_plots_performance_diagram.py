@@ -385,11 +385,13 @@ class PerformanceDiagram:
         ax.add_artist(thresh_legend)
         model_legend_handles = []
         model_legend_labels = []
-        if self.plot_info_dict['EVAL_DATA_TYPE'] in [ "hourly", "daily", "hourly_aod" ]:
+        if self.plot_info_dict['EVAL_DATA_TYPE'] in [ "hourly_r2o", "daily_r2o", "hourly_aod_r2o" ]:
             model_plot_settings_dict = plot_specs_pd.get_model_plot_settings_aqm_eval()
-        elif self.plot_info_dict['EVAL_DATA_TYPE'] in [ "omdaqm" ]:
-            model_plot_settings_dict = plot_specs_pd.get_model_plot_settings_omdaqm()
-        else
+        elif self.plot_info_dict['EVAL_DATA_TYPE'] in [ "omdctm" ]:
+            model_plot_settings_dict = plot_specs_pd.get_model_plot_settings_omdctm()
+        elif self.plot_info_dict['EVAL_DATA_TYPE'] in [ "ops" ]:
+            model_plot_settings_dict = plot_specs_pd.get_model_plot_settings_ops()
+        else:
             model_plot_settings_dict = plot_specs_pd.get_model_plot_settings()
         for model_idx in model_idx_list:
             model_num = model_idx.split('/')[0]

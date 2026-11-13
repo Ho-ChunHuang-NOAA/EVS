@@ -32,9 +32,9 @@ export RUN_GRID2OBS_PLOTS="NO"
 #model_file_format_list:     file format of model files
 aqm_ver_id=$( echo ${aqm_ver} | awk -F"." '{print $1$2}' )
 modelid=${MODELNAME}${aqm_ver_id}
-export model_list="aqm_raw aqm_bc aqmv80_raw aqmv80_bc"
-export model_evs_data_dir_list="${STATDIR} ${STATDIR} ${STATDIR} ${STATDIR}"
-export model_evs_stats_dir_list="${COMIN}/stats/${COMPONENT} ${COMIN}/stats/${COMPONENT} ${COMIN}/stats/${COMPONENT} ${COMIN}/stats/${COMPONENT}"
+export model_list="${modelid}_raw"
+export model_evs_data_dir_list="${STATDIR}"
+export model_evs_stats_dir_list="${COMIN}/stats/${COMPONENT}"
 export model_file_format_list="${COMROOT}/${MODELNAME}/${mod_ver}/${MODELNAME}.{init?fmt=%Y%m%d}/{init?fmt=%2H}/${MODELNAME}.t{init?fmt=%2H}z.cmaq.f{lead?fmt=%3H}.793.grib2"
 ## OUTPUT DATA SETTINGS
 #OUTPUTROOT: base output directory
@@ -60,7 +60,7 @@ if [ $RUN_GRID2GRID_PLOTS = YES ]; then
     #    g2gp_*_fhr_min: forecast hour to start verification: HH[H]
     #    g2gp_*_fhr_max: forecast hour to end verification: HH[H]
     #    g2gp_*_fhr_inc: frequency to verify forecast hours: at HH[H]
-    export g2gp_model_plot_name_list="aqmv70_raw aqmv70_bc aqmv80_raw aqmv80_bc"
+    export g2gp_model_plot_name_list="raw"
     export g2gp_type_list="abiaod"
     export g2gp_src_list="abi"
     export g2gp_event_equalization="YES"

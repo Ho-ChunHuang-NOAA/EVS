@@ -57,6 +57,7 @@ while [ ${imdl} -lt ${num_mdl} ]; do
     modelid=${mdl_list[${imdl}]}
     idir=${mdl_idir_list[${imdl}]}
     if [ "${modelid}" == "aqm_raw" ] || [ "${modelid}" == "aqm_bc" ]; then dirid="aqm"; fi
+    if [ "${modelid}" == "aqmv70_raw" ] || [ "${modelid}" == "aqmv70_bc" ]; then dirid="aqm"; fi
     if [ "${modelid}" == "aqmv80_raw" ] || [ "${modelid}" == "aqmv80_bc" ]; then dirid="aqm"; fi
     if [ "${modelid}" == "gefs" ] ; then dirid="gefs"; fi
     if [ "${modelid}" == "gcafs" ] ; then dirid="gcafs"; fi
@@ -79,11 +80,9 @@ while [ ${imdl} -lt ${num_mdl} ]; do
             NOW=${VDATE_START}
 	fi
         while [ ${NOW} -le ${VDATE_END} ]; do
-            if [ "${modelid}" == "aqm_raw" ] || [ "${modelid}" == "aqm_bc" ]; then
-                cpfile=evs.stats.${modelid}.${RUN}.${VERIF_CASE}_${ivar}.v${NOW}.stat
-            elif [ "${modelid}" == "aqmv80_raw" ]; then
+            if [ "${modelid}" == "aqm_raw" ] || [ "${modelid}" == "aqmv70_raw" ] || [ "${modelid}" == "aqmv80_raw" ]; then
                 cpfile=evs.stats.aqm_raw.${RUN}.${VERIF_CASE}_${ivar}.v${NOW}.stat
-            elif [ "${modelid}" == "aqmv80_bc" ]; then
+            elif [ "${modelid}" == "aqm_bc" ] || [ "${modelid}" == "aqmv70_bc" ] || [ "${modelid}" == "aqmv80_bc" ]; then
                 cpfile=evs.stats.aqm_bc.${RUN}.${VERIF_CASE}_${ivar}.v${NOW}.stat
             elif [ "${modelid}" == "gefs" ] || [ "${modelid}" == "gcafs" ]; then
                 cpfile=evs.stats.${modelid}.${RUN}.${VERIF_CASE}_airnow_${ivar}.v${NOW}.stat
@@ -199,7 +198,7 @@ if [ "${SENDCOM}" == "YES" ]; then
     # Make and copy tar file
     cd ${VERIF_CASE}_${STEP}/plot_output/tar_files
     for VERIF_TYPE in ${g2op_type_list}; do
-        tar_file_combine=${NET}.${STEP}.${COMPONENT}.${RUN}.${VERIF_CASE}_omdaqm_${VERIF_TYPE}.${fig_name_label}.v${end_date}.tar
+        tar_file_combine=${NET}.${STEP}.${COMPONENT}.${RUN}.${VERIF_CASE}_${DATA_TYPE}_${VERIF_TYPE}.${fig_name_label}.v${end_date}.tar
         large_tar_file=${DATA}/${VERIF_CASE}_${STEP}/plot_output/${tar_file_combine}
         tar_file_count=$(find ${DATA}/${VERIF_CASE}_${STEP}/plot_output/tar_files ${VERIF_CASE}_${VERIF_TYPE}*.tar 2>/dev/null | wc -l)
         if [ ${tar_file_count} -ne 0 ]; then

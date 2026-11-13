@@ -91,7 +91,13 @@ export config=${config:-${PARMevs}/evs_config/${COMPONENT}/config.${NET}.prod.${
 if [ "${RUN}" == "headline" ]; then
     ${HOMEevs}/scripts/${STEP}/${COMPONENT}/exevs_${STEP}_${MODELNAME}_${RUN}.sh
 else
-    ${HOMEevs}/scripts/${STEP}/${COMPONENT}/exevs_${STEP}_${MODELNAME}_${VERIF_CASE}.sh
+# Using double brackets with || is safer, faster, and standard in modern scripting
+    if [[ "${DATA_TYPE}" == "omdctm" || "${DATA_TYPE}" == "ops" || "${DATA_TYPE}" == "hourly_r2o" || "${DATA_TYPE}" == "daily_r2o" || "${DATA_TYPE}" == "hourly_aod_r2o" ]]; then
+        ## ${HOMEevs}/scripts/${STEP}/${COMPONENT}/exevs_${STEP}_${MODELNAME}_${VERIF_CASE}_${DATA_TYPE}.sh
+        ${HOMEevs}/scripts/${STEP}/${COMPONENT}/exevs_${STEP}_${MODELNAME}_${VERIF_CASE}_dev_support.sh
+    else
+        ${HOMEevs}/scripts/${STEP}/${COMPONENT}/exevs_${STEP}_${MODELNAME}_${VERIF_CASE}.sh
+    fi
 fi
 export err=$?; err_chk
 

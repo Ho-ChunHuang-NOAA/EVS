@@ -353,11 +353,13 @@ class ValidHourAverage:
                 right_logo_img_array, right_logo_xpixel_loc,
                 right_logo_ypixel_loc, zorder=1, alpha=right_logo_alpha
             )
-        if self.plot_info_dict['EVAL_DATA_TYPE'] in [ "hourly", "daily", "hourly_aod" ]:
+        if self.plot_info_dict['EVAL_DATA_TYPE'] in [ "hourly_r2o", "daily_r2o", "hourly_aod_r2o" ]:
             model_plot_settings_dict = plot_specs_vha.get_model_plot_settings_aqm_eval()
-        elif self.plot_info_dict['EVAL_DATA_TYPE'] in [ "omdaqm" ]:
-            model_plot_settings_dict = plot_specs_vha.get_model_plot_settings_omdaqm()
-        else
+        elif self.plot_info_dict['EVAL_DATA_TYPE'] in [ "omdctm" ]:
+            model_plot_settings_dict = plot_specs_vha.get_model_plot_settings_omdctm()
+        elif self.plot_info_dict['EVAL_DATA_TYPE'] in [ "ops" ]:
+            model_plot_settings_dict = plot_specs_vha.get_model_plot_settings_ops()
+        else:
             model_plot_settings_dict = plot_specs_vha.get_model_plot_settings()
         model_idx_list = (
             valid_hours_avg_df.index.get_level_values(0).unique().tolist()
