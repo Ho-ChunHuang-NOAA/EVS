@@ -291,9 +291,9 @@ class TimeSeriesFhrMean:
             )
         if self.plot_info_dict['EVAL_DATA_TYPE'] in [ "hourly_r2o", "daily_r2o", "hourly_aod_r2o" ]:
             model_plot_settings_dict = plot_specs_ts.get_model_plot_settings_aqm_eval()
-        elif self.plot_info_dict['EVAL_DATA_TYPE'] in [ "omdctm" ]:
+        elif self.plot_info_dict['EVAL_DATA_TYPE'] in [ "hourly_omdctm" ]:
             model_plot_settings_dict = plot_specs_ts.get_model_plot_settings_omdctm()
-        elif self.plot_info_dict['EVAL_DATA_TYPE'] in [ "ops" ]:
+        elif self.plot_info_dict['EVAL_DATA_TYPE'] in [ "hourly_ops" ]:
             model_plot_settings_dict = plot_specs_ts.get_model_plot_settings_ops()
         else:
             model_plot_settings_dict = plot_specs_ts.get_model_plot_settings()

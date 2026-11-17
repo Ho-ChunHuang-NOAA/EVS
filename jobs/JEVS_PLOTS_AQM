@@ -92,7 +92,7 @@ if [ "${RUN}" == "headline" ]; then
     ${HOMEevs}/scripts/${STEP}/${COMPONENT}/exevs_${STEP}_${MODELNAME}_${RUN}.sh
 else
 # Using double brackets with || is safer, faster, and standard in modern scripting
-    if [[ "${DATA_TYPE}" == "omdctm" || "${DATA_TYPE}" == "ops" || "${DATA_TYPE}" == "hourly_r2o" || "${DATA_TYPE}" == "daily_r2o" || "${DATA_TYPE}" == "hourly_aod_r2o" ]]; then
+    if [[ "${DATA_TYPE}" == "hourly_omdctm" || "${DATA_TYPE}" == "hourly_ops" || "${DATA_TYPE}" == "hourly_r2o" || "${DATA_TYPE}" == "daily_r2o" || "${DATA_TYPE}" == "hourly_aod_r2o" ]]; then
         ${HOMEevs}/scripts/${STEP}/${COMPONENT}/exevs_${STEP}_${MODELNAME}_${VERIF_CASE}_dev_support.sh
     else
         ${HOMEevs}/scripts/${STEP}/${COMPONENT}/exevs_${STEP}_${MODELNAME}_${VERIF_CASE}.sh
